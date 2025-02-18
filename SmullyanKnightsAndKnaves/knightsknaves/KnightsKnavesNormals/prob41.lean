@@ -37,7 +37,6 @@ example
 -- Prove that either one of them is telling the truth but is not a 
 --knight, or one of them is lying but is not a knave. 
 -- detail which combination of left right corresponds to what, this oculd be useful from a teaching/explaining perspective
-  #check trans
   have BKKn :B ∈ Knight → B∉ Knight := by 
     
     trans
@@ -46,7 +45,7 @@ example
     --intro Bknight
     --exact  stAn (stB Bknight)
   -- this gives us AnKnight
-  have AKKn := Implies.trans stA stB
+  have AKKn :=  stB ∘ stA
   have AnKnight :  A ∉ Knight := by 
     intro AKnight
     have AKnave := AKKn AKnight

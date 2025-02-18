@@ -1,0 +1,116 @@
+advantages of current set theoretic formalization:
+not do any weird things behind the scenes, show the logical and set theoretic expressions which the user would be used to by now.
+
+using inductive types or sum types:
+big disadvantage: goes against all the previous build up... remember that the game started with knights and knaves having set theoretic and logic formalization then backtracking...
+- advantage: maybe as an interesting side project formalization
+
+inductive Xor'' (P Q : Prop) : Prop
+| introL (p : P) (np : ¬Q) 
+| introR (q : Q) (nq : ¬P) 
+
+  -- maybe do Knights and Knaves thing as inductive type...
+  /-
+  inhabitant
+  | Knight
+  | Knave
+  -/
+
+--variable (Inhabitant : Type)
+--#check (Sum Inhabitant Inhabitant)
+--variable (Knight Knave : Type)
+--variable (A : Sum Knight Knave)
+--inductive A where
+--| Knight
+--| Knave
+
+-- Define a sum type that can be either an integer or a boolean
+--inductive Inhabitant
+--| int 
+--| bool 
+--variable (B : Knight)
+--example : ( Sum.inl A ∈ Knight) := by
+--  cases A 
+  
+--example : 2=2 := by sorry
+--variable (Knight: Type) (Knave : Type)
+--def Inhabitant := (Sum Knight Knave)
+--#check Inhabitant
+--example (A : Inhabitant Knight Knave) : 2=2  := sorry
+
+/-
+inductive Weekday where
+  | sunday : Weekday
+  | monday : Weekday
+  | tuesday : Weekday
+  | wednesday : Weekday
+  | thursday : Weekday
+  | friday : Weekday
+  | saturday : Weekday
+inductive Inhabitant where 
+| Knight'
+| Knave'
+
+#check Inhabitant.Knave'
+#check Inhabitant.Knight'
+example (A : Inhabitant) : 2=2 :=  
+  match A with 
+  | Knight' => sorry
+  | Knave' => sorry
+-/
+
+
+
+
+
+-------------------------------
+inductive Person | knight : Person | knave : Person | normal --| dontknow : Person 
+open Person 
+--def A : Person := Person.knight
+--def B := Person
+--def C := Person
+--#check A
+/-
+disadvantages of using inductive types,  
+
+-/
+def isKnight : Person → Prop | knight => true | knave => false | normal => false 
+def isKnave : Person → Prop | knight => false | knave => true | normal => false 
+def isNormal : Person → Prop | knight  => false | knave  => false | normal  => true 
+
+    
+-- evalutes to whether stA true or not
+-- any person here not just A
+def statementA : Person → Prop | p  => match p with | knight => isNormal knight | knave =>(isNormal knave) | normal => true 
+--def statementAmod := (isKnight A) →  (isNormal A)
+def statmentB: Person  → Prop | p => match p with | knight => statementA knight | knave => ¬ (statementA knave)|normal => false -- here we don't know, B being normal we don't know if A's st is true or false|--normal => statementA normal
+def statmentC: Person  → Prop | p => match p with | knight => ¬ (isNormal knight ) | knave => ¬ (isNormal knave) | normal => true
+
+-- not clear from statementA what the actual statement of A is...
+example  (A B C : Person) (hA : A = knight) (hB : B = knight)  : 2=2 := by 
+  #check statementA 
+  --#print statementA
+
+  have stAatA:= statementA 
+  -- can't see the statement
+  -- not self contained, not easy to reuse
+  -- would have to make a whole list of definitions to the user which would be very annoying, the user wont memorize what everything means and will refer to that list constantly, normally the user would just look at the proof state and know
+  unfold statementA at stAatA
+  have stAatB:= statementA B
+   
+  rfl 
+example (A : Person ) ( h : A = normal): isNormal A := 
+  by 
+  rw [h]
+  unfold isNormal
+  rfl
+
+--def solvev : Person  →  Person → Person  → Prop | A |  B|  C => (isKnight A ∧ statementA A) ∧ (isKnight B ∧ statmentB B) ∧ (isKnight C ∧ statmentC C)
+--def solvevmod (A B C : Person):  Prop := (isKnight A ∧ statementA A) ∧ (isKnight B ∧ statmentB B) ∧ (isKnight C ∧ statmentC C)
+--def tester : List (Person  × Person ×  Person):=[(knight, knave, normal),(knight, normal, knave),(knave, normal, knight),(normal,knight,knave),(normal,knave,knight),(knight,knight,knight),(knave,knave,knave),(normal,normal,normal)]
+--
+--#check List.permutations [normal,knave,knight]
+---- not really showing the solution or reasoning, relying on lean to do it...
+---- try all cases and subtitute
+--def solution:= findSol(Person ×  Person ×  Person):=testpermutation.find(λ p, solve p.fst p.snd p.snd)
+

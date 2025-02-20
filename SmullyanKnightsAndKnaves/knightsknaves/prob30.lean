@@ -20,7 +20,6 @@ example
   {
   simp at stAn
 
-  -- use simp to simplify stA
   --cases h1
   --· have cont := stA.mp h_1
   --  cases cont
@@ -50,20 +49,13 @@ doing the manipulations instead of letting simp do all the work
   have TwoPlusTwo : 2+2 ≠ 5 := by 
     intro
     contradiction
-
-  -- manipulate stA and close the goal
-  /-
+  -- manipulate stAn and close the goal
   have TwoPlusTwoFalse := eq_false TwoPlusTwo
   rw [TwoPlusTwoFalse] at stA
   rw [or_false] at stA
   exact IamKnave h h1 stA
-  -/
-
-  -- manipulate stAn and close the goal
-  have TwoPlusTwoFalse := eq_false TwoPlusTwo
-  rw [TwoPlusTwoFalse] at stAn
-  rw [or_false] at stAn
-  exact iff_not_self stAn
+  --rw [TwoPlusTwoFalse] at stAn
+  --exact iff_not_self stAn
 }
 
 example

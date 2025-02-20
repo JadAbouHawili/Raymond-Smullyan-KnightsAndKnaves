@@ -141,7 +141,6 @@ example
 --  else 
 --    sorry
 --
---
 --  /-
 --  cases Tracy
 --    · cases Oberon
@@ -163,8 +162,6 @@ example
 --      · sorry
 --      sorry
 --      -/
---  -- and show the goal ... 
-----exists(λ p,match p with | Tracy =>knave|Oberon=>knave | Wendy => knight ),split { refl}, split, { refl }, { refl } 
 
 ------------------
 -- inverse direction is obvious...

@@ -79,17 +79,17 @@ The `*` location refers to all hypotheses and the goal.
 ***
 *import Init.Tactics*
 -/
-macro "knight_to_knave" t1:Lean.Parser.Tactic.locationWildcard : tactic => 
+macro "knight_to_knave" "at" t1:Lean.Parser.Tactic.locationWildcard : tactic =>
 do`(tactic| simp [isKnight_notisKnaveIff] at $t1)
 
-macro "knight_to_knave" t1:Lean.Parser.Tactic.locationHyp : tactic => 
+macro "knight_to_knave" "at" t1:Lean.Parser.Tactic.locationHyp : tactic => 
 do`(tactic| simp [isKnight_notisKnaveIff] at $t1)
 
 
-macro "knave_to_knight" t1:Lean.Parser.Tactic.locationWildcard : tactic => 
+macro "knave_to_knight" "at" t1:Lean.Parser.Tactic.locationWildcard : tactic => 
 do`(tactic| simp [isKnave_notisKnightIff] at $t1)
 
-macro "knave_to_knight" t1:Lean.Parser.Tactic.locationHyp : tactic => 
+macro "knave_to_knight" "at" t1:Lean.Parser.Tactic.locationHyp : tactic =>
 do`(tactic| simp [isKnave_notisKnightIff] at $t1)
 
 -- tell the user to use this instead of explaining stuff... this custom tactic hides not_isKnight_and_isKnave from the user and makes it so that the user doesn't need to interface with that directly.
@@ -179,3 +179,23 @@ theorem dsl_iamknave {A : Islander} (hAKn : A said A.isKnave): False := by
   · have hnA := knave_said hAKn hnA
     contradiction
 
+
+
+inductive Weekday where
+  | sunday
+  | monday
+  | tuesday
+  | wednesday
+  | thursday
+  | friday
+  | saturday
+open Weekday
+def numberOfDay (d : Weekday) : Nat :=
+match d with
+  | sunday    => 1
+  | monday    => 2
+  | tuesday   => 3
+  | wednesday => 4
+  | thursday  => 5
+  | friday    => 6
+  | saturday  => 7

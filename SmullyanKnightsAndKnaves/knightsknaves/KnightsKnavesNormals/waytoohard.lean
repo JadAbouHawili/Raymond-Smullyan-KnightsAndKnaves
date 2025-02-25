@@ -18,6 +18,7 @@ example
 {atleastKnight : A.isKnight or B.isKnight or C.isKnight}
 {atleastKnave : A.isKnave or B.isKnave or C.isKnave}
 : A.isKnave and B.isKnave and C.isKnight := by 
+  knight_to_knave at *
 
   have AKnave : A.isKnave 
   apply notisKnight_isKnave

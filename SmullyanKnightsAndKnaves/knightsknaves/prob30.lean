@@ -2,8 +2,9 @@ import SmullyanKnightsAndKnaves.knightsknaves
 
 /-
 Problem 30:
-Suppose A says, "Either I am a knave or else two plus two 
+Suppose A says, "Either I am a knave or else two plus two
 equals five." What would you conclude?
+
 -/
 example
 {Inhabitant : Type}

@@ -2,17 +2,6 @@
 import Mathlib.Tactic.ApplyAt
 import Mathlib.Tactic.ApplyFun
 import Lean.Parser.Tactic
-/-
-Diagnostics:
-1. application type mismatch
-     t1.raw
-   argument
-     t1
-   has type
-     Lean.TSyntax `term : Type
-   but is expected to have type
-     Lean.TSyntax [`Lean.Parser.Tactic.locationWildcard, `Lean.Parser.Tactic.locationHyp] : Type
--/
 
 -- hide all this from the user
 
@@ -69,14 +58,6 @@ section tactics
 
 macro "knight_or_knave" t1:term "with" t2:rcasesPat t3:rcasesPat : tactic => do`(tactic| obtain ($t2 | $t3) := isKnight_or_isKnave $t1)
 
-/-
-Lean.Parser.Tactic.locationWildcard : Lean.ParserDescr
-```
-***
-The `*` location refers to all hypotheses and the goal. 
-***
-*import Init.Tactics*
--/
 -- *
 macro "knight_to_knave" "at" t1:Lean.Parser.Tactic.locationWildcard : tactic =>
 do`(tactic| simp [isKnight_notisKnaveIff] at $t1)

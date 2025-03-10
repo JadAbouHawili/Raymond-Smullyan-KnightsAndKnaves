@@ -1,5 +1,12 @@
 
 import SmullyanKnightsAndKnaves.knightsknaves
+
+/-
+This can be done in other provers more 'naturally'
+https://www.youtube.com/watch?v=oEAa2pQKqQU
+https://summerofgodel.blogspot.com/2019/04/table-of-contents-for-series-of-posts.html?
+
+-/
 example
   {Inhabitant : Type}
   {A B C : Inhabitant}
@@ -13,9 +20,11 @@ example
 (stC : C ∈ Knight ↔ B ∈ Knave)
  : B ∈ Knave ∧ C ∈ Knight := by{
 -- solving it the prolog way
+  have AOr := h1
   rcases h1 with h_1|h_2
   · cases h2
     · cases h3
+      simp [*] at *
       · tauto
       · have := inleft_notinright h h_1 
         tauto
@@ -27,7 +36,10 @@ example
     · rcases h3 with h_2|h_1
       · tauto
       · have := inright_notinleft h h_1 
-        tauto
+        have := stB.mp h_11
+        exfalso
+        exact IamKnave h AOr this
+        --tauto
 
     · cases h3 
       · tauto
@@ -50,33 +62,23 @@ example
   (stnx : x ∈ Knave → ¬ ( (x ∈ Knight ∧  y ∈ Knave)
                     ∨ (x ∈ Knave ∧ y ∈ Knight)
                     ∨ (x ∈ Knave ∧ y ∈ Knave) ) )
---goal
   : x ∈ Knight ∧ y ∈ Knave:= by
   {
  --  show_goals
-   cases h1  
+   rcases h1 with h_1|h_1 
 
-   · cases h2
+   · rcases h2 with h_2|h_2
 
-     --cases h2
      · have statement:= stx h_1.left 
        tauto
      · tauto
-      --exact ⟨h_1.left, h_2.left⟩ 
 
    · cases h2 
      · have statement := stnx h_1.left 
        tauto
-       --have cont : x ∈ Knave ∧ y ∈ Knight ∨ x ∈ Knave ∧ y ∈ Knave := by exact Or.inl (And.intro h_1.left h_2.left)
-       --have cont2 :  x ∈ Knight ∧ y ∈ Knave ∨ x ∈ Knave ∧ y ∈ Knight ∨ x ∈ Knave ∧ y ∈ Knave := Or.inr cont
-       --contradiction
 
      · 
        have statement := stnx h_1.left 
        tauto
-       --have cont : (x ∈ Knight ∧ y ∈ Knave ∨ x ∈ Knave ∧ y ∈ Knight) ∨ x ∈ Knave ∧ y ∈ Knave := Or.inr (And.intro h_1.left h_2.left)
-       --rw [or_assoc] at cont
-       ----have := or_assoc.1 cont
-       --contradiction
   }
 

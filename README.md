@@ -30,9 +30,3 @@ There are other provers that might be more suited for this however.
 You can look into:
 - SMT solvers
 - [Prolog](https://www.youtube.com/watch?v=oEAa2pQKqQU)
-
-# Formalization
-Despite the different setups in lean, formalization adheres to the same ideas.
-
-(When the server updates)
-You can find an explanation of every approach in the introduction of the respective world.

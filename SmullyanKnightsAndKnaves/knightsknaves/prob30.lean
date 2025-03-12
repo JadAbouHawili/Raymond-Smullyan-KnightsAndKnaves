@@ -1,10 +1,10 @@
 import SmullyanKnightsAndKnaves.knightsknaves
+import SmullyanKnightsAndKnaves.dsl_knights_knaves
 
 /-
 Problem 30:
 Suppose A says, "Either I am a knave or else two plus two
 equals five." What would you conclude?
-
 -/
 example
 {Inhabitant : Type}
@@ -19,16 +19,9 @@ example
   :False  := by
 
   {
-  simp at stAn
-
-  --cases h1
-  --· have cont := stA.mp h_1
-  --  cases cont
-  --  · exact disjoint h h_1 h_2
-  --  · contradiction
-  --· have : A ∈ Knave ∨ 2 + 2=5 := by left ; assumption
-  --  have nor := stAn.mp h_1 
-  --  contradiction
+  -- simp at stAn , closes the goal
+  simp at stA
+  exact IamKnave h h1 stA
 
   }
 

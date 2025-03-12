@@ -1,6 +1,7 @@
 -- file which contains knights and knaves problems we made up.
 
 import SmullyanKnightsAndKnaves.knightsknaves
+import SmullyanKnightsAndKnaves.dsl_knights_knaves
 /-
 "
 A : All of us are knights
@@ -9,6 +10,17 @@ B: Exactly one of us is a knave
 -/
 variable {Inhabitant : Type}
 variable { A B : Inhabitant}
+
+#check mem_of_eq_singleton
+#check Set.eq_singleton_iff_unique_mem
+#check Finset.eq_singleton_iff_unique_mem
+example {K : Type} {S : Set K}
+{A : K}
+{h : {A} = S}
+: A ∈ S := by
+  exact (Set.eq_singleton_iff_unique_mem.mp h.symm).left
+  --rw [←h]
+  --exact rfl
 
 example
   {inst : DecidableEq Inhabitant}
@@ -27,6 +39,7 @@ example
     · have oneknave := stB.mp BKnight 
       rcases oneknave with KA|KB
       · exact mem_of_eq_singleton KA
+        -- is this in mathlib, if so should it be?
       · #check mem_of_eq_singleton  
         have BKnave := mem_of_eq_singleton KB
         exfalso
@@ -53,28 +66,6 @@ example
 -- given a proof of p, goal is changed to ¬p
 --absurd
 
--- instead of having h1 : A ∈ Knight ∨ A ∈ Knave clogging the assumption, just have a tactic person_cases A that does it(uses obtain)
-
--- A says I am a knave or B is a knave
-example {inst : DecidableEq Inhabitant}
-  {Knight : Finset Inhabitant} {Knave : Finset Inhabitant}
---{all2 : ∀ (x : Inhabitant), x = A ∨ x = B}
---{Or : ∀(x :Inhabitant), x ∈ Knight ∨ x ∈ Knave}
-{stA : A ∈ Knight ↔ (A ∈ Knave ∨ B ∈ Knave) }
-{stAn : A ∈ Knave ↔ ¬ (A ∈ Knave ∨ B ∈ Knave) }
- : 2=2 := by sorry
-
-
-
-/-
-formalization
-{stA : A ∈ Knight ↔ (B ∈ Knight) }
-{stAn : A ∈ Knave ↔ ¬ (B ∈ Knight) }
-
-here, stAn is redundant. theres a theorem that would you this by doing not both sides of iff of stA.
-
-put here so user doesn't have to do that
--/
 /-
 A says B is a knight
 B says all of us are knights
@@ -108,3 +99,16 @@ example
     rw [notinleft_inrightIff (Or B) h] at BnKnight
     exact And.intro AKnave (And.intro BnKnight CKnave)
 
+
+
+variable {A B C : Islander}
+def allKnights := A.isKnight ∧ B.isKnight ∧ C.isKnight
+def allKnaves := A.isKnave ∧ B.isKnave ∧ C.isKnave
+
+
+/-
+"
+A : All of us are knights
+B: Exactly one of us is a knave
+"
+-/

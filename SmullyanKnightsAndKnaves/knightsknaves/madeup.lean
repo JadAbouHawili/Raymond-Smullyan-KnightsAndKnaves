@@ -39,7 +39,6 @@ example
     · have oneknave := stB.mp BKnight 
       rcases oneknave with KA|KB
       · exact mem_of_eq_singleton KA
-        -- is this in mathlib, if so should it be?
       · #check mem_of_eq_singleton  
         have BKnave := mem_of_eq_singleton KB
         exfalso

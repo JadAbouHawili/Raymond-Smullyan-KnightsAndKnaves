@@ -1,5 +1,26 @@
 import SmullyanKnightsAndKnaves.knightsknaves
+import SmullyanKnightsAndKnaves.dsl_knights_knaves
 
+import Mathlib.Tactic.Have
+import SmullyanKnightsAndKnaves.settheory
+  #check Classical.not_and_iff_or_not_not
+  #check not_and
+  #check or_iff_right_of_imp
+  #check not_and_of_not_or_not
+  #check not_or
+example {P Q : Prop} : (P ↔ (P ↔ Q)) ↔ (P ↔ Q) := by 
+  have : P ↔ (P ↔ Q) := sorry
+  have : P ↔ Q := by
+      constructor
+      intro hP 
+      simp [hP] at this 
+      assumption
+
+      intro hQ 
+      simp [hQ] at this
+      sorry
+      -- so they are not the same...
+  sorry
 /-
 wolfram generated
 A ⇔ (¬C ∧ B)
@@ -7,17 +28,6 @@ B ⇔ (C ⇔ A)
 A: C is a knave and B is a knight.
 B: C is a knight, if and only if A is a knight.
 -/
-import Mathlib.Tactic.Have
-import SmullyanKnightsAndKnaves.settheory
-example {P Q : Prop} (h : ¬(P ∧ Q)) : ¬P ∨ ¬Q := by 
-  exact?
-
-
-  #check Classical.not_and_iff_or_not_not
-  #check not_and
-  #check or_iff_right_of_imp
-  #check not_and_of_not_or_not
-  #check not_or
 example {A B C : Prop}
 {stA : A ↔ (¬C ∧ B)}
 {stAn : ¬A ↔ ¬(¬C ∧ B)}
@@ -62,52 +72,21 @@ example {A B C : Prop}
 #check iff_iff_eq
 #check iff_true_right
 #check Int.sign_eq_neg_one_iff_neg
---https://philosophy.hku.hk/think/logic/knights.php
--- translation of this puzzle is tricky
---Here is your puzzle:
---
---You have met a group of 3 islanders. Their names are Xavier, Gary, and Alice.
---    Gary says: Alice is my type.   Alice says: Gary never lies.    Gary says: Xavier never lies.
---example
---{Gary Xavier Alice : Prop}
---{stG : Gary ↔ Alice}
---{stA : Alice ↔ Gary}
---{stG2 : Gary ↔ Xavier}
 
---solution:    A knight or a knave will say they are the same type as a knight. So when Gary says they are the same type as Alice, we know that Alice is a knight.
---    All islanders will call one of their same kind a knight. So when Alice says that Gary is a knight, we know that Gary and Alice are the same type. Since Alice is a knight, then Gary is a knight.
---    All islanders will call one of their same kind a knight. So when Gary says that Xavier is a knight, we know that Xavier and Gary are the same type. Since Gary is a knight, then Xavier is a knight.
---
---For these reasons we know there were no knaves , and the knights were Alice, Xavier, and Gary.
-example
-  {Inhabitant : Type}
-  {Gary Alice Xavier: Inhabitant}
-  {inst : DecidableEq Inhabitant}
-  {Knight : Finset Inhabitant} {Knave : Finset Inhabitant}
-{h : Knight ∩ Knave = ∅ }
-{Or : ∀(x :Inhabitant), x ∈ Knight ∨ x ∈ Knave}
-{stG1 : Gary ∈ Knight  ↔ (Alice ∈ Knight) }
-{stGn1 : Gary ∈ Knave  ↔ (Alice ∈ Knight) }
-{stG2 : Gary ∈ Knight  ↔ (Xavier ∈ Knight) }
-{stGn2 : Gary ∈ Knave  ↔ (Xavier ∈ Knave) }
-{stA : Alice ∈ Knight ↔ (Gary ∈ Knight)}
-{stAn : Alice ∈ Knave ↔ (Gary ∈ Knave)} : Gary ∈ Knight ∧ Alice ∈ Knight ∧ Xavier ∈ Knight := by{
-  rcases Or Gary with GaryKnight|GaryKnave
-  · have AliceKnight:= stG1.mp GaryKnight
-    have XavierKnight := stG2.mp GaryKnight
-    constructor
-    assumption
-    constructor
-    assumption
-    assumption
+theorem PQiff{P Q : Prop} (hP : P) ( hQ : Q )
+: ¬P ↔ ¬Q := by 
+  #check iff_false_right
+  --rw [(@not_not P).symm] at hP
+  --exact (iff_false_right fun a ↦ a hQ).mpr fun a ↦ hP a
+  rw [not_iff_not]
+  #check iff_of_true
+  #check iff_of_false
+  --exact iff_of_true hP hQ 
+  exact (iff_true_right hQ).mpr hP
+  --exact?
 
-  · have AliceKnight := stGn1.mp GaryKnave
-    have GaryKnight := stA.mp AliceKnight
-    exfalso
-    exact disjoint h GaryKnight GaryKnave
-}
+    #check not_iff_not
 
--- tough translation
 --https://philosophy.hku.hk/think/logic/knights.php
 --Here is your puzzle:
 --
@@ -119,9 +98,10 @@ example
 --    All islanders will call one of their same kind a knight. So when Ira says that Robert is a knight, we know that Robert and Ira are the same type. Since Ira is a knight, then Robert is a knight.
 --
 --For these reasons we know there were no knaves , and the knights were Robert and Ira.
---example
---{Robert Ira : Prop}
+
+#check iff_not_self
 example
+  {Inhabitant : Type}
   {Robert Ira: Inhabitant}
   {Knight : Set Inhabitant} 
   {Knave : Set Inhabitant}
@@ -132,7 +112,7 @@ example
   {stI : Ira ∈ Knight ↔ Robert ∈ Knight}
   {stIn : Ira ∈ Knave ↔ Robert ∈ Knave} : Robert ∈ Knight ∧ Ira ∈ Knight := by 
     have IraKnight : Ira ∈ Knight := by 
-      cases Or Robert
+      rcases Or Robert with h_1|h_1
       · exact stR.mp h_1
       · exact stRn.mp h_1
     constructor
@@ -192,38 +172,23 @@ example {A B C : Prop}
   -- do cases then done.. ez, but similar to other levels. want to reason with implications and not or,and expressions.
   sorry
 
--- cant solve idk why
+/-
+sat( (A =:= (C + ~B))  * ( B =:= (A =:= ~C) )  ), labeling([A,B,C]) .
+
+101
+A = C, C = 1,
+B = 0.
+
+-/
 example {A B C : Prop}
 {stA : A ↔ (¬C → ¬B)}
 {stAn : ¬A ↔ ¬(¬C → ¬B)}
 {stB : B ↔ (A ↔ ¬C)}
 {stBn : ¬B ↔ ¬(A ↔ ¬C)}
-: False := by 
-  have hB : B := by 
-    by_contra nB
-    have AsameC := stBn.mp nB 
-    rw [not_iff] at AsameC 
-    have stAn2 := stAn
-    rw [AsameC] at stAn2
-    rw [not_imp] at stAn2
-    simp at stAn2
-
-    have hC := Function.mt stAn2 nB
-    simp at hC 
-    have hA := (not_iff_not.mp AsameC).mpr hC 
-    simp [hA,nB,hC] at * 
+: A ∧ ¬B ∧ C := by 
+     
     sorry
-  have nB : ¬B := by 
-    intro hB
-    have AdiffC := stB.mp hB 
-    rw [AdiffC] at stA
-    have := stA.mp 
-    #check and_imp
-    rw [and_imp.symm] at this
-    simp at this
-    have := (Function.mt this)
-    simp at this
-    have hC := this hB
 
-    sorry
-  sorry
+#check not_imp
+#check not_iff_not
+#check and_imp

@@ -1,5 +1,6 @@
 import SmullyanKnightsAndKnaves.knightsknaves
 
+
 /-
 Problem 29:
 Suppose A says, "Either I am a knave or B is a knight." 

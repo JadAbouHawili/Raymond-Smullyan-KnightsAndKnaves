@@ -1,4 +1,5 @@
 import SmullyanKnightsAndKnaves.knightsknaves
+import SmullyanKnightsAndKnaves.dsl_knights_knaves
 -- https://philosophy.hku.hk/think/logic/knights.php
 --Puzzle #201 out of 382
 --
@@ -71,25 +72,17 @@ example( Joe Bob Ted Zippy Alice Zoey : Prop)
         push_neg at this
         have := this.right
         contradiction
-     
 
-example
-(Joe_stat:Joe  ↔  Joe ∨ ¬ Alice)
-(Bob_stat: Bob  ↔  Zippy)
-(Ted_stat: Ted  ↔ ( Zippy ∧ ¬ Alice))
-(Zippy_stat: Zippy  ↔  Bob)
-(Alice_stat: Alice  ↔  (¬ Zippy ∨ Zoey))
-(Zoey_stat: Zoey  ↔ Joe)
-:(Alice ∧ ¬Ted) := by 
-  sorry
 --You have met a group of 3 islanders. Their names are Oberon, Tracy, and Wendy.
 --
 --    Tracy says: Wendy is untruthful.
 --    Oberon says: Tracy is a knight and I am a knave.
 --    Wendy says: Oberon is a knave.  Solution :     Because Oberon said 'Tracy is a knight and I am a knave,' we know Oberon is not making a true statement. (If it was true, the speaker would be a knight claiming to be a knave, which cannot happen.) Therefore, Oberon is a knave and Tracy is a knave.
 --    All islanders will call a member of the opposite type a knave. So when Tracy says that Wendy is a knave, we know that Wendy and Tracy are opposite types. Since Tracy is a knave, then Wendy is a knight.
+--For these reasons we know the knaves were Tracy and Oberon, and the only knight was Wendy.
 
 example
+  {Inhabitant : Type}
   {Tracy Oberon Wendy: Inhabitant}
   {inst : DecidableEq Inhabitant}
   {Knight : Finset Inhabitant} {Knave : Finset Inhabitant}
@@ -123,7 +116,6 @@ example
 
   }
 
---For these reasons we know the knaves were Tracy and Oberon, and the only knight was Wendy.
 --inductive person: Type | Tracy |Oberon| Wendy open person
 --inductive type: Type|knight|knave open type
 --variable (t:person → type)
@@ -131,41 +123,10 @@ example
 --|Tracy => t Wendy = knave 
 --| Oberon => t Tracy = knight ∧ t Oberon = knave 
 --| Wendy => t Oberon = knave 
---def solution:Prop:= t Tracy =knave ∧ t Oberon=knave ∧ t Wendy =knight 
---example : solution t:= by
---  unfold solution
---  -- take all cases
---  if (t Tracy) 
---  -- cases, but doesn't appear that tracy is a kngiht, cant see that tracy is a knight
---    sorry
---  else 
---    sorry
---
---  /-
---  cases Tracy
---    · cases Oberon
---      · cases Wendy
---        · sorry
---        · sorry
---        sorry
---     · cases Wendy
---       · sorry
---        · sorry
---        sorry
---    · cases Oberon
---     · cases Wendy
---        · sorry
---       · sorry
---       sorry
---      · cases Wendy
---      · sorry
---      · sorry
---      sorry
---      -/
 
 ------------------
 -- inverse direction is obvious...
-example (A : Finset K) (ge1 : A.card ≥ 1) : ∃ a:K, {a} ⊆ A := by 
+example {K : Type} (A : Finset K) (ge1 : A.card ≥ 1) : ∃ a:K, {a} ⊆ A := by 
   --rw [] at ge1 
   --by_contra h
   --push_neg at h
@@ -183,8 +144,8 @@ example (A : Finset K) (ge1 : A.card ≥ 1) : ∃ a:K, {a} ⊆ A := by
   #check gt_of_ge_of_gt
   #check not_iff_not.mpr Finset.card_le_one_iff_subset_singleton
   have := gt_or_eq_of_le ge1
-  cases this
-  · #check Finset.card_le_of_subset 
+  rcases this with h|h
+  · --#check Finset.card_le_of_subset 
     #check Finset.subset_iff_eq_of_card_le
     sorry
   · rw [Finset.card_eq_one] at h
@@ -271,6 +232,8 @@ B: A is a knight and C is a knight.
 C: If A is a knave, then B is a knave.
 -/
 example
+  {Inhabitant : Type}
+  {A B C : Inhabitant}
   {inst : DecidableEq Inhabitant}
   {inst2 : Fintype Inhabitant}
   {Knight : Finset Inhabitant} {Knave : Finset Inhabitant}
@@ -292,8 +255,6 @@ example
 {atleastKn : Knave.card ≥ 1} : A ∈ Normal ∧ B ∈ Knave ∧ C ∈ Knight := by 
   -- B ∉ Knight
   sorry
-
-set_option trace.Meta.Tactic.simp true
 
 #print Xor'
 #check Xor
@@ -317,8 +278,7 @@ set_option trace.Meta.Tactic.simp true
 
 example 
 {K : Type}
-{x y : K}
-  {inst : DecidableEq K}
+{x y : K} {inst : DecidableEq K}
   (Knight : Finset K ) (Knave : Finset K)
   (h : Knight ∩ Knave = ∅ ) (h1 : x ∈ Knight ∨ x ∈ Knave) (h2 : y ∈ Knight ∨ y ∈ Knave) 
 
@@ -336,14 +296,14 @@ example
 
     sorry
 
-example 
+example
+  {K : Type}
+  {x y : K}
   {inst : DecidableEq K}
   (Knight : Finset K ) (Knave : Finset K)
-  (h : Knight ∩ Knave = ∅ ) (h1 : x ∈ Knight ∨ x ∈ Knave) (h2 : y ∈ Knight ∨ y ∈ Knave) 
-
+  (h : Knight ∩ Knave = ∅ ) (h1 : x ∈ Knight ∨ x ∈ Knave) (h2 : y ∈ Knight ∨ y ∈ Knave)
   -- x says y is a knight
   -- y says that x and y are of different type
-  --rules of the game, i.e knights tell the truth but knaves lie
   (stx : x ∈ Knight ↔ y ∈ Knight)
   (sty : y ∈ Knight ↔ x ∈ Knight ∧ y ∈ Knave ∨ x ∈ Knave ∧ y ∈ Knight)
   : x ∈ Knave ∧ y ∈ Knave := by
@@ -358,13 +318,13 @@ example
 
   have this:=h2
 
-  cases h2 
+  rcases h2  with h_1|h_1
   rw [sty] at h_1 
   rw [stx] at h_1
   nth_rw 1 [stx.symm] at h_1
   rw [inright_notinleftIff h1 h]  at h_1
   rw [inright_notinleftIff this h]  at h_1
-  rcases h_1 with ⟨a,b⟩|⟨a',b'⟩  
+  rcases h_1 with ⟨a,b⟩|⟨a',b'⟩
   contradiction
   contradiction
 

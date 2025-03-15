@@ -87,37 +87,6 @@ theorem PQiff{P Q : Prop} (hP : P) ( hQ : Q )
 
     #check not_iff_not
 
---https://philosophy.hku.hk/think/logic/knights.php
---Here is your puzzle:
---
---You have met a group of 2 islanders. Their names are Robert and Ira.
---
---    Robert says: Ira is my type.
---    Ira says: Robert is truthful.
---solution:     A knight or a knave will say they are the same type as a knight. So when Robert says they are the same type as Ira, we know that Ira is a knight.
---    All islanders will call one of their same kind a knight. So when Ira says that Robert is a knight, we know that Robert and Ira are the same type. Since Ira is a knight, then Robert is a knight.
---
---For these reasons we know there were no knaves , and the knights were Robert and Ira.
-
-#check iff_not_self
-example
-  {Inhabitant : Type}
-  {Robert Ira: Inhabitant}
-  {Knight : Set Inhabitant} 
-  {Knave : Set Inhabitant}
-  {h : Knight ∩ Knave = ∅ }
-  {Or : ∀(x :Inhabitant), x ∈ Knight ∨ x ∈ Knave}
-  {stR : Robert ∈ Knight ↔ Ira ∈ Knight}
-  {stRn : Robert ∈ Knave ↔ Ira ∈ Knight}
-  {stI : Ira ∈ Knight ↔ Robert ∈ Knight}
-  {stIn : Ira ∈ Knave ↔ Robert ∈ Knave} : Robert ∈ Knight ∧ Ira ∈ Knight := by 
-    have IraKnight : Ira ∈ Knight := by 
-      rcases Or Robert with h_1|h_1
-      · exact stR.mp h_1
-      · exact stRn.mp h_1
-    constructor
-    · exact stI.mp IraKnight
-    · assumption
 
 
 --A ⇔ (¬C  ¬B)
@@ -135,7 +104,7 @@ example {A B C : Prop}
   have hA : A := by 
     by_contra nA
     have CB := stAn.mp nA 
-    simp [not_imp] at CB 
+    simp [_root_.not_imp] at CB 
     have cont := stB.mp CB.right
     simp [nA] at cont
     exact CB.left cont
@@ -160,7 +129,10 @@ example {A B C : Prop}
     intro ⟨ACiff,nC⟩
     rw [ACiff] at nC
     assumption
-  have := Implies.trans stA.mp this
+  have : A → ¬A  :=  by
+    trans 
+    exact stA.mp 
+    exact this
   #check imp_not_self
   have nA : ¬A := by
    intro a 
@@ -180,13 +152,36 @@ A = C, C = 1,
 B = 0.
 
 -/
+
+example {P Q : Prop}
+(h : ¬(P ↔ Q))
+: P ↔ ¬Q := by  
+  #check not_iff
+  --exact Iff.symm ((fun {a b} ↦ Classical.not_iff.mp) fun a ↦ h (id (Iff.symm a)))
 example {A B C : Prop}
 {stA : A ↔ (¬C → ¬B)}
 {stAn : ¬A ↔ ¬(¬C → ¬B)}
 {stB : B ↔ (A ↔ ¬C)}
 {stBn : ¬B ↔ ¬(A ↔ ¬C)}
 : A ∧ ¬B ∧ C := by 
-     
+    #check imp_iff_or_not      
+    simp [imp_iff_or_not] at *
+
+    have hA : A 
+    by_contra nA
+    have BC := stAn.mp nA
+    have AdiffC := stB.mp BC.left
+    have AsameC : A ↔ C := by 
+      exact iff_of_false nA BC.right
+    #check not_iff
+    #check neq_of_not_iff
+    simp [not_iff.symm] at AdiffC
+    rw [not_iff_not.symm] at AdiffC
+    simp at AdiffC
+    have notAsameC := not_iff.mpr AdiffC
+    contradiction
+
+    -- have A ↔ ¬C as AdiffC , having an AsameC as well and running contradiction would close the goal....
     sorry
 
 #check not_imp

@@ -1,4 +1,6 @@
 import SmullyanKnightsAndKnaves.knightsknaves
+import SmullyanKnightsAndKnaves.dsl_knights_knaves
+
 example
   {Inhabitant : Type}
   {A B C : Inhabitant}

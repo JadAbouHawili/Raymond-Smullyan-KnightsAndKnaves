@@ -75,19 +75,15 @@ example {A B C : Prop}
 
 theorem PQiff{P Q : Prop} (hP : P) ( hQ : Q )
 : ¬P ↔ ¬Q := by 
+  #check iff_of_true
   #check iff_false_right
-  --rw [(@not_not P).symm] at hP
-  --exact (iff_false_right fun a ↦ a hQ).mpr fun a ↦ hP a
-  rw [not_iff_not]
+  #check iff_true_right
   #check iff_of_true
   #check iff_of_false
-  --exact iff_of_true hP hQ 
-  exact (iff_true_right hQ).mpr hP
-  --exact?
 
-    #check not_iff_not
-
-
+  rw [not_iff_not]
+  exact iff_of_true hP hQ 
+  --exact (iff_false_right fun a ↦ a hQ).mpr fun a ↦ a hP
 
 --A ⇔ (¬C  ¬B)
 --B ⇔ (¬A  C)
@@ -153,11 +149,6 @@ B = 0.
 
 -/
 
-example {P Q : Prop}
-(h : ¬(P ↔ Q))
-: P ↔ ¬Q := by  
-  #check not_iff
-  --exact Iff.symm ((fun {a b} ↦ Classical.not_iff.mp) fun a ↦ h (id (Iff.symm a)))
 example {A B C : Prop}
 {stA : A ↔ (¬C → ¬B)}
 {stAn : ¬A ↔ ¬(¬C → ¬B)}

@@ -115,22 +115,6 @@ example
 
 /-
 
-    have : Knight ⊆ {A,B,C} := by 
-      intro x
-      intro xK
-      cases all x
-      · rw [h_1]
-        exact Finset.mem_insert_self A {B, C}
-      · cases h_1
-        · rw [h_2]
-          #check Finset.mem_insert_coe
-          #check Finset.mem_insert_of_mem
-          apply Finset.mem_insert_of_mem
-          exact Finset.mem_insert_self B {C}
-        · rw [h_2] 
-          apply Finset.mem_insert_of_mem
-          apply Finset.mem_insert_of_mem
-          exact Finset.mem_singleton.mpr rfl
 
     -- prove instead ssubset
     #check Finset.ssubset_iff_subset_ne

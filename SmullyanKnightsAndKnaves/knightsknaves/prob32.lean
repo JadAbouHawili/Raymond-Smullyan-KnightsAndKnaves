@@ -1,4 +1,5 @@
 ---- adapat to problems with only 2 inhabitants
+
 --Introduction
 --"
 --Suppose instead, A and B say the following:
@@ -8,8 +9,12 @@
 --"
 --
 import SmullyanKnightsAndKnaves.knightsknaves
+import SmullyanKnightsAndKnaves.dsl_knights_knaves
 
+set_option push_neg.use_distrib true
 
+#check Finset.mem_insert_coe
+#check Finset.mem_insert_of_mem
 variables {Inhabitant : Type}
 {A B C :Inhabitant}
 
@@ -38,7 +43,7 @@ example
   constructor
   exact AKnave
   rcases h2 with BKnight|BKnave
-  ·  
+  ·
     rw [not_or] at stBn
     rw [not_or] at stBn
     by_contra CKnave 
@@ -68,11 +73,85 @@ example
 
   }
 
+def allKnaves {A B C : Islander} := A.isKnave and B.isKnave and C.isKnave
 
-
-
+def exactlyOneIsKnave {A B C : Islander} : Prop := (A.isKnave and B.isKnight and C.isKnight) ∨ (A.isKnight and B.isKnave and C.isKnight) ∨ (A.isKnight and B.isKnight and C.isKnave)
+--  A: All of us are knaves.
+--  B: Exactly one of us is a knave.
+/-
+-/
+open Islander
 example
-  --sets
+{A B C : Islander}
+{stA : A said @allKnaves A B C}
+{stB : B said @exactlyOneIsKnave A B C}
+: A.isKnave and C.isKnight
+:= by
+  have AKnave : ¬A.isKnight
+  intro AKnight
+  have allKnave := knight_said stA AKnight
+  have := allKnave.left
+  contradiction
+
+  have allKnave:= notknight_said stA AKnave
+  knight_or_knave B with BKnight BKnave 
+  have exactlyoneKnave := knight_said stB BKnight
+  unfold exactlyOneIsKnave at exactlyoneKnave
+  simp [AKnave, BKnight] at exactlyoneKnave
+  assumption 
+
+  have notexactlyone := knave_said stB BKnave 
+  unfold exactlyOneIsKnave at notexactlyone 
+  /-
+  Hint
+  exactlyOneIsKnave is the following expression:
+  ```
+  (A.isKnave and B.isKnight and C.isKnight) 
+  ∨ (A.isKnight and B.isKnave and C.isKnight)
+  ∨ (A.isKnight and B.isKnight and C.isKnave)
+
+  ```
+
+  -/
+  --push_neg at notexactlyone
+  --simp [AKnave,BKnave] at notexactlyone 
+  --knight_to_knave at AKnave 
+  --simp [AKnave] at notexactlyone
+  --knave_to_knight at BKnave
+  --simp [BKnave] at notexactlyone
+  --knight_to_knave at BKnave
+
+
+  unfold allKnaves at allKnave 
+  simp [AKnave,BKnave] at allKnave
+  knight_to_knave at AKnave
+  have CKnight := allKnave AKnave
+  constructor
+  assumption
+  knight_to_knave
+  assumption
+
+#check not_eq_singleton_of_not_mem
+
+theorem not_eq_singleton_already_full 
+{K : Type}
+{A B: K}
+--{inst : DecidableEq K}
+{Knave : Finset K}
+(AneB : A ≠ B)
+(AKnave : A ∈ Knave)
+
+: Knave ≠ {B} := by 
+
+        intro knaveB 
+        rw [knaveB] at AKnave
+        #check Finset.mem_singleton
+        rw [Finset.mem_singleton] at AKnave
+        contradiction
+
+#check card_eq_one_iff_singletons
+#check card_eq
+example
   {inst : DecidableEq Inhabitant}
   {Knight : Finset Inhabitant} {Knave : Finset Inhabitant}
 {h : Knight ∩ Knave = ∅ }
@@ -88,9 +167,10 @@ example
 {stAn : A ∈ Knave ↔ ¬ (A ∈ Knave ∧ B ∈ Knave ∧ C ∈ Knave) }
 {stB : B ∈ Knight ↔ Knave = {A} ∨ Knave = {B} ∨ Knave = {C}}
   : A ∈ Knave ∧ C ∈ Knight := by
---  A: All of us are knaves. 
+    have h2' := h2
+--  A: All of us are knaves.
 --  B: Exactly one of us is a knave.
-    have AKnave : A ∈ Knave := by 
+    have AKnave : A ∈ Knave := by
       by_contra AKnight
       have AKnight :=notright_left h1 AKnight
       have := stA.mp AKnight
@@ -100,17 +180,16 @@ example
     assumption
     rcases h2 with BKnight|BKnave
     · have knavesingle := stB.mp BKnight
-      rcases knavesingle with h_1|h_1
-      · by_contra CKnave
-        have CKnave:= notleft_right h3 CKnave
-        #check full_singleton 
-        exact full_singleton h_1 CKnave AneC.symm
-      · rcases h_1 with h_2|h_2
-        · have := not_in_of_singleton h_2 BneC.symm
-          exact notright_left h3 this
-        · #check not_in_of_singleton
-          have := not_in_of_singleton h_2 AneC
-          contradiction
+
+      have knaveneB : Knave ≠ {B} := not_eq_singleton_already_full AneB AKnave
+      have knaveneC : Knave ≠ {C} := not_eq_singleton_already_full AneC AKnave
+      simp [knaveneB, knaveneC] at knavesingle
+      #check ne_of_mem_of_not_mem 
+      #check full_singleton
+      have := not_in_of_singleton knavesingle (by symm ; exact AneC)
+      rw [inleft_notinrightIff h3 h] 
+      assumption
+
     · by_contra CnKnight
       have CKnave := notleft_right h3 CnKnight
       have AKnight := stA.mpr (by constructor ; assumption ; constructor ; assumption ; assumption)
@@ -119,6 +198,7 @@ example
 
 example {K : Type} {A B : Finset K} (h : A⊆B) : A.card ≤ B.card := by 
   exact Finset.card_le_card h
+
 example
   {inst2 : Fintype Inhabitant}
   {inst : DecidableEq Inhabitant}
@@ -143,7 +223,8 @@ example
     by_contra AKnight
     rw [notinright_inleftIff h1 h] at AKnight
     have everyoneknave := stA.mp AKnight  
-    have AKnave: A ∈ Knave := by rw [everyoneknave] ; apply Finset.mem_insert_self
+    have AKnave: A ∈ Knave := by 
+     rw [everyoneknave] ; apply Finset.mem_insert_self
     exact disjoint h AKnight AKnave
 --   Suppose instead, A and B say the following: 
 --A: All of us are knaves. 
@@ -151,25 +232,39 @@ example
 -- saying there is one knight among us has the effect that everyone else is a knave, sounds like a nice level
 --Can it be determined what B is? Can it be determined what 
 --C is? 
--- justify why taking cases of B
   rcases h2 with h_3|h_4
   · have oneknave := stB.mp h_3 
     -- knave already full so from oneknave and AKnave we can conclude Knave = {A}
-    
-    -- think about cardinality
-    #check eq_singleton_card_one 
-    #check Finset.card_eq_one
-    -- make a theorem that with all and Knave={A} ∨ Knave={B} ∨ Knave={C} ↔ ∃ a:Inhabitant , Knave ={a}
-    -- can be made into a theorem
--- replace stB with knave.card=1
-    have :Knave.card =1 := by sorry
-    rw [Finset.card_eq_one] at this 
 
-    have ⟨a,ha⟩ := this
+    -- think about cardinality
+    #check eq_singleton_card_one
+    #check Finset.card_eq_one
+
     -- now do cases all and show that Knave = {A}, so C must be a knight
+    -- make this its own theorem
+    have oneCard : Knave.card = 1 := sorry
+    rw [Finset.card_eq_one] at oneCard
+    have oneknave2 : Knave = {A} or Knave = {B} or Knave = {C} := by
+      have ⟨a,aKnave⟩ := oneCard
+      rcases all a with h_1|h_1
+      rw [h_1] at aKnave
+      left
+      assumption
+
+      rcases h_1 with h_2|h_2
+      rw [h_2] at aKnave 
+      right 
+      left 
+      assumption
+
+      rw [h_2] at aKnave
+      right
+      right
+      assumption
 
 -------
--- the all specifies that any inhabitant is either A,B,C and no one else. this is to anchor the context in which the problem is in. Moreover, we state that they ar enot the same inhabitant(use Lean is that picky). What we get from this is a series of theorems that intuitively hold true but you will not be bothered to prove them before using them........
+-- the all specifies that any inhabitant is either A,B,C and no one else. This is setting the universe. Moreover, we state that they ar enot the same inhabitant. What we get from this is a series of theorems that intuitively hold true.
+    -- make a theorem that with Knave={A} ∨ Knave={B} ∨ Knave={C} ↔ ∃ a:Inhabitant , Knave ={a}
     have : ∃a , Knave ={a} := by
       rcases oneknave with h_1|h_1
       use A
@@ -217,7 +312,7 @@ example
     have knavesubU : Knave ⊆ {A,B,C} := by 
       rw [←U]
       apply Finset.subset_univ
-     
+
     have knavenotall := stAn.mp AKnave
     have CKnight : C ∈ Knight := by 
       by_contra CKnave
@@ -243,7 +338,7 @@ example
         assumption
       contradiction
     exact And.intro AKnave CKnight 
-     /-
+/-
      more complicated solution
     have U: Finset.univ = {A, B, C} := (univ_iff_all inst2 inst).mpr all 
     have knavesubU : Knave ⊆ {A,B,C} := by 

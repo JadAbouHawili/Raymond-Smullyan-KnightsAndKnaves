@@ -1,4 +1,5 @@
 import SmullyanKnightsAndKnaves.knightsknaves
+import SmullyanKnightsAndKnaves.dsl_knights_knaves
 ---- adapt to problems with only 2
 --Introduction 
 --"
@@ -8,6 +9,24 @@ import SmullyanKnightsAndKnaves.knightsknaves
 --B: Exactly one of us is a knight. 
 --What are A, B, C?
 --"
+
+variable {A B C : Islander}
+def allKnaves := A.isKnave ∧ B.isKnave ∧ C.isKnave
+def oneisknight := (A.isKnight ∧ B.isKnave ∧ C.isKnave)  ∨(A.isKnave ∧  B.isKnight ∧ C.isKnave) ∨ (A.isKnave ∧ B.isKnave ∧  C.isKnight)
+open Islander
+example 
+{stA : A said @allKnaves A B C}
+{stB : B said @oneisknight A B C}
+: A.isKnave ∧ B.isKnight ∧ C.isKnave := by 
+  have AKnave : ¬A.isKnight  
+  intro AKnight
+  have allknave := knight_said stA AKnight
+  unfold allKnaves at allknave
+  have AKnave := allknave.left 
+  contradiction
+
+  have notallknave := notknight_said stA AKnave 
+  sorry
 
 variable {Inhabitant : Type}
 variable {A B C : Inhabitant}

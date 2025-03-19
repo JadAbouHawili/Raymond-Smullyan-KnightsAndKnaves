@@ -8,6 +8,9 @@ There are three competing formalizations of knights and knaves.
 The setup for this approach is in `settheory.lean`.
 You can read about this setup and solve problems [here](https://adam.math.hhu.de/#/g/jadabouhawili/knightsandknaves-lean4game/world/KnightsAndKnavesLemmas/level/0)
 
+This approach has many custom theorems(some used to solve puzzles and some not) concerning sets.
+You can forgo these and only have the basic setup.
+
 ## Domain Specific Language(DSL) Approach
 The setup for this approach is in `dsl_knights_knaves.lean`.
 You can read about this setup and solve problems [here](https://adam.math.hhu.de/#/g/jadabouhawili/knightsandknaves-lean4game/world/DSL_Knights_Knaves/level/0)
@@ -30,3 +33,29 @@ There are other provers that might be more suited for this however.
 You can look into:
 - SMT solvers
 - [Prolog](https://www.youtube.com/watch?v=oEAa2pQKqQU)
+
+## Translation between puzzles
+There is a correspondence
+We have the following correspondence:
+$
+\begin{array}{|c|c|c|}
+\hline
+\text{Set Theory} & \text{DSL} & \text{Propositional} \\
+\hline
+h : A ∈ Knight & h : A.isKnight & h : A \\
+\hline
+h : A ∉ Knight & h : ¬A.isKnight & h : ¬A \\
+\hline
+h : A ∈ Knave  & h : A.isKnave & h : ¬A \\
+\hline
+h : A ∉ Knave  & h : ¬A.isKnave & h : ¬¬A\\\
+\hline
+h : A ∈ Knight ∨ A ∈ Knave & h : A.isKnight or A.isKnave & h : A ∨ ¬A \\\\
+\hline
+h : Knight ∩ Knave = ∅ & h : not (A.isKnight and A.isKnave) & h: ¬(A ∧ ¬A)  \\\\
+\hline
+\end{array}
+Note for `¬¬A`, it is equivalent to `A`
+$
+
+Puzzles can translated from one representation to the another, and the solution as well.

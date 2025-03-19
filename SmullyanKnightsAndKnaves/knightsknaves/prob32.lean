@@ -1,5 +1,6 @@
 ---- adapat to problems with only 2 inhabitants
 
+-- included in dsl_prob32
 --Introduction
 --"
 --Suppose instead, A and B say the following:
@@ -18,6 +19,8 @@ set_option push_neg.use_distrib true
 variables {Inhabitant : Type}
 {A B C :Inhabitant}
 
+-- done in dsl as full expression, and used simp, do it with sets and card..
+-- just translate dsl to set theory, include translation
 example
   {inst : DecidableEq Inhabitant}
   {Knight : Finset Inhabitant} {Knave : Finset Inhabitant}
@@ -25,7 +28,7 @@ example
 {h1 : A ∈ Knight ∨ A ∈ Knave }
 {h2: B ∈ Knight ∨ B ∈ Knave }
 {h3: C ∈ Knight ∨ C ∈ Knave }
-{stA : A ∈ Knight  ↔ (A ∈ Knave ∧ B ∈ Knave ∧ C ∈ Knave) }
+{stA : A ∈ Knight ↔ (A ∈ Knave ∧ B ∈ Knave ∧ C ∈ Knave) }
 {stAn : A ∈ Knave ↔ ¬ (A ∈ Knave ∧ B ∈ Knave ∧ C ∈ Knave) }
 -- exactly one of us is a knave
 -- this can be represented as Knave = {A} ∨ Knave = {B} ∨ Knave = {C}
@@ -70,66 +73,7 @@ example
     have CKnight := notleft_right BC this
     rw [inleft_notinrightIff h3 h] 
     assumption
-
   }
-
-def allKnaves {A B C : Islander} := A.isKnave and B.isKnave and C.isKnave
-
-def exactlyOneIsKnave {A B C : Islander} : Prop := (A.isKnave and B.isKnight and C.isKnight) ∨ (A.isKnight and B.isKnave and C.isKnight) ∨ (A.isKnight and B.isKnight and C.isKnave)
---  A: All of us are knaves.
---  B: Exactly one of us is a knave.
-/-
--/
-open Islander
-example
-{A B C : Islander}
-{stA : A said @allKnaves A B C}
-{stB : B said @exactlyOneIsKnave A B C}
-: A.isKnave and C.isKnight
-:= by
-  have AKnave : ¬A.isKnight
-  intro AKnight
-  have allKnave := knight_said stA AKnight
-  have := allKnave.left
-  contradiction
-
-  have allKnave:= notknight_said stA AKnave
-  knight_or_knave B with BKnight BKnave 
-  have exactlyoneKnave := knight_said stB BKnight
-  unfold exactlyOneIsKnave at exactlyoneKnave
-  simp [AKnave, BKnight] at exactlyoneKnave
-  assumption 
-
-  have notexactlyone := knave_said stB BKnave 
-  unfold exactlyOneIsKnave at notexactlyone 
-  /-
-  Hint
-  exactlyOneIsKnave is the following expression:
-  ```
-  (A.isKnave and B.isKnight and C.isKnight) 
-  ∨ (A.isKnight and B.isKnave and C.isKnight)
-  ∨ (A.isKnight and B.isKnight and C.isKnave)
-
-  ```
-
-  -/
-  --push_neg at notexactlyone
-  --simp [AKnave,BKnave] at notexactlyone 
-  --knight_to_knave at AKnave 
-  --simp [AKnave] at notexactlyone
-  --knave_to_knight at BKnave
-  --simp [BKnave] at notexactlyone
-  --knight_to_knave at BKnave
-
-
-  unfold allKnaves at allKnave 
-  simp [AKnave,BKnave] at allKnave
-  knight_to_knave at AKnave
-  have CKnight := allKnave AKnave
-  constructor
-  assumption
-  knight_to_knave
-  assumption
 
 #check not_eq_singleton_of_not_mem
 
@@ -199,6 +143,65 @@ example
 example {K : Type} {A B : Finset K} (h : A⊆B) : A.card ≤ B.card := by 
   exact Finset.card_le_card h
 
+#check Finset.mem_insert_self
+#check Finset.mem_insert_of_mem
+-- `first | tac | ...` runs each `tac` until one succeeds, or else fails. 
+-- Similar to `first`, but succeeds only if one the given tactics solves the current goal.
+
+
+--macro "knight_or_knave" t1:term "with" t2:rcasesPat t3:rcasesPat : tactic => do`(tactic| obtain ($t2 | $t3) := isKnight_or_isKnave $t1)
+
+macro "is_mem11" : tactic =>
+  do`(tactic| first |(apply Finset.mem_singleton_self) | repeat ( (try apply Finset.mem_insert_self) ; apply Finset.mem_insert_of_mem) )
+
+macro "is_mem2" : tactic =>
+  do`(tactic| first |(apply Finset.mem_singleton_self) | (apply Finset.mem_insert_self) | apply Finset.mem_insert_of_mem ; try apply Finset.mem_insert_self )
+
+macro "is_mem" : tactic =>
+  do`(tactic | repeat is_mem2)
+
+macro "is_mem3" : tactic =>
+  do`(tactic| first |(apply Finset.mem_singleton_self) | (apply Finset.mem_insert_self) | repeat (apply Finset.mem_insert_of_mem ; try apply Finset.mem_insert_self ))
+
+#check Finset.mem_singleton
+#check Finset.mem_insert_of_mem
+#check Finset.mem_insert_self
+
+macro "is_mem4" : tactic =>
+  do`(tactic|
+  repeat ( (try apply Finset.mem_singleton_self) ; ( (try apply Finset.mem_insert_self); apply  Finset.mem_insert_of_mem )))
+
+example
+
+{K : Type}
+{A B C : K}
+{inst : DecidableEq K}
+{S : Finset K}
+{hS : S = {B}}
+: B ∈ S := by 
+  rw [hS]
+  -- fails
+  -- exact Finset.mem_singleton.mpr rfl
+  #check Finset.mem_singleton_self
+  apply Finset.mem_singleton_self
+  is_mem
+  --apply Finset.mem_insert_of_mem
+example
+{K : Type}
+{A B C : K}
+{inst : DecidableEq K}
+{S : Finset K}
+{hS : S = {A,B,C}}
+: C ∈ S
+:= by
+  rw [hS]
+  try apply not_iff_not
+  --apply Finset.mem_insert_of_mem
+  --apply Finset.mem_insert_self
+  is_mem
+  --is_mem4
+  --is_mem2 
+-- working on this...
 example
   {inst2 : Fintype Inhabitant}
   {inst : DecidableEq Inhabitant}
@@ -222,9 +225,10 @@ example
   have AKnave : A ∈ Knave := by
     by_contra AKnight
     rw [notinright_inleftIff h1 h] at AKnight
-    have everyoneknave := stA.mp AKnight  
-    have AKnave: A ∈ Knave := by 
-     rw [everyoneknave] ; apply Finset.mem_insert_self
+    have everyoneknave := stA.mp AKnight
+    have AKnave: A ∈ Knave := by
+     rw [everyoneknave] ; 
+     is_mem
     exact disjoint h AKnight AKnave
 --   Suppose instead, A and B say the following: 
 --A: All of us are knaves. 
@@ -242,7 +246,11 @@ example
 
     -- now do cases all and show that Knave = {A}, so C must be a knight
     -- make this its own theorem
-    have oneCard : Knave.card = 1 := sorry
+    have oneCard : Knave.card = 1 := by 
+      #check card_eq_one_iff_singletons_univ
+      #check card_eq_one_iff_singletons_univ
+      #check singleton_iff_card_eq_one
+      exact (card_eq_one_iff_singletons all).mpr oneknave
     rw [Finset.card_eq_one] at oneCard
     have oneknave2 : Knave = {A} or Knave = {B} or Knave = {C} := by
       have ⟨a,aKnave⟩ := oneCard

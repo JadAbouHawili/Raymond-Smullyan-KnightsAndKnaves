@@ -56,24 +56,6 @@ import SmullyanKnightsAndKnaves.settheory
 -- to sort out
 
 #check Set.mem_univ
---theorem univ_iff_all
---{K : Type}
---  (inst : Fintype K) (inst2 : DecidableEq K) {A B C : K}   : Finset.univ = ({A,B,C} : Finset K) ↔  ∀ (x : K), x = A ∨ x = B ∨ x = C:= by
-example {K : Type} (A B C: K) ( all : ∀(x : K), x = A ∨ x = B ∨ x = C) : @Set.univ K = {A,B,C} := by
-  
- -- unfold Set.univ
-
-  exact (Set.eq_univ_of_univ_subset fun ⦃a⦄ a_1 => all a).symm
-
-  --apply Set.ext 
-  --intro x
-  --constructor
-  --sorry
-  --sorry
-
-  --· intro xUniv
-  --  by_contra
-  --· exact fun a => trivial
 ---------------------------
 example {K : Type} {A B C : K} (S : Set K) (h : S ⊆ {A,B,C}) (h': A ∉ S) : S ⊆ {B,C} := by
   exact (Set.subset_insert_iff_of_not_mem h').mp h
@@ -109,14 +91,9 @@ example {K : Type}
 #check not_iff_self
 
 
-
 #check Set.mem_compl
   #check Set.mem_compl_iff
   #check Set.inter_eq_compl_compl_union_compl
-
-
-
-
 
 --theorem mem_iff_or_finset 
 --
@@ -164,3 +141,37 @@ theorem IamKnaveIffFalse
 --variable (A : Sum Knight Knave)
 --variable (B : Knight)
 
+#check univ_iff_all
+theorem all_univ_subset
+{Inhabitant : Type}
+{inst2 : Fintype Inhabitant}
+{inst : DecidableEq Inhabitant}
+{A B C : Inhabitant}
+{Knight : Finset Inhabitant}
+{all : ∀ (x : Inhabitant), x = A ∨ x = B ∨ x = C}
+: Knight ⊆ ({A,B,C} : Finset Inhabitant) := by 
+    #check univ_iff_all  
+    #check set_subset_univ
+    have Ueq : Finset.univ ={A,B,C}:= (univ_iff_all).mpr all
+    --have := univ_iff_all 
+    rw [←Ueq]
+    #check Finset.subset_univ
+    exact Finset.subset_univ Knight
+    --exact set_subset_univ
+    /-
+    have : Knight ⊆ {A,B,C} := by 
+      intro x
+      intro xK
+      rcases all x with h_1|h_1
+      · rw [h_1]
+        exact Finset.mem_insert_self A {B, C}
+      · rcases h_1 with h_2|h_2
+        · rw [h_2]
+          apply Finset.mem_insert_of_mem
+          exact Finset.mem_insert_self B {C}
+        · rw [h_2] 
+          apply Finset.mem_insert_of_mem
+          apply Finset.mem_insert_of_mem
+          exact Finset.mem_singleton.mpr rfl
+    assumption
+    -/

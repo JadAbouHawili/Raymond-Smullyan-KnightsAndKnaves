@@ -6,6 +6,7 @@ Problem 30:
 Suppose A says, "Either I am a knave or else two plus two
 equals five." What would you conclude?
 -/
+-- included in dsl_2plus2
 example
 {Inhabitant : Type}
 {A : Inhabitant}

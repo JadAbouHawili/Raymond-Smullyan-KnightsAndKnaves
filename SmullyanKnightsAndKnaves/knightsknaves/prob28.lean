@@ -2,6 +2,7 @@ import SmullyanKnightsAndKnaves.knightsknaves
 import SmullyanKnightsAndKnaves.dsl_knights_knaves
 import Lean
 -- prob28
+-- included in game as dsl_iknaveorknave
 
 set_option push_neg.use_distrib true
 
@@ -39,6 +40,7 @@ example
 (all : ∀ (x : K), x = A ∨ x = B)
   (h'' : ∀ (x: K), x ∈ Knight ∨ x ∈ Knave)
   -- can knave.card be replaced with A ∈ Knave ∨ B ∈ Knave? A ∈ Knave ∨ B ∈ Knave beaing true means that A ∈ Knave , or B ∈ knave or both. this can be shown on the truth table
+  -- Knave.card ≥ 1 can be replaced by A knave or B knave
   (stA : A ∈ Knight ↔ Knave.card ≥ 1)
   (stAn : A ∈ Knave ↔ Knave.card < 1)
   : A ∈ Knight ∧ B ∈ Knave:= by

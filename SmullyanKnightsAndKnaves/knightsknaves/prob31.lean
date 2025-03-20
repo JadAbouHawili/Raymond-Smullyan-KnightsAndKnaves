@@ -342,10 +342,4 @@ example
       --  apply Finset.mem_insert_self
       --· sorry
     · exact fun _ => this a
-  sorry
-
-example 
-{K : Type}
-{A B C : K} {inst : Fintype K} {inst : DecidableEq K} {S S' : Finset K}  (notuniv : S' ≠ (Finset.univ)) : S.Nonempty := by 
-  unfold Finset.univ at notuniv
-  sorry
+  contradiction

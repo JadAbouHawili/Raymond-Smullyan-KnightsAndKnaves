@@ -156,11 +156,13 @@ theorem not_in_of_singleton
 -- A ∈ S and S.card=1 , so S={A}
 theorem eq_singleton_card_one {A : K} {S : Finset K } 
 (singleton : S={A}) : S.card=1 := by 
-  #check congrArg
-  have : S.card=({A} : Finset K).card  := by
-    exact congrArg Finset.card singleton
-  rw [this]
-  exact rfl
+  rw [Finset.card_eq_one]
+  use A
+  --#check congrArg
+  --have : S.card=({A} : Finset K).card  := by
+  --  exact congrArg Finset.card singleton
+  --rw [this]
+  --exact rfl
 
 /-
   #check Finset.subset_of_eq
@@ -665,9 +667,10 @@ theorem univ_set_iff_or
 
 #check Finset.univ_subset_iff
 #check Finset.subset_univ
-theorem set_subset_univ {inst : DecidableEq K} {A B C : K} {S : Finset K}
+theorem set_subset_univ {inst : DecidableEq K} 
 {inst2 : Fintype K}
-{all : ∀ (x : K), x = A ∨ x = B ∨ x = C}
+{A B C : K} {S : Finset K}
+(all : ∀ (x : K), x = A ∨ x = B ∨ x = C)
 : S ⊆ {A,B,C} := by 
   rw [(univ_iff_all).symm] at all
   rw [←all]

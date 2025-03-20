@@ -252,51 +252,27 @@ example
       #check singleton_iff_card_eq_one
       exact (card_eq_one_iff_singletons all).mpr oneknave
     rw [Finset.card_eq_one] at oneCard
-    have oneknave2 : Knave = {A} or Knave = {B} or Knave = {C} := by
-      have ⟨a,aKnave⟩ := oneCard
-      rcases all a with h_1|h_1
-      rw [h_1] at aKnave
-      left
-      assumption
-
-      rcases h_1 with h_2|h_2
-      rw [h_2] at aKnave 
-      right 
-      left 
-      assumption
-
-      rw [h_2] at aKnave
-      right
-      right
-      assumption
+    #check eq_singleton_card_one
+    #check card_eq_one_iff_singletons
 
 -------
 -- the all specifies that any inhabitant is either A,B,C and no one else. This is setting the universe. Moreover, we state that they ar enot the same inhabitant. What we get from this is a series of theorems that intuitively hold true.
-    -- make a theorem that with Knave={A} ∨ Knave={B} ∨ Knave={C} ↔ ∃ a:Inhabitant , Knave ={a}
-    have : ∃a , Knave ={a} := by
-      rcases oneknave with h_1|h_1
-      use A
-      cases h_1
-      use B
-      use C
-    have exista := this
-    rw [Finset.card_eq_one.symm] at this 
     -- card=1, already full?
     #check already_full
 
     have CKnight: C ∉ Knave := by 
       intro CKnave
       #check Finset.eq_singleton_iff_unique_mem
-      have ⟨a,aKnave⟩:= exista 
+      have ⟨a,aKnave⟩:= oneCard 
       rw [Finset.eq_singleton_iff_unique_mem] at aKnave
       have Aa := aKnave.right A AKnave
       have Ca := aKnave.right C CKnave
       rw [←Ca] at Aa 
       contradiction
+    #check eq_singleton_card_one
     rw [notinright_inleftIff h3 h] at CKnight
     exact And.intro AKnave CKnight
       --rw [Finset.eq_singleton_iff_unique_mem] at this 
-    --rw [eq_singleton_card_one] at oneknave
     --#check not_eq_singleton_of_not_mem
     ---- could also do not_eq_singleton_of_not_mem
     --have : Knave ≠ {B} := by 
@@ -318,8 +294,8 @@ example
     #check Finset.card_insert_le
     have U: Finset.univ = {A, B, C} := (univ_iff_all).mpr all 
     have knavesubU : Knave ⊆ {A,B,C} := by 
-      rw [←U]
-      apply Finset.subset_univ
+      apply set_subset_univ all
+      assumption
 
     have knavenotall := stAn.mp AKnave
     have CKnight : C ∈ Knight := by 
@@ -338,12 +314,10 @@ example
             assumption
       #check Set.eq_of_subset_of_subset
       #check Finset.eq_of_subset_of_card_le
+      #check Finset.eq_of_subset_of_card_le
+      #check Finset.card_le_card
       have : Knave = {A,B,C}:= by 
-        --apply Finset.ext 
-        apply Finset.eq_of_subset_of_card_le
-        assumption
-        have := Finset.card_le_card this
-        assumption
+        exact Eq.symm (Finset.Subset.antisymm this knavesubU)
       contradiction
     exact And.intro AKnave CKnight 
 /-

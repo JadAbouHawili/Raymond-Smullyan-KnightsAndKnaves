@@ -35,34 +35,15 @@ You can look into:
 - [Prolog](https://www.youtube.com/watch?v=oEAa2pQKqQU)
 
 ## Translation between puzzles
-There is a correspondence
-
 We have the following correspondence:
-
-```math
-\begin{array}{|c|c|c|}
-\hline
-\text{Set Theory} & \text{DSL} & \text{Propositional} \\
-\hline
-h : A ∈ Knight & h : A.isKnight & h : A \\
-\hline
-h : A ∉ Knight & h : ¬A.isKnight & h : ¬A \\
-\hline
-h : A ∈ Knave  & h : A.isKnave & h : ¬A \\
-\hline
-h : A ∉ Knave  & h : ¬A.isKnave & h : ¬¬A \\
-\hline
-h : A ∈ Knight ∨ A ∈ Knave & h : A.isKnight or A.isKnave & h : A ∨ ¬A \\
-\hline
-h : Knight ∩ Knave = ∅ & h : not (A.isKnight and A.isKnave) & h: ¬(A ∧ ¬A)  \\
-\end{array}
-```
-
 | Set Theory       | DSL           | Propositional  |
 | ------------- |:-------------:| -----:|
-|   a   | right-aligned | $1600 |
-| col 2 is      | centered      |   $12 |
-| zebra stripes | are neat      |    $1 |
+| `h : A ∈ Knight`  | `h : A.isKnight` | `h : A` |
+| `h : A ∉ Knight` | `h : ¬A.isKnight` | `h : ¬A` |
+| `h : A ∈ Knave`  | `h : A.isKnave` | `h : ¬A` |
+| `h : A ∉ Knave`  | `h : ¬A.isKnave` | `h : ¬¬A` |
+| `h : A ∈ Knight ∨ A ∈ Knave` | `h : A.isKnight or A.isKnave` | `h : A ∨ ¬A` |
+| `h : Knight ∩ Knave = ∅` | `h : not (A.isKnight and A.isKnave)` | `h: ¬(A ∧ ¬A)`  |
 
 
 Note for `¬¬A`, it is equivalent to `A`

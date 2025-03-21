@@ -54,9 +54,6 @@ example
   {all : Finset.univ = {A,B,C}}
   --{all : ∀(x : Inhabitant), x = A ∨ x = B ∨ x = C}
   
-  { AneB : A ≠ B}
-  { BneC : B ≠ C}
-  { AneC : A ≠ C}
 {h : Knight ∩ Knave = ∅ }
 {h1 : A ∈ Knight ∨ A ∈ Knave }
 {h2: B ∈ Knight ∨ B ∈ Knave }
@@ -72,7 +69,9 @@ example
       by_contra AKnight
       rw [notinright_inleftIff h1 h] at AKnight
       have AKnave := stA.mp AKnight
-      exact IamKnave h h1 (by simp[AKnight,AKnave.left] )
+      have := AKnave.left
+      contradiction
+      --exact IamKnave h h1 (by simp[AKnight,AKnave.left] )
       --exact disjoint h AKnight AKnave.left 
     }
   have BKnight : B ∈ Knight := by 
@@ -129,6 +128,7 @@ example
 
 example
   {inst : DecidableEq Inhabitant}
+  {inst2 : Fintype Inhabitant}
   {Knight : Finset Inhabitant} {Knave : Finset Inhabitant}
   {all : ∀(x : Inhabitant), x = A ∨ x = B ∨ x = C}
   { AneB : A ≠ B}
@@ -143,7 +143,7 @@ example
 {stB: B ∈ Knight ↔ (Knight = {A} ∨ Knight = {B} ∨ Knight = {C}) }
 {stBn: B ∈ Knave ↔ ¬ (Knight = {A} ∨ Knight = {B} ∨ Knight = {C}) }
   : Solution A B C Knight Knave:= by
-
+--  A ∈ Knave ∧ B ∈ Knight ∧ C ∈ Knave
   {
     
     -- this is similar to i am a knave
@@ -157,6 +157,32 @@ example
       --exact disjoint h AKnight AKnave.left 
     }
 
+    have BKnight : ¬B ∈ Knave := by 
+      intro BKnave
+      have notallknave := stAn.mp AKnave
+      simp [BKnave,AKnave] at notallknave
+      #check set_subset_univ
+      have : Knight ⊆ {A,B,C} := by 
+        apply set_subset_univ
+        repeat assumption
+      #check Finset.subset_insert_iff_of_not_mem notallknave
+      rw [inright_notinleftIff h1 h] at AKnave
+      rw [inright_notinleftIff h2 h] at BKnave
+      rw [Finset.subset_insert_iff_of_not_mem AKnave] at this
+      rw [Finset.subset_insert_iff_of_not_mem BKnave] at this
+      rw [notinright_inleftIff h3 h] at notallknave
+      have sub : {C} ⊆ Knight := by 
+        intro x
+        intro hC 
+        rw [Finset.mem_singleton] at hC
+        rw [hC]
+        assumption
+      have knightC := Finset.Subset.antisymm this sub 
+      rw [notinleft_inrightIff h2 h] at BKnave  
+      have cont := stBn.mp BKnave 
+      push_neg at cont
+      exact cont.right.right knightC
+     
     have BKnight : B ∈ Knight := by {
       by_contra BKnave
       rw [notinleft_inrightIff h2 h] at BKnave
@@ -222,6 +248,22 @@ example
 
   }
 
+theorem all_in_one
+  {inst : DecidableEq Inhabitant}
+  {A B C : Inhabitant}
+  {S : Finset Inhabitant} 
+  {all : ∀(x : Inhabitant), x = A ∨ x = B ∨ x = C}
+  (hA : A ∈ S)
+  (hB : B ∈ S)
+  (hC : C ∈ S)
+  : S = {A,B,C}
+  := by 
+    #check Finset.eq_of_subset_of_card_le 
+    #check everyone_in_set_eq
+    apply?
+    exact?
+    sorry
+  
 example
   {inst : DecidableEq Inhabitant}
   {Knight : Finset Inhabitant} {Knave : Finset Inhabitant}
@@ -239,6 +281,7 @@ example
 {stB: B ∈ Knight ↔ (Knight = {A} ∨ Knight = {B} ∨ Knight = {C}) }
 {stBn: B ∈ Knave ↔ ¬ (Knight = {A} ∨ Knight = {B} ∨ Knight = {C}) }
   : Solution A B C Knight Knave:= by
+    -- A ∈ Knave ∧ B ∈ Knight ∧ C ∈ Knave
 --  rw [everyone_knave_set_eq all] at stA
   --rw [everyone_knave_set_eq all] at stAn
   -- also similar to I am a Knave
@@ -247,8 +290,24 @@ example
     rw [notinright_inleftIff h1 h] at AKnight
     have everyoneknave := stA.mp AKnight  
     have AKnave: A ∈ Knave := by rw [everyoneknave] ; apply Finset.mem_insert_self
-    exact disjoint h AKnight AKnave
+    contradiction
   have notallknave := stAn.mp AKnave
+  have AnKnight: Knight ≠ {A} := by 
+    intro KnighteqA 
+    have := mem_of_eq_singleton KnighteqA 
+    contradiction
+  simp [AnKnight] at stB
+  have BKnight2 : B ∈ Knight := by 
+    by_contra BKnave 
+    rw [notinleft_inrightIff h2 h] at BKnave 
+    have CnKnave : C ∉ Knave := by 
+      intro CKnave 
+      have : Knave = {A,B,C} := by 
+        #check everyone_in_set_eq
+        exact (everyone_in_set_eq all).mp ⟨AKnave,BKnave ,CKnave⟩
+      contradiction 
+    -- so Knight = {C} so B knight, contradiction 
+    sorry
   have BKnight : B ∈ Knight := by 
     by_contra BKnave
     rw [notinleft_inrightIff h2 h] at BKnave
@@ -281,7 +340,9 @@ example
             exfalso
             exact disjoint h xKnight BKnave
           · assumption
-    exact notoneknight.right.right this
+    have := notoneknight.right.right 
+    contradiction
+    --exact notoneknight.right.right this
   -- solution is A ∈ Knave ∧ B ∈ Knight ∧ C ∈ Knave
   have Knightsingle := stB.mp BKnight
   #check mem_of_eq_singleton

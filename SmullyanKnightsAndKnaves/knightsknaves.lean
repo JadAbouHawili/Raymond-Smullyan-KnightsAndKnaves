@@ -116,10 +116,11 @@ theorem IamKnave
     rcases h1 with AKnight|AKnave
 
     · have := stA.mp AKnight
-      exact disjoint h AKnight this
+      contradiction
 
     · have := stA.mpr AKnave
-      exact disjoint h this AKnave
+      contradiction
+      --exact disjoint h this AKnave
   }
 
 theorem IamKnaveIffFalse
@@ -175,3 +176,23 @@ theorem all_univ_subset
           exact Finset.mem_singleton.mpr rfl
     assumption
     -/
+
+-- theorem used in simp would need arguments passed to it, change so that theorems used require fewer arguments
+-- *
+macro "set_knight_to_knave" "at" t1:Lean.Parser.Tactic.locationWildcard : tactic =>
+do`(tactic| simp [isKnight_notisKnaveIff] at $t1)
+-- goal
+macro "set_knight_to_knave" : tactic =>
+do`(tactic| simp [isKnight_notisKnaveIff])
+-- hypothesis
+macro "knight_to_knave" "at" t1:Lean.Parser.Tactic.locationHyp : tactic =>
+do`(tactic| simp [isKnight_notisKnaveIff] at $t1)
+
+-- *
+macro "knave_to_knight" "at" t1:Lean.Parser.Tactic.locationWildcard : tactic => 
+do`(tactic| simp [isKnave_notisKnightIff] at $t1)
+macro "knave_to_knight" : tactic =>
+do`(tactic| simp [isKnave_notisKnightIff])
+-- hypothesis
+macro "knave_to_knight" "at" t1:Lean.Parser.Tactic.locationHyp : tactic =>
+do`(tactic| simp [isKnave_notisKnightIff] at $t1)

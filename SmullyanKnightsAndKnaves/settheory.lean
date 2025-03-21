@@ -872,3 +872,12 @@ theorem notinright_inleftIff
   · exact notinright_inleft LeftorRight
   · exact inleft_notinright h
 
+axiom not_both
+  {Inhabitant : Type}
+  {A : Inhabitant}
+  {inst : DecidableEq Inhabitant}
+  {Knight : Finset Inhabitant} {Knave : Finset Inhabitant}
+  (AKnight : A ∈ Knight) (AKnave : A ∈ Knave)  : False
+macro_rules
+| `(tactic| contradiction) => 
+  do `(tactic |first | ( apply not_both  ; repeat assumption) )

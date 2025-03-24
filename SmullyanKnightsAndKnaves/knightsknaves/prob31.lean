@@ -9,6 +9,10 @@ import SmullyanKnightsAndKnaves.dsl_knights_knaves
 --B: Exactly one of us is a knight. 
 --What are A, B, C?
 --"
+-- setup to import into every file, instead of having to do , example {..} {..} {..} ...
+open Inhabitant
+example {Inhabitant : Type} {A : Inhabitant} {hA : A ∈ Knight2}: 2=2 := by
+  rfl
 
 variable {A B C : Islander}
 def allKnaves := A.isKnave ∧ B.isKnave ∧ C.isKnave
@@ -44,13 +48,12 @@ example{K : Type} (S : Set K) : S = {x | x ∈ S} := by exact rfl
 
 -- using Finset.univ instead of all
 -- another formalization using cardinalities instead of A ∈ Knave ∧ B ∈ Knave ∧ C ∈ Knave
-namespace Inhabitant
-open Inhabitant
 #check Knight2
-example : 2=2 := by 
-  rfl
+#check inst22
 example
 
+  {A1 : Type}
+  {inst3 : DecidableEq Type}
   {Inhabitant : Type}
   {A B C : Inhabitant}
   {inst : DecidableEq Inhabitant}
@@ -58,7 +61,7 @@ example
   {Knight : Finset Inhabitant} {Knave : Finset Inhabitant}
   {all : Finset.univ = {A,B,C}}
   --{all : ∀(x : Inhabitant), x = A ∨ x = B ∨ x = C}
-  
+
 {h : Knight ∩ Knave = ∅ }
 {h1 : A ∈ Knight ∨ A ∈ Knave }
 {h2: B ∈ Knight ∨ B ∈ Knave }
@@ -68,6 +71,7 @@ example
 {stB: B ∈ Knight ↔ (Knight = {A} ∨ Knight = {B} ∨ Knight = {C}) }
 {stBn: B ∈ Knave ↔ ¬ (Knight = {A} ∨ Knight = {B} ∨ Knight = {C}) }
   : Solution A B C Knight Knave:= by
+  have : A1 ∈ Knight2 := sorry
   have AKnave : A ∈ Knave := by {
       #check iff_iff_implies_and_implies
       have := (iff_iff_implies_and_implies).mp stA

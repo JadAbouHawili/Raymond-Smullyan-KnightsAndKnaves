@@ -182,8 +182,21 @@ theorem all_univ_subset
 namespace Inhabitant
 variable {Inhabitant : Type}
 variable {Knight Knave : Finset Inhabitant}
-def Knight2 := Finset Type
-example : 2=2 := by 
+
+  variable {Inhabitant : Type}
+  variable {A B C : Inhabitant}
+  variable {inst : DecidableEq Inhabitant}
+  variable {inst2 : Fintype Inhabitant}
+  variable {Knight Knave: Finset Inhabitant}
+  variable {all : Finset.univ = {A,B,C}}
+  --{all : ∀(x : Inhabitant), x = A ∨ x = B ∨ x = C}
+
+{h : Knight ∩ Knave = ∅ }
+{h1 : A ∈ Knight ∨ A ∈ Knave }
+axiom Knight2 : Finset Inhabitant
+axiom inst22 : DecidableEq Inhabitant
+#check Knight2
+example {A : Inhabitant} {inst : DecidableEq Inhabitant} {h : A ∈ Knight2}: 2=2 := by 
   rfl
 -- *
 macro "set_knight_to_knave" "at" t1:Lean.Parser.Tactic.locationWildcard : tactic =>

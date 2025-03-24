@@ -179,24 +179,16 @@ theorem all_univ_subset
 
 #check inleft_notinrightIff
 -- theorem used in simp would need arguments passed to it, change so that theorems used require fewer arguments
-namespace Inhabitant
-variable {Inhabitant : Type}
-variable {Knight Knave : Finset Inhabitant}
+namespace settheory_approach
 
-  variable {Inhabitant : Type}
-  variable {A B C : Inhabitant}
-  variable {inst : DecidableEq Inhabitant}
-  variable {inst2 : Fintype Inhabitant}
-  variable {Knight Knave: Finset Inhabitant}
-  variable {all : Finset.univ = {A,B,C}}
-  --{all : ∀(x : Inhabitant), x = A ∨ x = B ∨ x = C}
-
-{h : Knight ∩ Knave = ∅ }
-{h1 : A ∈ Knight ∨ A ∈ Knave }
-axiom Knight2 : Finset Inhabitant
+axiom Inhabitant : Type
+axiom inst : DecidableEq Inhabitant
+axiom inst2 : Fintype Inhabitant
+axiom Knight : Finset Inhabitant
+axiom Knave : Finset Inhabitant
 axiom inst22 : DecidableEq Inhabitant
-#check Knight2
-example {A : Inhabitant} {inst : DecidableEq Inhabitant} {h : A ∈ Knight2}: 2=2 := by 
+#check Knight
+example {A : Inhabitant} {h : A ∈ Knight}: 2=2 := by 
   rfl
 -- *
 macro "set_knight_to_knave" "at" t1:Lean.Parser.Tactic.locationWildcard : tactic =>
@@ -226,4 +218,4 @@ do`(tactic| simp [inright_notinleftIff])
 -- hypothesis
 macro "set_knave_to_knight" "at" t1:Lean.Parser.Tactic.locationHyp : tactic =>
 do`(tactic| simp [inright_notinleftIff] at $t1)
-end Inhabitant
+end settheory_approach

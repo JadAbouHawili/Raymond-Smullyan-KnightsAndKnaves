@@ -10,8 +10,9 @@ import SmullyanKnightsAndKnaves.dsl_knights_knaves
 --What are A, B, C?
 --"
 -- setup to import into every file, instead of having to do , example {..} {..} {..} ...
-open Inhabitant
-example {Inhabitant : Type} {A : Inhabitant} {hA : A ∈ Knight2}: 2=2 := by
+-- hid all the details , apply to game...
+open settheory_approach
+example {A : Inhabitant} {hA : A ∈ Knight} : 2=2 := by
   rfl
 
 variable {A B C : Islander}

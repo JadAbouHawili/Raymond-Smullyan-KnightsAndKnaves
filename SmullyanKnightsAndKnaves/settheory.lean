@@ -831,7 +831,7 @@ theorem inleft_notinrightIff
   {left : Finset K} {right : Finset K}
   (LeftorRight : A ∈ left ∨ A ∈ right)
   (h : left ∩ right = ∅)
-: A ∈ left ↔  A ∉ right := by
+: A ∈ left ↔  ¬(A ∈ right) := by
   constructor
   · exact inleft_notinright h
   · exact notinright_inleft LeftorRight

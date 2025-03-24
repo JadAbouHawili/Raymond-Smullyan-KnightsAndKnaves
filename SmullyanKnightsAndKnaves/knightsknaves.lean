@@ -177,22 +177,40 @@ theorem all_univ_subset
     assumption
     -/
 
+#check inleft_notinrightIff
 -- theorem used in simp would need arguments passed to it, change so that theorems used require fewer arguments
+namespace Inhabitant
+variable {Inhabitant : Type}
+variable {Knight Knave : Finset Inhabitant}
+def Knight2 := Finset Type
+example : 2=2 := by 
+  rfl
 -- *
 macro "set_knight_to_knave" "at" t1:Lean.Parser.Tactic.locationWildcard : tactic =>
-do`(tactic| simp [isKnight_notisKnaveIff] at $t1)
+do`(tactic| simp [inleft_notinrightIff] at $t1)
 -- goal
 macro "set_knight_to_knave" : tactic =>
-do`(tactic| simp [isKnight_notisKnaveIff])
+do`(tactic| simp [inleft_notinrightIff])
 -- hypothesis
-macro "knight_to_knave" "at" t1:Lean.Parser.Tactic.locationHyp : tactic =>
-do`(tactic| simp [isKnight_notisKnaveIff] at $t1)
+macro "set_knight_to_knave" "at" t1:Lean.Parser.Tactic.locationHyp : tactic =>
+do`(tactic| simp [inleft_notinrightIff] at $t1)
+--     (rw [inleft_notinrightIff] at BKnave <;> try assumption) ; simp at BKnave
+#check inleft_notinrightIff
+-- this would work for one hypothesis but what about for *,everything?
+macro "set_knight_to_knave2" "at" t1:Lean.Parser.Tactic.locationHyp : tactic =>
+do`(tactic|
+rw [inleft_notinrightIff] at $t1 <;> try assumption )
 
+-- doesnt work
+macro "set_knight_to_knave_newest" "at" t1:Lean.Parser.Tactic.locationHyp : tactic =>
+do`(tactic|
+    (simp [inleft_notinrightIff] at $t1 ; try assumption) )
 -- *
-macro "knave_to_knight" "at" t1:Lean.Parser.Tactic.locationWildcard : tactic => 
-do`(tactic| simp [isKnave_notisKnightIff] at $t1)
-macro "knave_to_knight" : tactic =>
-do`(tactic| simp [isKnave_notisKnightIff])
+macro "set_knave_to_knight" "at" t1:Lean.Parser.Tactic.locationWildcard : tactic => 
+do`(tactic| simp [inright_notinleftIff] at $t1)
+macro "set_knave_to_knight" : tactic =>
+do`(tactic| simp [inright_notinleftIff])
 -- hypothesis
-macro "knave_to_knight" "at" t1:Lean.Parser.Tactic.locationHyp : tactic =>
-do`(tactic| simp [isKnave_notisKnightIff] at $t1)
+macro "set_knave_to_knight" "at" t1:Lean.Parser.Tactic.locationHyp : tactic =>
+do`(tactic| simp [inright_notinleftIff] at $t1)
+end Inhabitant

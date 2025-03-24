@@ -44,6 +44,11 @@ example{K : Type} (S : Set K) : S = {x | x ∈ S} := by exact rfl
 
 -- using Finset.univ instead of all
 -- another formalization using cardinalities instead of A ∈ Knave ∧ B ∈ Knave ∧ C ∈ Knave
+namespace Inhabitant
+open Inhabitant
+#check Knight2
+example : 2=2 := by 
+  rfl
 example
 
   {Inhabitant : Type}
@@ -77,7 +82,13 @@ example
   have BKnight : B ∈ Knight := by 
     by_contra BKnave
     have notallKnaves := stAn.mp AKnave
-    rw [notinleft_inrightIff h2 h] at BKnave
+   -- rw [notinleft_inrightIff] at BKnave <;> try assumption
+    #check inleft_notinrightIff
+    have : ¬(B ∈ Knight) := by assumption
+    set_knight_to_knave2 at this
+    --simp at BKnave
+    --set_knight_to_knave at BKnave
+    --rw [notinleft_inrightIff h2 h] at BKnave
     simp [AKnave,BKnave] at notallKnaves
     -- stB is equivalent to Knight.card = 1
     -- have a theorem which says given the universe, Knight.card = 1, and the first element in not in knight and the second as well then the third has to be. this idea of a universe need to be explicitly explained.

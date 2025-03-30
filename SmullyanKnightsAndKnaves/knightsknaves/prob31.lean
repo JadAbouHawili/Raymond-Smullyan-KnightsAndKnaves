@@ -12,8 +12,12 @@ import SmullyanKnightsAndKnaves.dsl_knights_knaves
 -- setup to import into every file, instead of having to do , example {..} {..} {..} ...
 -- hid all the details , apply to game...
 open settheory_approach
-example {A : Inhabitant} {hA : A ∈ Knight} : 2=2 := by
-  rfl
+set_option diagnostics true
+#check Inter
+--example {A : Inhabitant} {hA : A ∈ Knight} 
+--{h' : Knight ∩ Knave = ∅}
+--: 2=2 := by
+--  rfl
 
 variable {A B C : Islander}
 def allKnaves := A.isKnave ∧ B.isKnave ∧ C.isKnave
@@ -49,13 +53,14 @@ example{K : Type} (S : Set K) : S = {x | x ∈ S} := by exact rfl
 
 -- using Finset.univ instead of all
 -- another formalization using cardinalities instead of A ∈ Knave ∧ B ∈ Knave ∧ C ∈ Knave
-#check Knight2
+--#check Knight2
+open settheory_approach
 #check inst22
+#check Knight
 example
 
   {A1 : Type}
   {inst3 : DecidableEq Type}
-  {Inhabitant : Type}
   {A B C : Inhabitant}
   {inst : DecidableEq Inhabitant}
   {inst2 : Fintype Inhabitant}
@@ -72,7 +77,7 @@ example
 {stB: B ∈ Knight ↔ (Knight = {A} ∨ Knight = {B} ∨ Knight = {C}) }
 {stBn: B ∈ Knave ↔ ¬ (Knight = {A} ∨ Knight = {B} ∨ Knight = {C}) }
   : Solution A B C Knight Knave:= by
-  have : A1 ∈ Knight2 := sorry
+  --have : A1 ∈ Knight2 := sorry
   have AKnave : A ∈ Knave := by {
       #check iff_iff_implies_and_implies
       have := (iff_iff_implies_and_implies).mp stA

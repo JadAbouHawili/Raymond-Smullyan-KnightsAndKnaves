@@ -6,13 +6,8 @@ import Lean
 
 set_option push_neg.use_distrib true
 
-    #check Nat.lt_one_iff
-    #check Finset.card_eq_zero
-    #check Finset.subset_singleton_iff
    #check Finset.subset_of_eq
-   #check Finset.empty_subset
   #check Finset.ssubset_iff_subset_ne
-  #check Finset.subset_def
   #check Finset.subset_iff
 theorem eq_of_or_not
 {A B w : Type}
@@ -39,8 +34,6 @@ example
   (knavenonemp : Knave ≠ ∅)
 (all : ∀ (x : K), x = A ∨ x = B)
   (h'' : ∀ (x: K), x ∈ Knight ∨ x ∈ Knave)
-  -- can knave.card be replaced with A ∈ Knave ∨ B ∈ Knave? A ∈ Knave ∨ B ∈ Knave beaing true means that A ∈ Knave , or B ∈ knave or both. this can be shown on the truth table
-  -- Knave.card ≥ 1 can be replaced by A knave or B knave
   (stA : A ∈ Knight ↔ Knave.card ≥ 1)
   (stAn : A ∈ Knave ↔ Knave.card < 1)
   : A ∈ Knight ∧ B ∈ Knave:= by
@@ -118,14 +111,6 @@ example
       exact notleft_right AknOrB AnKnave 
   }
 
---A: 'At least one of us is a knave.'
---What are A and B? "
-def AtLeastOneIsKnave (A B : Islander) : Prop := (A.isKnave) ∨ (B.isKnave)
-example 
-{A B : Islander}
-{stA : A said (A.isKnave or B.isKnave)}
-: A.isKnight and B.isKnave := by 
-  sorry
 
 --open Lean Parser Elab Tactic
 --elab "show_goal" t:tactic : tactic => do
@@ -271,5 +256,3 @@ cases h1 with
   #check Finset.subset_iff
 
 #check Finset.subset_singleton_iff  
-#check Finset.empty_subset
-#check Finset.subset_of_eq

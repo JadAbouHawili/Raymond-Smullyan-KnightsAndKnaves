@@ -6,57 +6,13 @@ import Mathlib.Data.Set.Basic
 import Mathlib.Data.Fintype.Card
 import Mathlib.Data.Multiset.Basic
 import Mathlib.Tactic.Have
-
 import SmullyanKnightsAndKnaves.logic
 import SmullyanKnightsAndKnaves.settheory
 
+namespace settheory_approach
 
-    #check Finset.mem_insert
-    #check Finset.mem_insert_of_mem
-    #check Finset.mem_of_mem_inter_left
-#check Finset.singleton_subset_iff
-#check Finset.subset_of_eq
-#check Finset.mem_singleton
-#check Set.eq_singleton_iff_unique_mem
 
-#check Set.mem_singleton_iff
-#check Set.subset_insert_iff_of_not_mem
 
-#check Finset.mem_singleton
-#check Finset.mem_singleton_self
-
------------
-
--- coe
-#check Set.toFinset
-
-#check Finset.toSet 
-
-    #check Finset.coe_inj
-    #check Finset.coe_inter
-    #check Finset.coe_empty
-#check Set.mem_toFinset
-
---      #check Finset.instCoeTCFinsetSet
-      #check Finset.mem_coe
-      #check Finset.coe_inj
-      #check Finset.mem_coe.mpr 
-      #check Finset.mem_coe.symm 
-      #check Finset.mem_def.mp 
-        #check Set.mem_toFinset
-        #check Set.toFinset
-#check Finset.coe_inj.symm
-#check Finset.coe_inter
-#check Finset.coe_empty
-
--- two options
-#check Finset.toSet -- natural way
-#check Set.toFinset -- needs fintype instance
-#check Fintype
--- to sort out
-
-#check Set.mem_univ
----------------------------
 example {K : Type} {A B C : K} (S : Set K) (h : S ⊆ {A,B,C}) (h': A ∉ S) : S ⊆ {B,C} := by
   exact (Set.subset_insert_iff_of_not_mem h').mp h
 
@@ -69,11 +25,8 @@ example {K : Type}
 {L : Finset K} {sub : S ⊆ L} : S.card ≤ L.card := by 
   exact Finset.card_le_card sub
 
-
 #check Insert
 #check Set.univ
-
-
 
 -- can use to intuitively explain other things like x ∈ {A} means x=A etc.. start from it and then say more generally ...
 -- mem1_iff_or for x ∈ {A}
@@ -95,13 +48,15 @@ example {K : Type}
   #check Set.mem_compl_iff
   #check Set.inter_eq_compl_compl_union_compl
 
---theorem mem_iff_or_finset 
+--theorem mem_iff_or_finset
 --
 --{K : Type}
 --{inst : DecidableEq K} 
 --{A B C: K} {x : K} : x ∈ ({A,B,C} : Finset K) ↔  x = A ∨ x =B ∨ x = C := by
 
-
+macro_rules
+| `(tactic| contradiction) => 
+  do `(tactic |first | ( apply not_both  ; repeat assumption) )
 theorem IamKnave
 {Inhabitant : Type}
   {A : Inhabitant}
@@ -179,43 +134,113 @@ theorem all_univ_subset
 
 #check inleft_notinrightIff
 -- theorem used in simp would need arguments passed to it, change so that theorems used require fewer arguments
-namespace settheory_approach
+--namespace settheory_approach
+--
+--axiom Inhabitant : Type
+--axiom inst222 : DecidableEq Type
+--axiom inst : DecidableEq Inhabitant
+--axiom inst1 : DecidableEq Inhabitant
+--axiom inst2 : Fintype Inhabitant
+--axiom Knight : Finset Inhabitant
+--axiom Knave : Finset Inhabitant
+--axiom inst22 : DecidableEq Inhabitant
+--axiom inst22222 : Fintype Inhabitant
+--set_option diagnostics true
+--#check inst1
+----variable {inst32 : DecidableEq Inhabitant}
+--def inst0 : DecidableEq Inhabitant := sorry
+--variable [s : DecidableEq Inhabitant]
+--#check Knight ∩ Knave
+--example {A : Inhabitant} {h : A ∈ Knight}
+----{inst222 : DecidableEq Inhabitant}
+--{hKKn : Knight ∩ Knave = ∅ }
+--: 2=2 := by
+--  rfl
+--#check inleft_notinrightIff
+--#check inleft_notinright
+--
+---- *
+--macro "knight_to_knave" "at" t1:Lean.Parser.Tactic.locationWildcard : tactic =>
+--do`(tactic| simp [inleft_notinrightIff] at $t1)
+---- goal
+--macro "knight_to_knave" : tactic =>
+--do`(tactic| simp [inleft_notinrightIff])
+---- hypothesis
+--macro "knight_to_knave" "at" t1:Lean.Parser.Tactic.locationHyp : tactic =>
+--do`(tactic| simp [inleft_notinrightIff] at $t1)
+----     (rw [inleft_notinrightIff] at BKnave <;> try assumption) ; simp at BKnave
+--#check inleft_notinrightIff
+---- this would work for one hypothesis but what about for *,everything?
+--macro "knight_to_knave2" "at" t1:Lean.Parser.Tactic.locationHyp : tactic =>
+--do`(tactic|
+--rw [inleft_notinrightIff] at $t1 <;> try assumption )
+--
+---- doesnt work
+----macro "set_knight_to_knave_newest" "at" t1:Lean.Parser.Tactic.locationHyp : tactic =>
+----do`(tactic|
+----    (simp [inleft_notinrightIff] at $t1 ; try assumption) )
+---- *
+--macro "knave_to_knight" "at" t1:Lean.Parser.Tactic.locationWildcard : tactic => 
+--do`(tactic| simp [inright_notinleftIff] at $t1)
+--macro "knave_to_knight" : tactic =>
+--do`(tactic| simp [inright_notinleftIff])
+---- hypothesis
+--macro "knave_to_knight" "at" t1:Lean.Parser.Tactic.locationHyp : tactic =>
+--do`(tactic| simp [inright_notinleftIff] at $t1)
+--end settheory_approach
 
-axiom Inhabitant : Type
-axiom inst : DecidableEq Inhabitant
-axiom inst2 : Fintype Inhabitant
+-- environment
+axiom  Inhabitant : Type
 axiom Knight : Finset Inhabitant
 axiom Knave : Finset Inhabitant
-axiom inst22 : DecidableEq Inhabitant
-#check Knight
-example {A : Inhabitant} {h : A ∈ Knight}: 2=2 := by 
-  rfl
--- *
-macro "set_knight_to_knave" "at" t1:Lean.Parser.Tactic.locationWildcard : tactic =>
-do`(tactic| simp [inleft_notinrightIff] at $t1)
--- goal
-macro "set_knight_to_knave" : tactic =>
-do`(tactic| simp [inleft_notinrightIff])
--- hypothesis
-macro "set_knight_to_knave" "at" t1:Lean.Parser.Tactic.locationHyp : tactic =>
-do`(tactic| simp [inleft_notinrightIff] at $t1)
---     (rw [inleft_notinrightIff] at BKnave <;> try assumption) ; simp at BKnave
-#check inleft_notinrightIff
--- this would work for one hypothesis but what about for *,everything?
-macro "set_knight_to_knave2" "at" t1:Lean.Parser.Tactic.locationHyp : tactic =>
-do`(tactic|
-rw [inleft_notinrightIff] at $t1 <;> try assumption )
+--axiom inst : DecidableEq Inhabitant
+--variable ( inst : DecidableEq Inhabitant)
+variable [DecidableEq Inhabitant]
 
--- doesnt work
-macro "set_knight_to_knave_newest" "at" t1:Lean.Parser.Tactic.locationHyp : tactic =>
-do`(tactic|
-    (simp [inleft_notinrightIff] at $t1 ; try assumption) )
+axiom dis : Knight ∩ Knave = ∅ 
+
+theorem disjoint_without
+{A : Inhabitant}
+(Aleft : A ∈ Knight)
+(Aright : A ∈ Knave)  : False := by 
+  have := Finset.mem_inter_of_mem Aleft Aright
+  rw [dis] at this
+  contradiction
+
+/-
+  {Knight : Finset Inhabitant} {Knave : Finset Inhabitant}
+{h : Knight ∩ Knave = ∅ }
+-/
+--example {h : Knight ∩ Knave = ∅ }
+--: 2=2 := by
+--  sorry
+
+axiom either (A : Inhabitant): A ∈ Knight ∨ A ∈ Knave 
 -- *
-macro "set_knave_to_knight" "at" t1:Lean.Parser.Tactic.locationWildcard : tactic => 
-do`(tactic| simp [inright_notinleftIff] at $t1)
-macro "set_knave_to_knight" : tactic =>
-do`(tactic| simp [inright_notinleftIff])
+macro "set_knight_to_knave" t2:term "at"  t1:Lean.Parser.Tactic.locationWildcard : tactic =>
+do`(tactic| simp [inleft_notinrightIff (either $t2) dis] at $t1)
+-- goal
+macro "set_knight_to_knave" t2:term : tactic =>
+do`(tactic| simp [inleft_notinrightIff (either $t2) dis])
 -- hypothesis
-macro "set_knave_to_knight" "at" t1:Lean.Parser.Tactic.locationHyp : tactic =>
-do`(tactic| simp [inright_notinleftIff] at $t1)
+macro "set_knight_to_knave" t2:term "at" t1:Lean.Parser.Tactic.locationHyp : tactic =>
+do`(tactic| 
+simp [inleft_notinrightIff (either $t2) dis] at $t1)
+
+-- *
+macro "set_knave_to_knight" t2:term "at"  t1:Lean.Parser.Tactic.locationWildcard : tactic =>
+do`(tactic| simp [inright_notinleftIff (either $t2) dis] at $t1)
+-- goal
+macro "set_knave_to_knight" t2:term : tactic =>
+do`(tactic| simp [inright_notinleftIff (either $t2) dis])
+-- hypothesis
+macro "set_knave_to_knight" t2:term "at" t1:Lean.Parser.Tactic.locationHyp : tactic =>
+do`(tactic| 
+simp [inright_notinleftIff (either $t2) dis] at $t1)
+
+macro "set_knight_or_knave" t1:term  : tactic =>
+do`(tactic| cases (either $t1)  )
+
+macro "set_knight_or_knave" t1:term "with" t2:rcasesPat t3:rcasesPat  : tactic =>
+do`(tactic| obtain $t2|$t3 := (either $t1)  )
 end settheory_approach

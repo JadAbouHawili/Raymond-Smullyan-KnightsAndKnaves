@@ -33,30 +33,30 @@ example
   : B ∈ Knave ∧ C ∈ Knight := by 
   have : ¬B ∈ Knight 
   intro BKnight
-  knave_to_knight B at stC
-  knight_to_knave C at stC
+  set_knave_to_knight B at stC
+  set_knight_to_knave C at stC
   rw [not_iff_not] at stC  
   have CKnave := stC.mpr BKnight
 
   have oneK := stB.mp BKnight
-  knight_or_knave A with AKnight AKnave
+  set_knight_or_knave A with AKnight AKnave
   have oneK := oneK.mp AKnight
   unfold oneKnight at oneK
   simp [AKnight, CKnave, BKnight] at oneK
-  knave_to_knight A at oneK 
-  knave_to_knight B at oneK 
+  set_knave_to_knight A at oneK 
+  set_knave_to_knight B at oneK 
   simp [ CKnave, BKnight] at oneK
   contradiction
 
-  knave_to_knight A at AKnave
+  set_knave_to_knight A at AKnave
   rw [not_iff_not.symm] at oneK
   have notone := oneK.mp AKnave 
   unfold oneKnight at notone
   simp [AKnave, CKnave, BKnight] at notone
-  knave_to_knight A at notone
+  set_knave_to_knight A at notone
   simp [AKnave] at notone
 
-  knight_to_knave B at this
+  set_knight_to_knave B at this
   simp [this,stC]
 
 #check eq_or_lt_of_le

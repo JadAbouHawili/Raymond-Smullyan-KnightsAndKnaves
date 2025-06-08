@@ -878,6 +878,3 @@ axiom not_both
   {inst : DecidableEq Inhabitant}
   {Knight : Finset Inhabitant} {Knave : Finset Inhabitant}
   (AKnight : A ∈ Knight) (AKnave : A ∈ Knave)  : False
-macro_rules
-| `(tactic| contradiction) => 
-  do `(tactic |first | ( apply not_both  ; repeat assumption) )

@@ -3,6 +3,18 @@ import Mathlib.Tactic.ApplyAt
 import Mathlib.Tactic.ApplyFun
 import Lean.Parser.Tactic
 
+import Mathlib.Data.Set.Basic
+import Mathlib.Data.Fintype.Card
+import Mathlib.Data.Multiset.Basic
+import Mathlib.Data.Set.Basic
+import Mathlib.Data.Set.Basic
+import Mathlib.Data.Fintype.Card
+import Mathlib.Data.Multiset.Basic
+import Mathlib.Tactic.Have
+
+import SmullyanKnightsAndKnaves.logic
+--import SmullyanKnightsAndKnaves.settheory
+
 -- hide all this from the user
 
 axiom Islander : Type
@@ -100,7 +112,7 @@ do`(tactic| simp [isKnave_notisKnightIff] at $t1)
 -- this truly extends contradiction tactic, preserving doc string
 macro_rules
 | `(tactic| contradiction) => 
-  do `(tactic |first | ( apply not_isKnight_and_isKnave ; constructor ; assumption ; assumption   ) )
+  do `(tactic |solve  | ( apply not_isKnight_and_isKnave ; constructor ; assumption ; assumption   ) )
 --solve | contradiction ; contradict)
 
 theorem knave_said2 {A : Islander} {P : Prop} : A said P → A.isKnave → ¬ P := by 
@@ -128,6 +140,8 @@ A is a knight. A says that B is a knave. Prove that B is a knave.
 example {A B : Islander} (hA : A.isKnight) (hAB : A said B.isKnave) : B.isKnave := by
   exact knight_said hAB hA
 
+example {P : Prop} (h : P) (h' : ¬P) : 2=2 := by 
+  contradiction
 /-
 A : I am a Knave or B is a Knave.
 -/
@@ -163,5 +177,5 @@ theorem dsl_iamknave {A : Islander} (hAKn : A said A.isKnave): False := by
     apply @not_isKnight_and_isKnave A
     constructor
     assumption ; assumption
-  · have hnA := knave_said hAKn hnA
+  · have hnA2 := knave_said hAKn hnA
     contradiction

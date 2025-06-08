@@ -35,6 +35,8 @@ You can look into:
 - [Prolog](https://www.youtube.com/watch?v=oEAa2pQKqQU)
 
 ## Translation between puzzles
+Puzzles can translated from one representation to the other, and the solution as well.
+
 We have the following correspondence:
 | Set Theory       | DSL           | Propositional  |
 | ------------- |:-------------:| -----:|
@@ -48,4 +50,3 @@ We have the following correspondence:
 
 Note for `¬¬A`, it is equivalent to `A`
 
-Puzzles can translated from one representation to the another, and the solution as well.

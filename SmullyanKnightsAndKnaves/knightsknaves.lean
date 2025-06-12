@@ -56,7 +56,7 @@ example {K : Type}
 
 macro_rules
 | `(tactic| contradiction) => 
-  do `(tactic |first | ( apply not_both  ; repeat assumption) )
+  do `(tactic |solve  | ( apply not_both  ; repeat assumption) )
 theorem IamKnave
 {Inhabitant : Type}
   {A : Inhabitant}

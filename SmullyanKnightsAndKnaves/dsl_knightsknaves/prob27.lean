@@ -59,47 +59,6 @@ example
   set_knight_to_knave B at this
   simp [this,stC]
 
-#check eq_or_lt_of_le
-#check eq_iff_le_not_lt
-#check Finset.card_le_one_iff
-
-      #check Set.subset_insert_iff_of_not_mem 
-      #check Set.subset_singleton_iff_eq
-#check Nat.le_of_eq
-#check ({1,2} : Multiset ℕ)
-
-#check Set.insert
-#check Set.eq_of_mem_singleton 
---
-#check Multiset.mem_singleton
-        #check Finset.eq_of_mem_singleton
-#check Set.eq_of_mem_singleton 
-#check Set.subset_insert_iff_of_not_mem 
-
-#check Set.subset_insert_iff_of_not_mem
-#check Set.subset_insert_iff_of_not_mem
-#check Set.Subsingleton
-#check Set.subsingleton_or_nontrivial 
-
-    #check Finset.card_pos
-    #check Finset.card_ne_zero_of_mem
-  #check Classical.not_iff
-
-
-#check Set.mem_setOf_eq 
-#check Finset.mem_insert 
-#check Finset.mem_singleton
-#check       Finset.mem_insert
-#check    Finset.card_eq_two
-#check    Finset.card
-#check Finset.card_le_card
-#check Finset.mem_insert_self
-    #check Finset.ssubset_iff_subset_ne
-
-  #check Ne.symm
-  #check Nat.ne_of_lt
-  #check Finset.card_singleton
-
 example  
 {A B C : Inhabitant}
 (h : Knight ∩ Knave = ∅ )
@@ -212,23 +171,3 @@ by
     constructor
     assumption
     assumption
-
-#check Set.mem_setOf_eq 
-#check Finset.mem_insert
-
-#check Finset.card_eq_one
-#check Finset.eq_singleton_iff_unique_mem
-#check Finset.ssubset_iff_subset_ne
-#check Finset.subset_singleton_iff
-#check Finset.card_pos
-#check Finset.card_eq_one
-#check Finset.card_eq_two
-#check Finset.card_pos
-#check Finset.Nonempty
-#check eq_true
-#check card_finset_fin_le
-#check Finset.card_ne_zero_of_mem
-#check Fin
-
-#check Set.toFinset
-#check and_iff_right_iff_imp

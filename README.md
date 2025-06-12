@@ -6,7 +6,6 @@ There are three competing formalizations of knights and knaves.
 
 ## Set Theory Approach
 The setup for this approach is in `settheory.lean`.
-You can read about this setup and solve problems [here](https://adam.math.hhu.de/#/g/jadabouhawili/knightsandknaves-lean4game/world/KnightsAndKnavesLemmas/level/0)
 
 This approach has many custom theorems(some used to solve puzzles and some not) concerning sets.
 You can forgo these and only have the basic setup.

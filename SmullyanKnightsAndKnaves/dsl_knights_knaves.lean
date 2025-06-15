@@ -89,7 +89,7 @@ macro "knave_to_knight" : tactic =>
 do`(tactic| simp [isKnave_notisKnightIff])
 -- hypothesis
 macro "knave_to_knight" "at" t1:Lean.Parser.Tactic.locationHyp : tactic =>
-do`(tactic| simp [isKnave_notisKnightIff] at $t1)
+do`(tactic| simp only [isKnave_notisKnightIff,not_not] at $t1)
 
 -- tell the user to use this instead of explaining stuff... this custom tactic hides not_isKnight_and_isKnave from the user and makes it so that the user doesn't need to interface with that directly.
 --macro "contra_knight_knave" : tactic =>

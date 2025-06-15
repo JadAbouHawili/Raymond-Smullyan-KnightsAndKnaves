@@ -3,11 +3,6 @@ import SmullyanKnightsAndKnaves.dsl_knights_knaves
 
 import Mathlib.Tactic.Have
 import SmullyanKnightsAndKnaves.settheory
-  #check Classical.not_and_iff_or_not_not
-  #check not_and
-  #check or_iff_right_of_imp
-  #check not_and_of_not_or_not
-  #check not_or
 example {P Q : Prop} : (P ↔ (P ↔ Q)) ↔ (P ↔ Q) := by 
   have : P ↔ (P ↔ Q) := sorry
   have : P ↔ Q := by
@@ -69,17 +64,9 @@ example {A B C : Prop}
     --assumption
 
   exact ⟨nA,nB,hC⟩ 
-#check iff_iff_eq
-#check iff_true_right
-#check Int.sign_eq_neg_one_iff_neg
 
 theorem PQiff{P Q : Prop} (hP : P) ( hQ : Q )
 : ¬P ↔ ¬Q := by 
-  #check iff_of_true
-  #check iff_false_right
-  #check iff_true_right
-  #check iff_of_true
-  #check iff_of_false
 
   rw [not_iff_not]
   exact iff_of_true hP hQ 
@@ -174,7 +161,3 @@ example {A B C : Prop}
 
     -- have A ↔ ¬C as AdiffC , having an AsameC as well and running contradiction would close the goal....
     sorry
-
-#check not_imp
-#check not_iff_not
-#check and_imp

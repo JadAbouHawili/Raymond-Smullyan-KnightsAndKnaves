@@ -245,14 +245,3 @@ cases h1 with
       contradiction
 
 }
-#print axioms organized
-
-  #check Finset.subset_insert_iff_of_not_mem
-  #check Finset.card_le_card
-  #check Finset.card_eq_one
-  #check Nat.le_antisymm
-  #check Finset.ssubset_iff_subset_ne
-  #check Finset.subset_def
-  #check Finset.subset_iff
-
-#check Finset.subset_singleton_iff  

@@ -116,33 +116,12 @@ example
 
   }
 
---inductive person: Type | Tracy |Oberon| Wendy open person
---inductive type: Type|knight|knave open type
---variable (t:person → type)
---def stat(p:person): Prop := match p with
---|Tracy => t Wendy = knave 
---| Oberon => t Tracy = knight ∧ t Oberon = knave 
---| Wendy => t Oberon = knave 
-
 ------------------
 -- inverse direction is obvious...
 example {K : Type} (A : Finset K) (ge1 : A.card ≥ 1) : ∃ a:K, {a} ⊆ A := by 
   --rw [] at ge1 
   --by_contra h
   --push_neg at h
-  #check gt_or_eq_of_le
-  #check lt_iff_not_ge
-  #check Finset.card_eq_zero
-  #check Finset.nonempty_iff_ne_empty
-  #check Function.mt Finset.ne_empty_of_mem
-  #check Finset.card_empty
-  #check Finset.card_eq_zero
-
-  #check Finset.erase_eq_empty_iff
-  #check gt_of_gt_of_ge
-  #check gt_of_ge_of_gt
-  #check gt_of_ge_of_gt
-  #check not_iff_not.mpr Finset.card_le_one_iff_subset_singleton
   have := gt_or_eq_of_le ge1
   rcases this with h|h
   · --#check Finset.card_le_of_subset 
@@ -256,27 +235,7 @@ example
   -- B ∉ Knight
   sorry
 
-#print Xor'
-#check Xor
-#check not_xor
-
-#check not_iff
-#check Xor'
-#check and_iff_not_or_not
-#check iff_iff_and_or_not_and_not
-#check not_iff_not
-
-#check not_iff_not
-#check xor_iff_not_iff
-#check xor_iff_iff_not
-#check xor_iff_not_iff'
-#check iff_iff_and_or_not_and_not
-#check or_self
-
-#check HEq
-#check Eq
-
-example 
+example
 {K : Type}
 {x y : K} {inst : DecidableEq K}
   (Knight : Finset K ) (Knave : Finset K)

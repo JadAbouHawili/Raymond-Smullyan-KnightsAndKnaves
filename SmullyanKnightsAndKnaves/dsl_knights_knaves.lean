@@ -129,6 +129,10 @@ example {P : Prop} {hP : P} {hnP : ¬P} : False := by
   contradiction
 end tactics
 
+def allKnights {A B C : Islander}:= A.isKnight ∧ B.isKnight ∧ C.isKnight
+def allKnaves {A B C : Islander} := A.isKnave ∧ B.isKnave ∧ C.isKnave
+def oneisknight {A B C : Islander} := (A.isKnight ∧ B.isKnave ∧ C.isKnave)  ∨(A.isKnave ∧  B.isKnight ∧ C.isKnave) ∨ (A.isKnave ∧ B.isKnave ∧  C.isKnight)
+def exactlyOneIsKnave {A B C : Islander} : Prop := (A.isKnave and B.isKnight and C.isKnight) ∨ (A.isKnight and B.isKnave and C.isKnight) ∨ (A.isKnight and B.isKnight and C.isKnave)
 end Islander
 
 open Islander

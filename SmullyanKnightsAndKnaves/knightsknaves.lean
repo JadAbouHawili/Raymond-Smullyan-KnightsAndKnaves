@@ -12,6 +12,16 @@ import SmullyanKnightsAndKnaves.settheory
 namespace settheory_approach
 
 
+axiom  Inhabitant : Type
+axiom Knight : Finset Inhabitant
+axiom Knave : Finset Inhabitant
+--axiom inst : DecidableEq Inhabitant
+--variable ( inst : DecidableEq Inhabitant)
+axiom inst : DecidableEq Inhabitant
+
+variable [DecidableEq Inhabitant]
+axiom dis : Knight ∩ Knave = ∅ 
+axiom KorKn {A : Inhabitant}: A ∈ Knight ∨ A ∈ Knave 
 
 example {K : Type} {A B C : K} (S : Set K) (h : S ⊆ {A,B,C}) (h': A ∉ S) : S ⊆ {B,C} := by
   exact (Set.subset_insert_iff_of_not_mem h').mp h
@@ -58,17 +68,12 @@ macro_rules
 | `(tactic| contradiction) => 
   do `(tactic |solve  | ( apply not_both  ; repeat assumption) )
 theorem IamKnave
-{Inhabitant : Type}
   {A : Inhabitant}
-  [inst : DecidableEq Inhabitant]
-  {Knight : Finset Inhabitant} {Knave : Finset Inhabitant}
-(h : Knight ∩ Knave = ∅ )
-(h1 : A ∈ Knight ∨ A ∈ Knave )
 (stA : A ∈ Knight  ↔ (A ∈ Knave) )
   : False := by
 
   {
-    rcases h1 with AKnight|AKnave
+    rcases KorKn with AKnight|AKnave
 
     · have := stA.mp AKnight
       contradiction
@@ -79,17 +84,13 @@ theorem IamKnave
   }
 
 theorem IamKnaveIffFalse
-{Inhabitant : Type}
 {A : Inhabitant}
-  {inst : DecidableEq Inhabitant}
-  {Knight : Finset Inhabitant} {Knave : Finset Inhabitant}
-  (h : (Knight ∩ Knave) = ∅)
   (Or : (A ∈ Knight ∨ A ∈ Knave))
 : False ↔  (A ∈ Knight  ↔ (A ∈ Knave))  
    := by
     constructor
     exact fun a => a.elim
-    exact IamKnave h Or 
+    exact IamKnave  
 
 --inductive type interpretation?
 --variable (Inhabitant : Type)
@@ -190,14 +191,6 @@ theorem all_univ_subset
 --end settheory_approach
 
 -- environment
-axiom  Inhabitant : Type
-axiom Knight : Finset Inhabitant
-axiom Knave : Finset Inhabitant
---axiom inst : DecidableEq Inhabitant
---variable ( inst : DecidableEq Inhabitant)
-variable [DecidableEq Inhabitant]
-
-axiom dis : Knight ∩ Knave = ∅ 
 
 theorem disjoint_without
 {A : Inhabitant}

@@ -133,7 +133,6 @@ theorem all_univ_subset
     assumption
     -/
 
-#check inleft_notinrightIff
 -- theorem used in simp would need arguments passed to it, change so that theorems used require fewer arguments
 --namespace settheory_approach
 --
@@ -176,10 +175,6 @@ theorem all_univ_subset
 --do`(tactic|
 --rw [inleft_notinrightIff] at $t1 <;> try assumption )
 --
----- doesnt work
-----macro "set_knight_to_knave_newest" "at" t1:Lean.Parser.Tactic.locationHyp : tactic =>
-----do`(tactic|
-----    (simp [inleft_notinrightIff] at $t1 ; try assumption) )
 ---- *
 --macro "knave_to_knight" "at" t1:Lean.Parser.Tactic.locationWildcard : tactic => 
 --do`(tactic| simp [inright_notinleftIff] at $t1)
@@ -192,6 +187,66 @@ theorem all_univ_subset
 
 -- environment
 
+theorem inleft_notinright
+{A : Inhabitant}
+(h : Knight ∩ Knave = ∅ )
+(h' : A ∈ Knight) : A ∉ Knave := by
+  intro a 
+  #check Finset.mem_inter_of_mem
+  have := Finset.mem_inter_of_mem h' a
+  rw [h] at this
+  contradiction
+
+theorem notinleft_inright
+{A : Inhabitant}
+(h' : A ∉ Knight) : A ∈ Knave := by
+  exact notleft_right KorKn h'
+
+theorem inright_notinleft
+{A : Inhabitant}
+(h : Knight ∩ Knave = ∅ )
+(h' : A ∈ Knave) : A ∉ Knight := by
+  intro a 
+  have := Finset.mem_inter_of_mem h' a
+  rw [Finset.inter_comm] at h
+  rw [h] at this
+  contradiction
+
+theorem notinright_inleft
+{A : Inhabitant}
+(h' : A ∉ Knave) : A ∈ Knight := by
+  exact notright_left KorKn h'
+
+-------------------
+theorem inleft_notinrightIff
+{A : Inhabitant}
+: A ∈ Knight ↔  ¬(A ∈ Knave) := by
+  constructor
+  · exact inleft_notinright dis
+  · exact notinright_inleft
+  
+theorem notinleft_inrightIff
+{A : Inhabitant}
+: A ∉ Knight ↔  A ∈ Knave := by
+  constructor
+  · exact notinleft_inright
+  · exact inright_notinleft dis
+
+theorem inright_notinleftIff
+  {A : Inhabitant}
+: A ∈ Knave ↔  A ∉ Knight := by
+  constructor
+  · exact inright_notinleft dis
+  · exact notleft_right KorKn
+
+theorem notinright_inleftIff
+  {A : Inhabitant}
+ : A ∉ Knave ↔  A ∈ Knight := by
+  constructor
+  · exact notinright_inleft
+  · exact inleft_notinright dis
+
+
 theorem disjoint_without
 {A : Inhabitant}
 (Aleft : A ∈ Knight)
@@ -200,36 +255,28 @@ theorem disjoint_without
   rw [dis] at this
   contradiction
 
-/-
-  {Knight : Finset Inhabitant} {Knave : Finset Inhabitant}
-{h : Knight ∩ Knave = ∅ }
--/
---example {h : Knight ∩ Knave = ∅ }
---: 2=2 := by
---  sorry
-
 axiom either (A : Inhabitant): A ∈ Knight ∨ A ∈ Knave 
 -- *
 macro "set_knight_to_knave" t2:term "at"  t1:Lean.Parser.Tactic.locationWildcard : tactic =>
-do`(tactic| simp [inleft_notinrightIff (either $t2) dis] at $t1)
--- goal
+do`(tactic| simp [inleft_notinrightIff] at $t1)
+
 macro "set_knight_to_knave" t2:term : tactic =>
-do`(tactic| simp [inleft_notinrightIff (either $t2) dis])
+do`(tactic| simp [inleft_notinrightIff])
 -- hypothesis
 macro "set_knight_to_knave" t2:term "at" t1:Lean.Parser.Tactic.locationHyp : tactic =>
 do`(tactic| 
-simp [inleft_notinrightIff (either $t2) dis] at $t1)
+simp [inleft_notinrightIff] at $t1)
 
 -- *
 macro "set_knave_to_knight" t2:term "at"  t1:Lean.Parser.Tactic.locationWildcard : tactic =>
-do`(tactic| simp [inright_notinleftIff (either $t2) dis] at $t1)
+do`(tactic| simp [inright_notinleftIff] at $t1)
 -- goal
 macro "set_knave_to_knight" t2:term : tactic =>
-do`(tactic| simp [inright_notinleftIff (either $t2) dis])
+do`(tactic| simp [inright_notinleftIff])
 -- hypothesis
 macro "set_knave_to_knight" t2:term "at" t1:Lean.Parser.Tactic.locationHyp : tactic =>
 do`(tactic| 
-simp [inright_notinleftIff (either $t2) dis] at $t1)
+simp [inright_notinleftIff] at $t1)
 
 macro "set_knight_or_knave" t1:term  : tactic =>
 do`(tactic| cases (either $t1)  )

@@ -1,11 +1,10 @@
 import SmullyanKnightsAndKnaves.knightsknaves
-import SmullyanKnightsAndKnaves.dsl_knights_knaves
+--import SmullyanKnightsAndKnaves.dsl_knights_knaves
 
 open settheory_approach
 #check Knight
 
 
-variable {Inhabitant : Type}
 variable {A B C : Inhabitant}
 inductive Solution (A B C : Inhabitant) (Knight : Finset Inhabitant) (Knave : Finset Inhabitant)
 | submit (h : A ∈ Knave ∧ B ∈ Knight ∧ C ∈ Knave) : Solution A B C (Knight) (Knave)
@@ -26,14 +25,12 @@ theorem all_in_one
     #check Finset.eq_of_subset_of_card_le 
     exact (everyone_in_set_eq all).mp ⟨hA,hB,hC⟩ 
 
-
+#check Knight
+#check Inhabitant
 example
-
-  {inst3 : DecidableEq Type}
   {A B C : Inhabitant}
   {inst : DecidableEq Inhabitant}
   {inst2 : Fintype Inhabitant}
-  {Knight : Finset Inhabitant} {Knave : Finset Inhabitant}
   {all : Finset.univ = {A,B,C}}
   --{all : ∀(x : Inhabitant), x = A ∨ x = B ∨ x = C}
 
@@ -51,7 +48,7 @@ example
       #check iff_iff_implies_and_implies
       have := (iff_iff_implies_and_implies).mp stA
       by_contra AKnight
-      rw [notinright_inleftIff h1 h] at AKnight
+      rw [notinright_inleftIff] at AKnight
       have AKnave := stA.mp AKnight
       have := AKnave.left
       contradiction
@@ -65,7 +62,7 @@ example
     #check inleft_notinrightIff
     have : ¬(B ∈ Knight) := by assumption
     --rw [inleft_notinrightIff (either B )] at this
-    set_knight_to_knave B at this
+    set_knight_to_knave at this
     --simp at BKnave
     --set_knight_to_knave at BKnave
     --rw [notinleft_inrightIff h2 h] at BKnave
@@ -74,8 +71,8 @@ example
     -- have a theorem which says given the universe, Knight.card = 1, and the first element in not in knight and the second as well then the third has to be. this idea of a universe need to be explicitly explained.
     have : Knight ⊆ Finset.univ := by exact Finset.subset_univ Knight
     rw [all] at this 
-    rw [inright_notinleftIff h1 h] at AKnave
-    rw [inright_notinleftIff h2 h] at BKnave
+    rw [inright_notinleftIff] at AKnave
+    --rw [inright_notinleftIff] at BKnave
 
   -- Set.subset_insert_iff_of_not_mem.{u} {α : Type u} {a : α} {s t : Set α} (ha : a ∉ s) : s ⊆ insert a t ↔ s ⊆ t
 
@@ -117,11 +114,11 @@ example
 {AinS : A ∈ S} : {A} ⊆ S := by exact Set.singleton_subset_iff.mpr AinS
 
 
+open settheory_approach
 example
   {A B C : Inhabitant}
   {inst : DecidableEq Inhabitant}
   {inst2 : Fintype Inhabitant}
-  {Knight : Finset Inhabitant} {Knave : Finset Inhabitant}
   {all : ∀(x : Inhabitant), x = A ∨ x = B ∨ x = C}
   { AneB : A ≠ B}
   { BneC : B ≠ C}
@@ -143,9 +140,9 @@ example
       --#check iff_iff_implies_and_implies
       have := (iff_iff_implies_and_implies).mp stA
       by_contra AKnight
-      rw [notinright_inleftIff h1 h] at AKnight
+      rw [notinright_inleftIff] at AKnight
       have AKnave := stA.mp AKnight
-      exact IamKnave h h1 (by simp[AKnight,AKnave.left] )
+      exact IamKnave (by simp[AKnight,AKnave.left] )
       --exact disjoint h AKnight AKnave.left 
     }
 
@@ -158,11 +155,11 @@ example
         apply set_subset_univ
         repeat assumption
       #check Finset.subset_insert_iff_of_not_mem notallknave
-      rw [inright_notinleftIff h1 h] at AKnave
-      rw [inright_notinleftIff h2 h] at BKnave
+      rw [inright_notinleftIff] at AKnave
+      rw [inright_notinleftIff] at BKnave
       rw [Finset.subset_insert_iff_of_not_mem AKnave] at this
       rw [Finset.subset_insert_iff_of_not_mem BKnave] at this
-      rw [notinright_inleftIff h3 h] at notallknave
+      rw [notinright_inleftIff] at notallknave
       have sub : {C} ⊆ Knight := by 
         intro x
         intro hC 
@@ -170,14 +167,14 @@ example
         rw [hC]
         assumption
       have knightC := Finset.Subset.antisymm this sub 
-      rw [notinleft_inrightIff h2 h] at BKnave  
+      rw [notinleft_inrightIff] at BKnave  
       have cont := stBn.mp BKnave 
       push_neg at cont
       exact cont.right.right knightC
      
     have BKnight : B ∈ Knight := by {
       by_contra BKnave
-      rw [notinleft_inrightIff h2 h] at BKnave
+      rw [notinleft_inrightIff] at BKnave
 
       --push_neg at stBn 
       --rw [not_and_or] at stAn
@@ -207,14 +204,14 @@ example
           rcases all x with h_1|h_2
           · rw [h_1] at xK
             exfalso 
-            exact disjoint h xK AKnave
+            exact disjoint xK AKnave
           · rcases h_2 with h_11|h_22
             · rw [h_11] at xK
               exfalso
-              exact disjoint h xK BKnave
+              exact disjoint xK BKnave
             · assumption
       have BKnight:= stB.mpr (by right; right; assumption)
-      exact disjoint h BKnight BKnave  
+      exact disjoint BKnight BKnave  
     }
 
     have CKnave : C ∈ Knave := by {
@@ -243,7 +240,6 @@ example
 example
   {A B C : Inhabitant}
   {inst : DecidableEq Inhabitant}
-  {Knight : Finset Inhabitant} {Knave : Finset Inhabitant}
   {all : ∀(x : Inhabitant), x = A ∨ x = B ∨ x = C}
   { AneB : A ≠ B}
   { BneC : B ≠ C}
@@ -263,7 +259,7 @@ example
   -- also similar to I am a Knave
   have AKnave : A ∈ Knave := by
     by_contra AKnight
-    rw [notinright_inleftIff h1 h] at AKnight
+    rw [notinright_inleftIff] at AKnight
     have everyoneknave := stA.mp AKnight  
     have AKnave: A ∈ Knave := by rw [everyoneknave] ; apply Finset.mem_insert_self
     contradiction
@@ -275,7 +271,7 @@ example
   simp [AnKnight] at stB
   have BKnight2 : B ∈ Knight := by 
     by_contra BKnave 
-    rw [notinleft_inrightIff h2 h] at BKnave 
+    rw [notinleft_inrightIff] at BKnave 
     have CnKnave : C ∉ Knave := by 
       intro CKnave 
       have : Knave = {A,B,C} := by 
@@ -286,7 +282,7 @@ example
     sorry
   have BKnight : B ∈ Knight := by 
     by_contra BKnave
-    rw [notinleft_inrightIff h2 h] at BKnave
+    rw [notinleft_inrightIff] at BKnave
     have notoneknight := stBn.mp BKnave
     push_neg at notoneknight
     -- by stAn, C is a knight because otherwise Knave={A,B,C}. then knight={C} contradiction
@@ -310,11 +306,11 @@ example
         rcases xs with h_1|h_2
         · rw [h_1] at xKnight
           exfalso
-          exact disjoint h xKnight AKnave
+          exact disjoint xKnight AKnave
         · rcases h_2 with h_3|h_4
           · rw [h_3] at xKnight
             exfalso
-            exact disjoint h xKnight BKnave
+            exact disjoint xKnight BKnave
           · assumption
     have := notoneknight.right.right 
     contradiction
@@ -325,7 +321,7 @@ example
   -- repeated pattern of reasoning
   -- A ∉ Knight so Knight ≠ {A}
   #check not_eq_singleton_of_not_mem
-  rw [inright_notinleftIff (h1) h] at AKnave
+  rw [inright_notinleftIff] at AKnave
   have KneA := not_eq_singleton_of_not_mem AKnave 
    
   #check already_full

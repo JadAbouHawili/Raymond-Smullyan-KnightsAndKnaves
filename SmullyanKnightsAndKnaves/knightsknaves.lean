@@ -23,6 +23,14 @@ variable [DecidableEq Inhabitant]
 axiom dis : Knight ∩ Knave = ∅ 
 axiom KorKn {A : Inhabitant}: A ∈ Knight ∨ A ∈ Knave 
 
+theorem disjoint
+{A : Inhabitant}
+(Aleft : A ∈ Knight)
+(Aright : A ∈ Knave)  : False := by 
+  have := Finset.mem_inter_of_mem Aleft Aright
+  rw [dis] at this
+  contradiction
+
 example {K : Type} {A B C : K} (S : Set K) (h : S ⊆ {A,B,C}) (h': A ∉ S) : S ⊆ {B,C} := by
   exact (Set.subset_insert_iff_of_not_mem h').mp h
 
@@ -247,34 +255,27 @@ theorem notinright_inleftIff
   · exact inleft_notinright dis
 
 
-theorem disjoint_without
-{A : Inhabitant}
-(Aleft : A ∈ Knight)
-(Aright : A ∈ Knave)  : False := by 
-  have := Finset.mem_inter_of_mem Aleft Aright
-  rw [dis] at this
-  contradiction
 
 axiom either (A : Inhabitant): A ∈ Knight ∨ A ∈ Knave 
 -- *
-macro "set_knight_to_knave" t2:term "at"  t1:Lean.Parser.Tactic.locationWildcard : tactic =>
+macro "set_knight_to_knave" "at"  t1:Lean.Parser.Tactic.locationWildcard : tactic =>
 do`(tactic| simp [inleft_notinrightIff] at $t1)
 
-macro "set_knight_to_knave" t2:term : tactic =>
+macro "set_knight_to_knave" : tactic =>
 do`(tactic| simp [inleft_notinrightIff])
 -- hypothesis
-macro "set_knight_to_knave" t2:term "at" t1:Lean.Parser.Tactic.locationHyp : tactic =>
+macro "set_knight_to_knave" "at" t1:Lean.Parser.Tactic.locationHyp : tactic =>
 do`(tactic| 
 simp [inleft_notinrightIff] at $t1)
 
 -- *
-macro "set_knave_to_knight" t2:term "at"  t1:Lean.Parser.Tactic.locationWildcard : tactic =>
+macro "set_knave_to_knight" "at"  t1:Lean.Parser.Tactic.locationWildcard : tactic =>
 do`(tactic| simp [inright_notinleftIff] at $t1)
 -- goal
-macro "set_knave_to_knight" t2:term : tactic =>
+macro "set_knave_to_knight" : tactic =>
 do`(tactic| simp [inright_notinleftIff])
 -- hypothesis
-macro "set_knave_to_knight" t2:term "at" t1:Lean.Parser.Tactic.locationHyp : tactic =>
+macro "set_knave_to_knight" "at" t1:Lean.Parser.Tactic.locationHyp : tactic =>
 do`(tactic| 
 simp [inright_notinleftIff] at $t1)
 

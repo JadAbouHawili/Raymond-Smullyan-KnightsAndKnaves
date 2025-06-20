@@ -7,7 +7,7 @@ import SmullyanKnightsAndKnaves.logic
 variable {K : Type}
 variable {A B : K}
 
-theorem disjoint
+theorem disjoint_general
 {K : Type}
 {inst : DecidableEq K}  {left : Finset K} {right : Finset K}
 {A : K}
@@ -495,12 +495,12 @@ theorem all3_in_one_other_empty
   intro xInS'
   rcases all x with h_1|h_2
   · rw [h_1] at xInS'
-    exact disjoint h hA xInS'
+    exact disjoint_general h hA xInS'
   · rcases h_2 with h_3|h_4
     · rw [h_3] at xInS'
-      exact disjoint h hB xInS' 
+      exact disjoint_general h hB xInS' 
     · rw [h_4] at xInS'
-      exact disjoint h hC xInS' 
+      exact disjoint_general h hC xInS' 
 
 
 -- if one is empty then the other eq_all

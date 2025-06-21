@@ -3,8 +3,6 @@ import SmullyanKnightsAndKnaves.dsl_knights_knaves
 -- https://philosophy.hku.hk/think/logic/knights.php
 --Puzzle #201 out of 382
 --
---A very special island is inhabited only by knights and knaves. Knights always tell the truth, and knaves always lie.
---
 --You meet six inhabitants: Joe, Bob, Ted, Zippy, Alice and Zoey. Joe claims, “At least one of the following is true: that I am a knight or that Alice is a knave.” Bob says, “I could say that Zippy is a knight.” Ted tells you that Zippy is a knight and Alice is a knave. Zippy says that it's false that Bob is a knave. Alice tells you, “Either Zippy is a knave or Zoey is a knight.” Zoey tells you that it's not the case that Joe is a knave.
 --
 --Can you determine who is a knight and who is a knave?
@@ -16,9 +14,7 @@ sat( (Joe =:= (Joe + ~Alice)) * (Bob =:= (Zippy)) * (Ted =:= (Zippy * ~Alice) * 
 
 Joe = Bob, Bob = Zippy, Zippy = Ted, Ted = Zoey, Zoey = 0,
 Alice = 1 .
-
 -/
-#check inleft_notinright
 example( Joe Bob Ted Zippy Alice Zoey : Prop)
 (Joe_stat:Joe  ↔  Joe ∨ ¬ Alice)
 (Bob_stat: Bob  ↔  Zippy)
@@ -81,13 +77,15 @@ example( Joe Bob Ted Zippy Alice Zoey : Prop)
 --    All islanders will call a member of the opposite type a knave. So when Tracy says that Wendy is a knave, we know that Wendy and Tracy are opposite types. Since Tracy is a knave, then Wendy is a knight.
 --For these reasons we know the knaves were Tracy and Oberon, and the only knight was Wendy.
 
+open settheory_approach
+#check inst
+#check Inhabitant
+#check A'
+example : A' ∈ Knight := by 
+  sorry
 example
-  {Inhabitant : Type}
   {Tracy Oberon Wendy: Inhabitant}
   {inst : DecidableEq Inhabitant}
-  {Knight : Finset Inhabitant} {Knave : Finset Inhabitant}
-{h : Knight ∩ Knave = ∅ }
-{Or : ∀(x :Inhabitant), x ∈ Knight ∨ x ∈ Knave}
 {stT : Tracy ∈ Knight  ↔ (Wendy ∈ Knave) }
 {stTn : Tracy ∈ Knave  ↔ ¬(Wendy ∈ Knave) }
 {stO: Oberon ∈ Knight ↔ (Tracy ∈ Knight ∧ Oberon ∈ Knave) }
@@ -96,15 +94,16 @@ example
 {stWn : Wendy ∈ Knave ↔ ¬ (Oberon ∈ Knave)}
   : Tracy ∈ Knave ∧ Oberon ∈ Knave ∧ Wendy ∈ Knight := by
   {
+    #check settheory_approach.notinright_inleftIff
     have OberonKnave : Oberon ∈ Knave := by {
       by_contra OberonKnight
-      rw [notinright_inleftIff (Or Oberon) h] at OberonKnight
+      rw [notinright_inleftIff] at OberonKnight
       have := stO.mp OberonKnight
-      exact disjoint h OberonKnight this.right
+      exact disjoint OberonKnight this.right
     }
     have WendyKnight := stW.mpr OberonKnave
     have TracyKnave : Tracy ∈ Knave := by {
-      rw [inleft_notinrightIff (Or Wendy) h] at WendyKnight
+      rw [inleft_notinrightIff] at WendyKnight
       exact stTn.mpr WendyKnight 
     }
 
@@ -113,7 +112,6 @@ example
     constructor
     assumption
     assumption
-
   }
 
 ------------------
@@ -201,40 +199,6 @@ example
   -- now i have C
   sorry
 
-/-
-A: B* ⇔ C
-B: A ∧ C
-C: A*  B*
-
-A: B is a knave, if and only if C is a knight.
-B: A is a knight and C is a knight.
-C: If A is a knave, then B is a knave.
--/
-example
-  {Inhabitant : Type}
-  {A B C : Inhabitant}
-  {inst : DecidableEq Inhabitant}
-  {inst2 : Fintype Inhabitant}
-  {Knight : Finset Inhabitant} {Knave : Finset Inhabitant}
-  {Normal : Finset Inhabitant} 
-{hKKn : Knight ∩ Knave = ∅ }
-{hKN : Knight ∩ Normal = ∅ }
-{hKnN : Knave ∩ Normal = ∅ }
-{all2 : ∀ (x : Inhabitant), x = A ∨ x = B ∨ x = C}
-{Or : ∀(x :Inhabitant), x ∈ Knight ∨ x ∈ Knave ∨ x ∈ Normal}
-{stA : A ∈ Knight → (B ∈ Knave ↔ C ∈ Knight) }
-{stAn : A ∈ Knave → ¬ (B ∈ Knave ↔ C ∈ Knight) }
-
-{stB: B ∈ Knight → (A ∈ Knight ∧  C ∈ Knight) }
-{stBn: B ∈ Knave → ¬ (A ∈ Knight ∧  C ∈ Knight) }
-
-{stC: C ∈ Knight → (A ∈ Knave → B ∈ Knave) }
-{stCn: C ∈ Knave → ¬ (A ∈ Knave → B ∈ Knave) }
-{atleastK : Knight.card ≥ 1}
-{atleastKn : Knave.card ≥ 1} : A ∈ Normal ∧ B ∈ Knave ∧ C ∈ Knight := by 
-  -- B ∉ Knight
-  sorry
-
 example
 {K : Type}
 {x y : K} {inst : DecidableEq K}
@@ -252,15 +216,12 @@ example
     rw [not_and_or] at styn
     rw [not_and_or] at styn
     -- assuming x knight, we get y knight, then we get x and y are different type which is contradiction. so x knave which means y not knight i.e y knave. 
-
     sorry
 
 example
-  {K : Type}
-  {x y : K}
-  {inst : DecidableEq K}
-  (Knight : Finset K ) (Knave : Finset K)
-  (h : Knight ∩ Knave = ∅ ) (h1 : x ∈ Knight ∨ x ∈ Knave) (h2 : y ∈ Knight ∨ y ∈ Knave)
+  {x y : Inhabitant}
+  {inst : DecidableEq Inhabitant}
+  (h2 : y ∈ Knight ∨ y ∈ Knave)
   -- x says y is a knight
   -- y says that x and y are of different type
   (stx : x ∈ Knight ↔ y ∈ Knight)
@@ -270,8 +231,8 @@ example
 
   rw [not_iff_not.symm] at stx
 
-  rw [notinleft_inrightIff h1 h] at stx
-  rw [notinleft_inrightIff  h2 h] at stx
+  rw [notinleft_inrightIff] at stx
+  rw [notinleft_inrightIff] at stx
   rw [stx]
   simp 
 
@@ -281,8 +242,8 @@ example
   rw [sty] at h_1 
   rw [stx] at h_1
   nth_rw 1 [stx.symm] at h_1
-  rw [inright_notinleftIff h1 h]  at h_1
-  rw [inright_notinleftIff this h]  at h_1
+  rw [inright_notinleftIff]  at h_1
+  rw [inright_notinleftIff]  at h_1
   rcases h_1 with ⟨a,b⟩|⟨a',b'⟩
   contradiction
   contradiction

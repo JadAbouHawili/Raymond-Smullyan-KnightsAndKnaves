@@ -18,6 +18,7 @@ axiom Knave : Finset Inhabitant
 --axiom inst : DecidableEq Inhabitant
 --variable ( inst : DecidableEq Inhabitant)
 axiom inst : DecidableEq Inhabitant
+axiom A' : Inhabitant
 
 variable [DecidableEq Inhabitant]
 axiom dis : Knight ∩ Knave = ∅ 

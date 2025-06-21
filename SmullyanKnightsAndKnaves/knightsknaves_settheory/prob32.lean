@@ -1,6 +1,5 @@
 ---- adapat to problems with only 2 inhabitants
 
---Introduction
 --"
 --Suppose instead, A and B say the following:
 --A: All of us are knaves.
@@ -18,12 +17,11 @@ set_option push_neg.use_distrib true
 #check Finset.mem_insert_of_mem
 open settheory_approach
 
+--A: All of us are knaves.
+--B: Exactly one of us is a knave.
 example
   {A B C : Inhabitant}
   {inst : DecidableEq Inhabitant}
-{h1 : A ∈ Knight ∨ A ∈ Knave }
-{h2: B ∈ Knight ∨ B ∈ Knave }
-{h3: C ∈ Knight ∨ C ∈ Knave }
 {stA : A ∈ Knight ↔ (A ∈ Knave ∧ B ∈ Knave ∧ C ∈ Knave) }
 {stAn : A ∈ Knave ↔ ¬ (A ∈ Knave ∧ B ∈ Knave ∧ C ∈ Knave) }
 {stB: B ∈ Knight ↔ (A ∈ Knave ∧ B ∈ Knight ∧ C ∈ Knight ∨ A ∈ Knight ∧ B ∈ Knave ∧ C ∈ Knight ∨ A ∈ Knight ∧ B ∈ Knight ∧ C ∈ Knave) }
@@ -31,6 +29,8 @@ example
   : A ∈ Knave ∧ C ∈ Knight := by
 
   {
+--A: All of us are knaves.
+--B: Exactly one of us is a knave.
   have AKnave : A ∈ Knave := by
     by_contra AKnight
     rw [notinright_inleftIff] at AKnight
@@ -39,8 +39,7 @@ example
 
   constructor
   exact AKnave
-  set_knight_to_knave at h2
-  rcases h2 with BKnight|BKnave
+  set_knight_or_knave B with BKnight BKnave
   ·
     rw [not_or] at stBn
     rw [not_or] at stBn
@@ -57,7 +56,6 @@ example
       exact AKnave ands.left 
     have BKnave := stBn.mpr (And.intro first 
     (And.intro second third)) 
-    set_knave_to_knight at BKnight
     exact disjoint BKnight BKnave
   · have notallknaves := stAn.mp AKnave
     rw [not_and_or] at notallknaves 
@@ -80,8 +78,7 @@ theorem not_eq_singleton_already_full
 (AneB : A ≠ B)
 (AKnave : A ∈ Knave)
 
-: Knave ≠ {B} := by 
-
+: Knave ≠ {B} := by
         intro knaveB 
         rw [knaveB] at AKnave
         #check Finset.mem_singleton
@@ -118,7 +115,7 @@ example
     assumption
     set_knight_or_knave B with BKnight BKnave
     · have knavesingle := stB.mp BKnight
-
+      #check not_eq_singleton_of_not_mem
       have knaveneB : Knave ≠ {B} := not_eq_singleton_already_full AneB AKnave
       have knaveneC : Knave ≠ {C} := not_eq_singleton_already_full AneC AKnave
       simp [knaveneB, knaveneC] at knavesingle
@@ -131,7 +128,7 @@ example
     · by_contra CnKnight
       have CKnave := notleft_right h3 CnKnight
       have AKnight := stA.mpr (by constructor ; assumption ; constructor ; assumption ; assumption)
-      exact disjoint AKnight AKnave
+      contradiction
 
 example {K : Type} {A B : Finset K} (h : A⊆B) : A.card ≤ B.card := by 
   exact Finset.card_le_card h
@@ -201,10 +198,6 @@ example
   {A B C : Inhabitant}
   {inst2 : Fintype Inhabitant}
   {inst : DecidableEq Inhabitant}
-{h : Knight ∩ Knave = ∅ }
-{h1 : A ∈ Knight ∨ A ∈ Knave }
-{h2: B ∈ Knight ∨ B ∈ Knave }
-{h3: C ∈ Knight ∨ C ∈ Knave }
 {AneB : A≠ B}
 {BneC : B≠ C}
 {AneC : A≠ C}
@@ -231,7 +224,7 @@ example
 -- saying there is one knight among us has the effect that everyone else is a knave, sounds like a nice level
 --Can it be determined what B is? Can it be determined what 
 --C is? 
-  rcases h2 with h_3|h_4
+  set_knight_or_knave B with h_3 h_4
   · have oneknave := stB.mp h_3 
     -- knave already full so from oneknave and AKnave we can conclude Knave = {A}
 
@@ -340,7 +333,7 @@ example
     have knavele2: Knave.card ≤ 2 := by 
       #check Nat.lt_iff_le_pred
       exact (Nat.lt_iff_le_pred three_pos).mp knavecardlt3
-     
+
     have card_ge_2 :Knave.card ≥ 2 := by
 
       have ABsub: {A,B} ⊆ Knave := by

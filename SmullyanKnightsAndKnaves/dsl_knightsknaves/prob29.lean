@@ -9,7 +9,6 @@ open Islander
 example {P : Prop} (h : P)(h' : ¬P) : 2=2 := by 
   contradiction
 example
-{A B : Islander}
 {stA : A said (A.isKnave ∨ B.isKnight)}
 : A.isKnight ∧ B.isKnight := by 
   have AKnight : A.isKnight
@@ -25,34 +24,4 @@ example
   have BKnight := knight_said stA AKnight 
   constructor
   repeat assumption
-
-example
-  {Inhabitant : Type}
-  {A B : Inhabitant}
-  {inst : DecidableEq Inhabitant}
-  {Knight : Finset Inhabitant} {Knave : Finset Inhabitant}
-{h : Knight ∩ Knave = ∅ }
-{h1 : A ∈ Knight ∨ A ∈ Knave }
-{stA : A ∈ Knight  ↔ (A ∈ Knave ∨ B ∈ Knight) }
-{stAn : A ∈ Knave ↔ ¬ (A ∈ Knave ∨ B ∈ Knight) }
-  : A ∈ Knight ∧ B ∈ Knight := by
-  {
-    have AnKnave : A ∉ Knave := by
-      intro AKnave
-      have Or : A ∈ Knave ∨ B ∈ Knight := by
-      {
-        left
-        assumption
-      }
-
-      have := stAn.mp AKnave
-      contradiction
-
-    have AKnight := notright_left h1 AnKnave
-    have BKnight := stA.mp AKnight
-    constructor
-    assumption
-    exact notleft_right BKnight AnKnave
-  }
-
 

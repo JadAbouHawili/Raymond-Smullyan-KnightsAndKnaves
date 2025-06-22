@@ -8,7 +8,6 @@ import SmullyanKnightsAndKnaves.dsl_knights_knaves
 
 open Islander
 example 
-{A B : Islander}
 {stA : A said (A.isKnave or B.isKnave)}
 : A.isKnight and B.isKnave := by 
 --Let's start with proving that `A` is a knight. (use `have`)

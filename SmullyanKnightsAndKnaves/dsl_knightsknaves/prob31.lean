@@ -12,8 +12,7 @@ set_option diagnostics true
 
 set_option push_neg.use_distrib true
 variable {A B C : Islander}
-def allKnaves := A.isKnave ∧ B.isKnave ∧ C.isKnave
-def oneisknight := (A.isKnight ∧ B.isKnave ∧ C.isKnave)  ∨(A.isKnave ∧  B.isKnight ∧ C.isKnave) ∨ (A.isKnave ∧ B.isKnave ∧  C.isKnight)
+
 open Islander
 example 
 {stA : A said @allKnaves A B C}

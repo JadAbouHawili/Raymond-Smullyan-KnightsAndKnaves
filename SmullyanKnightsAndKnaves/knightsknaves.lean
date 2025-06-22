@@ -15,14 +15,17 @@ namespace settheory_approach
 axiom  Inhabitant : Type
 axiom Knight : Finset Inhabitant
 axiom Knave : Finset Inhabitant
---axiom inst : DecidableEq Inhabitant
 --variable ( inst : DecidableEq Inhabitant)
 axiom inst : DecidableEq Inhabitant
-axiom A' : Inhabitant
+axiom A : Inhabitant
+axiom B : Inhabitant
+axiom C : Inhabitant
 
 variable [DecidableEq Inhabitant]
 axiom dis : Knight ∩ Knave = ∅ 
 axiom KorKn {A : Inhabitant}: A ∈ Knight ∨ A ∈ Knave 
+
+def oneKnight  : Prop:=   (A ∈ Knight ∧ B ∈ Knave ∧ C ∈ Knave) ∨ (A ∈ Knave ∧ B ∈ Knight ∧ C ∈ Knave) ∨ (A ∈ Knave ∧ B ∈ Knave ∧ C ∈ Knight)
 
 theorem disjoint
 {A : Inhabitant}

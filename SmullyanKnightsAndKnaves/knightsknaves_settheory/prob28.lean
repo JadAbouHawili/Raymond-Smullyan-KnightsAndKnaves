@@ -1,5 +1,4 @@
 import SmullyanKnightsAndKnaves.knightsknaves
---import SmullyanKnightsAndKnaves.dsl_knights_knaves
 import Lean
 -- prob28
 -- included in game as dsl_iknaveorknave
@@ -9,6 +8,7 @@ set_option push_neg.use_distrib true
    #check Finset.subset_of_eq
   #check Finset.ssubset_iff_subset_ne
   #check Finset.subset_iff
+open settheory_approach
 theorem eq_of_or_not
 {A B w : Type}
 {p : Type → Prop}
@@ -25,16 +25,11 @@ theorem eq_of_or_not
 example {P : Prop} (h : P) (h' : ¬P) : False := by 
   contradiction
 example 
-  {K : Type}
-  {A B : K}
-  {inst : DecidableEq K}
-  {inst2 : Fintype K}
-  (Knight : Finset K)
-  (Knave : Finset K) 
-  (h : Knight ∩ Knave = ∅ )
+  {inst : DecidableEq Inhabitant}
+  {inst2 : Fintype Inhabitant}
   (knavenonemp : Knave ≠ ∅)
-(all : ∀ (x : K), x = A ∨ x = B)
-  (h'' : ∀ (x: K), x ∈ Knight ∨ x ∈ Knave)
+(all : ∀ (x : Inhabitant), x = A ∨ x = B)
+  (h'' : ∀ (x: Inhabitant), x ∈ Knight ∨ x ∈ Knave)
   (stA : A ∈ Knight ↔ Knave.card ≥ 1)
   (stAn : A ∈ Knave ↔ Knave.card < 1)
   : A ∈ Knight ∧ B ∈ Knave:= by
@@ -87,14 +82,7 @@ example
 #check all2_in_one_other_empty
 
 example
-  {K : Type}
-  {A B : K}
-  {Knight : Finset K}
-  {Knave : Finset K}
-  {inst : DecidableEq K}
-{h : Knight ∩ Knave = ∅ }
-{h1 : A ∈ Knight ∨ A ∈ Knave }
-{h2: B ∈ Knight ∨ B ∈ Knave }
+  {inst : DecidableEq Inhabitant}
 {stA : A ∈ Knight  ↔ ((A ∈ Knave) ∨ (B ∈ Knave)) }
   : A ∈ Knight ∧ B ∈ Knave := by
   {
@@ -103,9 +91,9 @@ example
       intro AKnave
       have AOrB : A ∈ Knave ∨ B ∈ Knave := by left ; exact AKnave 
       have AKnight := stA.mpr AOrB
-      exact disjoint h AKnight AKnave
+      exact disjoint AKnight AKnave
 
-    have AKnight := notinright_inleft h1 AnKnave 
+    have AKnight := notinright_inleft AnKnave 
     constructor
     · assumption
     · have AknOrB := stA.mp AKnight
@@ -139,19 +127,16 @@ example
 --Raymond Smullyan, what is the name of this book, problem 28
 -- statement of `A` formalized with more complicated expression
 example 
-  { K : Type}
-  {x y : K}
-  {inst : DecidableEq K}
-  (Knight : Finset K ) (Knave : Finset K) 
+  {x y : Inhabitant}
+  {inst : DecidableEq Inhabitant}
   (h : Knight ∩ Knave = ∅ )
-  (h'' : ∀ (x: K), x ∈ Knight ∨ x ∈ Knave)
   (stx : (x ∈ Knight) ↔ (x ∈ Knight ∧  y ∈ Knave)
                     ∨ (x ∈ Knave ∧ y ∈ Knight)
                     ∨ (x ∈ Knave ∧ y ∈ Knave)  )
   : x ∈ Knight ∧ y ∈ Knave:= by
   {
-  rcases ( h'' x) with h_1|h_2
-  · rcases h'' y with h_3|h_4
+  set_knight_or_knave x with h_1 h_2
+  · set_knight_or_knave y with h_3 h_4 
     · constructor
       assumption
 
@@ -170,7 +155,7 @@ example
 
     · constructor
       assumption ; assumption
-  · rcases h'' y with h_1|h_1
+  · set_knight_or_knave y with h_1 h_1
     · have := not_iff_not.mpr stx
       have this2:= this.mp (inright_notinleft h h_2)
       contrapose this2
@@ -197,10 +182,8 @@ example
 -- rewriting, making it neat
 theorem organized 
   --sets
-  {K : Type}
-  { x y : K}
-  (Knight : Set K ) (Knave : Set K)
-  (h : Knight ∩ Knave = ∅ )
+  { x y : Inhabitant}
+  {inst : DecidableEq Inhabitant}
   (h1 : Xor' (x ∈ Knight) (x ∈ Knave) ) 
   (h2: Xor' (y ∈ Knight)  (y ∈ Knave) )
   -- theres x and y, x says at least one of us is a knave

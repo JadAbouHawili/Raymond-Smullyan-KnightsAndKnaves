@@ -3,7 +3,6 @@ import SmullyanKnightsAndKnaves.dsl_knights_knaves
 open Islander
 
 example
-{A B C : Islander}
 (stB : B said (A said @oneisknight A B C))
 (stC : C said B.isKnave)
 : B.isKnave and C.isKnight := by
@@ -34,7 +33,6 @@ example
   assumption
 
 example
-{A B C : Islander}
 (stB : B.isKnight ↔ (A.isKnight ↔ @oneisknight A B C))
 (stC : C.isKnight ↔ B.isKnave)
 : B.isKnave and C.isKnight := by

@@ -10,7 +10,7 @@ B: A and C are of the same type.
 What is C? 
 -/
 open Islander
-example {A B C : Islander}
+example
 {stA : A said B.isKnave}
 {stB : B said ((A.isKnight and C.isKnight) or (A.isKnave and C.isKnave))}
 : C.isKnave := by 
@@ -30,7 +30,7 @@ example {A B C : Islander}
 
 #check not_not
 
-example {A B C : Islander}
+example
 {stA : A said B.isKnave}
 {stB : B said (A.isKnight ↔ C.isKnight)}
 : C.isKnave := by

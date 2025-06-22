@@ -2,7 +2,6 @@ import SmullyanKnightsAndKnaves.dsl_knights_knaves
 
 open Islander
 example
-{A B C : Islander}
 {stA : A said @allKnaves A B C}
 {stB : B said @exactlyOneIsKnave A B C}
 : A.isKnave and C.isKnight

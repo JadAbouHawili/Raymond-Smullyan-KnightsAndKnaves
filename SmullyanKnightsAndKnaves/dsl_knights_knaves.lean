@@ -20,6 +20,9 @@ import SmullyanKnightsAndKnaves.logic
 axiom Islander : Type
 
 namespace Islander
+axiom A : Islander
+axiom B : Islander
+axiom C : Islander
 
 axiom isKnight : Islander → Prop
 

@@ -1,7 +1,7 @@
 -- included as dsl_prob26
 import SmullyanKnightsAndKnaves.dsl_knights_knaves
 open Islander
-example {A B C : Islander}
+example 
 {hB : B said (A said A.isKnave)}
 {hC : C said B.isKnave}
 : B.isKnave and C.isKnight := by

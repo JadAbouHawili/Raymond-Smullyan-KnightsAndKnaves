@@ -1,4 +1,10 @@
-import Mathlib.Data.Set.Basic
 import SmullyanKnightsAndKnaves.knightsknaves
-def hello := "world"
-#check card_eq_one_iff_singletons
+
+import SmullyanKnightsAndKnaves.dsl_knightsknaves.prob26
+import SmullyanKnightsAndKnaves.dsl_knightsknaves.prob27
+import SmullyanKnightsAndKnaves.dsl_knightsknaves.prob28
+import SmullyanKnightsAndKnaves.dsl_knightsknaves.prob29
+import SmullyanKnightsAndKnaves.dsl_knightsknaves.prob30
+import SmullyanKnightsAndKnaves.dsl_knightsknaves.prob31
+import SmullyanKnightsAndKnaves.dsl_knightsknaves.prob32
+import SmullyanKnightsAndKnaves.dsl_knightsknaves.prob34

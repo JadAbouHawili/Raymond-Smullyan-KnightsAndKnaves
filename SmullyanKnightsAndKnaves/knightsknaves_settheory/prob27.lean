@@ -19,12 +19,9 @@ say? B replies, "A said that there is one knight among us."
 Then C says, "Don't believe B; he is lying!" 
 Now what are B and C? 
 -/
-def oneKnight {A B C : Inhabitant} : Prop:=   (A ∈ Knight ∧ B ∈ Knave ∧ C ∈ Knave) ∨ (A ∈ Knave ∧ B ∈ Knight ∧ C ∈ Knave) ∨ (A ∈ Knave ∧ B ∈ Knave ∧ C ∈ Knight)
 
 example
-{A B C : Inhabitant}
---(h : Knight ∩ Knave = ∅ )
-(stB : (B ∈ Knight) ↔ (A ∈ Knight ↔ @oneKnight A B C))
+(stB : (B ∈ Knight) ↔ (A ∈ Knight ↔ oneKnight))
 --(stBn : (B ∈ Knave) → (A ∈ Knight → ¬ (
 --  (A ∈ Knight ∧ B ∈ Knave ∧ C ∈ Knave) ∨ (A ∈ Knave ∧ B ∈ Knight ∧ C ∈ Knave) ∨ (A ∈ Knave ∧ B ∈ Knave ∧ C ∈ Knight)) ) )
 (stC : ( C ∈ Knight ↔ B ∈ Knave) )
@@ -33,9 +30,8 @@ example
   : B ∈ Knave ∧ C ∈ Knight := by 
   have : ¬B ∈ Knight 
   intro BKnight
-  set_knave_to_knight B at stC
-  set_knight_to_knave C at stC
-  rw [not_iff_not] at stC  
+  rw [not_iff_not.symm] at stC  
+  set_knave_to_knight at stC
   have CKnave := stC.mpr BKnight
 
   have oneK := stB.mp BKnight
@@ -43,26 +39,24 @@ example
   have oneK := oneK.mp AKnight
   unfold oneKnight at oneK
   simp [AKnight, CKnave, BKnight] at oneK
-  set_knave_to_knight A at oneK 
-  set_knave_to_knight B at oneK 
+  set_knave_to_knight  at oneK 
   simp [ CKnave, BKnight] at oneK
   contradiction
 
-  set_knave_to_knight A at AKnave
+  set_knave_to_knight at AKnave
   rw [not_iff_not.symm] at oneK
   have notone := oneK.mp AKnave 
   unfold oneKnight at notone
   simp [AKnave, CKnave, BKnight] at notone
-  set_knave_to_knight A at notone
+  set_knave_to_knight  at notone
   simp [AKnave] at notone
+  contradiction
 
-  set_knight_to_knave B at this
-  simp [this,stC]
+  set_knight_to_knave  at this
+  have CKnight :=  stC.mpr this
+  constructor ; assumption ; assumption
 
 example  
-{A B C : Inhabitant}
-(h : Knight ∩ Knave = ∅ )
-(Or : ∀(x : Inhabitant), x ∈ Knight ∨ x ∈ Knave)
 (all : ∀(x :Inhabitant), x = A ∨ x = B ∨ x = C)
 (stB : B ∈ Knight ↔ ( A ∈ Knight ↔ Knight.card =1))
 (stBn : B ∈ Knave ↔ ¬( A ∈ Knight ↔ Knight.card =1))
@@ -78,10 +72,10 @@ by
     rw [stC]
     rw [stCn]
     simp
-    exact Or B
+    exact KorKn
 
   -- we know that there is at least one knight, if A were a knight then they are two but this woudl contradict A's statement
-  rcases (Or A) with AKnight|AKnave 
+  set_knight_or_knave A with AKnight AKnave
   · have : Knight.card ≠ 1 := by {
       rcases BCdiff with h_1|h_1
       · 
@@ -117,7 +111,7 @@ by
     assumption
     assumption
 
-  · rw [inright_notinleftIff (Or A) h] at AKnave
+  · rw [inright_notinleftIff] at AKnave
     #check Finset.card_eq_one
     #check Finset.eq_singleton_iff_unique_mem
     simp [AKnave] at stBn
@@ -144,7 +138,7 @@ by
           · assumption
           · rw [h_3] at xK
             exfalso
-            exact disjoint h xK h_1.right
+            contradiction
       · right
         rw [Finset.eq_singleton_iff_nonempty_unique_mem] 
         constructor
@@ -157,7 +151,7 @@ by
         · rcases h_2 with h_3|h_3
           · rw [h_3] at xK
             exfalso
-            exact disjoint h xK h_1.left
+            contradiction
           · assumption
     have OneKnight : Knight.card =1 := by 
       rcases BorC with h_1|h_1

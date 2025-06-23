@@ -1,21 +1,6 @@
-import SmullyanKnightsAndKnaves.knightsknaves
-import SmullyanKnightsAndKnaves.dsl_knights_knaves
-
+import Mathlib.Data.Multiset.Basic
 import Mathlib.Tactic.Have
-import SmullyanKnightsAndKnaves.settheory
-example {P Q : Prop} : (P ↔ (P ↔ Q)) ↔ (P ↔ Q) := by 
-  have : P ↔ (P ↔ Q) := sorry
-  have : P ↔ Q := by
-      constructor
-      intro hP 
-      simp [hP] at this 
-      assumption
 
-      intro hQ 
-      simp [hQ] at this
-      sorry
-      -- so they are not the same...
-  sorry
 /-
 wolfram generated
 A ⇔ (¬C ∧ B)
@@ -36,7 +21,6 @@ example {A B C : Prop}
     rw [CiffA] at nC
     contradiction
   have CorB := stAn.mp nA 
-  --#check not_and
   --rw [not_and.symm] at CorB
   rw [Classical.not_and_iff_or_not_not] at CorB
   simp at CorB
@@ -95,8 +79,7 @@ example {A B C : Prop}
   have : ¬ A → C := by simp [hA] 
   have hB :=  stB.mpr this 
   simp [hA,hB] at stA
-  --done
-  sorry
+  exact ⟨hA,hB,stA⟩ 
 
 --A ⇔ (B ∧ ¬C)
 --B ⇔ (¬C ⇔ ¬A)
@@ -105,8 +88,7 @@ example {A B C : Prop}
 {stAn : ¬A ↔ ¬(B ∧ ¬C)}
 {stB : B ↔ (¬C ↔ ¬A)}
 {stBn : ¬B ↔ ¬(¬C ↔ ¬A)}
-: False := by
--- getting nA
+: ¬A ∧ ¬B ∧ C := by
   rw [stB] at stA
   have : ((¬C ↔ ¬A) ∧ ¬C) → ¬A := by 
     intro ⟨ACiff,nC⟩
@@ -124,8 +106,12 @@ example {A B C : Prop}
   have BC := stAn.mp nA
   rw [not_and_or] at BC
   simp at BC
-  -- do cases then done.. ez, but similar to other levels. want to reason with implications and not or,and expressions.
-  sorry
+
+  rcases BC with nB | hC
+  simp [nA,nB] at stBn 
+  exact ⟨nA,nB,stBn⟩ 
+  simp [nA,hC] at stBn
+  exact ⟨nA,stBn,hC⟩ 
 
 /-
 sat( (A =:= (C + ~B))  * ( B =:= (A =:= ~C) )  ), labeling([A,B,C]) .
@@ -142,7 +128,7 @@ example {A B C : Prop}
 {stB : B ↔ (A ↔ ¬C)}
 {stBn : ¬B ↔ ¬(A ↔ ¬C)}
 : A ∧ ¬B ∧ C := by 
-    #check imp_iff_or_not      
+    #check imp_iff_or_not
     simp [imp_iff_or_not] at *
 
     have hA : A 
@@ -159,5 +145,9 @@ example {A B C : Prop}
     have notAsameC := not_iff.mpr AdiffC
     contradiction
 
-    -- have A ↔ ¬C as AdiffC , having an AsameC as well and running contradiction would close the goal....
-    sorry
+    have BC := stA.mp hA
+    rcases BC with nB | hC
+    simp [nB,hA] at stBn
+    exact ⟨hA,nB,stBn⟩ 
+    simp [hA,hC] at stBn 
+    exact ⟨hA,stBn,hC⟩ 

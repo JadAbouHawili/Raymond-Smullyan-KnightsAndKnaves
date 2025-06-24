@@ -4,6 +4,22 @@ import Mathlib.Data.Multiset.Basic
 
 import SmullyanKnightsAndKnaves.logic
 
+
+macro "is_mem2" : tactic =>
+  do`(tactic| first |(apply Finset.mem_singleton_self) | (apply Finset.mem_insert_self) | apply Finset.mem_insert_of_mem) --; try apply Finset.mem_insert_self )
+--  a ∈ {a}
+#check Finset.mem_singleton_self
+-- a ∈ insert a s
+#check Finset.mem_insert_self
+-- a ∈ s → a ∈ insert b s
+#check Finset.mem_insert_of_mem
+macro "is_mem" : tactic =>
+  do`(tactic | repeat is_mem2)
+
+#check Finset.mem_singleton
+#check Finset.mem_insert_of_mem
+#check Finset.mem_insert_self
+
 variable {K : Type}
 variable {A B : K}
 

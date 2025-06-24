@@ -15,14 +15,15 @@ example {A B C : Prop}
 {stBn : ¬B ↔ ¬(C ↔ A)}
 : ¬A ∧ ¬B ∧ C := by 
   have nA : ¬A := by 
-    intro hA 
-    have ⟨nC,hB⟩ := stA.mp hA  
+    intro hA
+    have ⟨nC,hB⟩ := stA.mp hA
     have CiffA := stB.mp hB
     rw [CiffA] at nC
     contradiction
-  have CorB := stAn.mp nA 
-  --rw [not_and.symm] at CorB
-  rw [Classical.not_and_iff_or_not_not] at CorB
+  have CorB := stAn.mp nA
+  #check not_and_or
+  #check Classical.not_and_iff_or_not_not
+  rw [not_and_or] at CorB
   simp at CorB
   have nB : ¬B := by 
     intro hB 
@@ -32,29 +33,16 @@ example {A B C : Prop}
     contradiction
   have hC : C := by 
     have CA_not_same := stBn.mp nB
-    have := neq_of_not_iff CA_not_same
-    have what : (¬¬C) 
-    intro nC 
-    have this2: C ↔ A := by 
-      exact (iff_false_right nA).mpr nC
-      --exact (iff_true_right nA).mpr nC
-    rw [this2] at this
-    contradiction
-    simp at what
-    assumption
-   -- #check not_iff 
-    --rw [CA_not_same.symm] at nA 
-    --simp at nA
-    --assumption
-
+    rw [iff_comm] at CA_not_same
+    rw [not_iff] at CA_not_same
+    exact CA_not_same.mp nA
   exact ⟨nA,nB,hC⟩ 
 
+#check neq_of_not_iff
 theorem PQiff{P Q : Prop} (hP : P) ( hQ : Q )
 : ¬P ↔ ¬Q := by 
-
   rw [not_iff_not]
   exact iff_of_true hP hQ 
-  --exact (iff_false_right fun a ↦ a hQ).mpr fun a ↦ a hP
 
 --A ⇔ (¬C  ¬B)
 --B ⇔ (¬A  C)
@@ -71,7 +59,7 @@ example {A B C : Prop}
   have hA : A := by 
     by_contra nA
     have CB := stAn.mp nA 
-    simp [_root_.not_imp] at CB 
+    simp [Classical.not_imp] at CB 
     have cont := stB.mp CB.right
     simp [nA] at cont
     exact CB.left cont
@@ -95,8 +83,8 @@ example {A B C : Prop}
     rw [ACiff] at nC
     assumption
   have : A → ¬A  :=  by
-    trans 
-    exact stA.mp 
+    trans
+    exact stA.mp
     exact this
   #check imp_not_self
   have nA : ¬A := by
@@ -137,9 +125,6 @@ example {A B C : Prop}
     have AdiffC := stB.mp BC.left
     have AsameC : A ↔ C := by 
       exact iff_of_false nA BC.right
-    #check not_iff
-    #check neq_of_not_iff
-    simp [not_iff.symm] at AdiffC
     rw [not_iff_not.symm] at AdiffC
     simp at AdiffC
     have notAsameC := not_iff.mpr AdiffC

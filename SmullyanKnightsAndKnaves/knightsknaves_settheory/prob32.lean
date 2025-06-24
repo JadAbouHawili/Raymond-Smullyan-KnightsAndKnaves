@@ -6,7 +6,6 @@
 --B: Exactly one of us is a knave.
 --Can it be determined what B is? Can it be determined what C is?
 --"
---
 import SmullyanKnightsAndKnaves.knightsknaves
 
 -- exactly one of us is a knave
@@ -19,9 +18,9 @@ open settheory_approach
 
 --A: All of us are knaves.
 --B: Exactly one of us is a knave.
+
+variable [DecidableEq Inhabitant]
 example
-  {A B C : Inhabitant}
-  {inst : DecidableEq Inhabitant}
 {stA : A ∈ Knight ↔ (A ∈ Knave ∧ B ∈ Knave ∧ C ∈ Knave) }
 {stAn : A ∈ Knave ↔ ¬ (A ∈ Knave ∧ B ∈ Knave ∧ C ∈ Knave) }
 {stB: B ∈ Knight ↔ (A ∈ Knave ∧ B ∈ Knight ∧ C ∈ Knight ∨ A ∈ Knight ∧ B ∈ Knave ∧ C ∈ Knight ∨ A ∈ Knight ∧ B ∈ Knight ∧ C ∈ Knave) }
@@ -35,7 +34,7 @@ example
     by_contra AKnight
     rw [notinright_inleftIff] at AKnight
     have knaves := stA.mp AKnight
-    exact disjoint AKnight knaves.left
+    contradiction
 
   constructor
   exact AKnave
@@ -56,7 +55,7 @@ example
       exact AKnave ands.left 
     have BKnave := stBn.mpr (And.intro first 
     (And.intro second third)) 
-    exact disjoint BKnight BKnave
+    contradiction
   · have notallknaves := stAn.mp AKnave
     rw [not_and_or] at notallknaves 
     have : ¬(A ∉ Knave) := by exact not_not.mpr AKnave
@@ -88,8 +87,6 @@ theorem not_eq_singleton_already_full
 #check card_eq_one_iff_singletons
 #check card_eq
 example
-  {A B C : Inhabitant}
-  {inst : DecidableEq Inhabitant}
 {h1 : A ∈ Knight ∨ A ∈ Knave }
 {h2: B ∈ Knight ∨ B ∈ Knave }
 {h3: C ∈ Knight ∨ C ∈ Knave }
@@ -109,7 +106,7 @@ example
       by_contra AKnight
       have AKnight :=notright_left h1 AKnight
       have := stA.mp AKnight
-      exact disjoint AKnight this.left
+      contradiction
 
     constructor
     assumption
@@ -132,21 +129,6 @@ example
 
 example {K : Type} {A B : Finset K} (h : A⊆B) : A.card ≤ B.card := by 
   exact Finset.card_le_card h
-
-macro "is_mem2" : tactic =>
-  do`(tactic| first |(apply Finset.mem_singleton_self) | (apply Finset.mem_insert_self) | apply Finset.mem_insert_of_mem) --; try apply Finset.mem_insert_self )
---  a ∈ {a}
-#check Finset.mem_singleton_self
--- a ∈ insert a s
-#check Finset.mem_insert_self
--- a ∈ s → a ∈ insert b s
-#check Finset.mem_insert_of_mem
-macro "is_mem" : tactic =>
-  do`(tactic | repeat is_mem2)
-
-#check Finset.mem_singleton
-#check Finset.mem_insert_of_mem
-#check Finset.mem_insert_self
 
 example
 {K : Type}
@@ -182,15 +164,6 @@ example
 : C ∈ S
 := by
   rw [hS]
-  #check Finset.mem_singleton_self
-  #check Finset.mem_insert_self
-  #check Finset.mem_insert_of_mem
-  --apply Finset.mem_insert_of_mem
-  /- this or is_mem tactic
-  apply Finset.mem_insert_of_mem
-  apply Finset.mem_insert_of_mem
-  exact Finset.mem_singleton.mpr rfl
-  -/
   is_mem
 
 -- working on this...

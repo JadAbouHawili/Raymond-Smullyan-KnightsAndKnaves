@@ -28,8 +28,6 @@ example
     simp [AKnave] at ACsame
     assumption
 
-#check not_not
-
 example
 {stA : A said B.isKnave}
 {stB : B said (A.isKnight ↔ C.isKnight)}

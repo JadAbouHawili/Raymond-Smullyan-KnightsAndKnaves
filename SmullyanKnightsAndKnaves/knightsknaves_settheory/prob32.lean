@@ -13,18 +13,16 @@ import SmullyanKnightsAndKnaves.knightsknaves
 set_option push_neg.use_distrib true
 
 #check Finset.mem_insert_coe
-#check Finset.mem_insert_of_mem
 open settheory_approach
 
 --A: All of us are knaves.
 --B: Exactly one of us is a knave.
-
 variable [DecidableEq Inhabitant]
 example
-{stA : A ∈ Knight ↔ (A ∈ Knave ∧ B ∈ Knave ∧ C ∈ Knave) }
-{stAn : A ∈ Knave ↔ ¬ (A ∈ Knave ∧ B ∈ Knave ∧ C ∈ Knave) }
-{stB: B ∈ Knight ↔ (A ∈ Knave ∧ B ∈ Knight ∧ C ∈ Knight ∨ A ∈ Knight ∧ B ∈ Knave ∧ C ∈ Knight ∨ A ∈ Knight ∧ B ∈ Knight ∧ C ∈ Knave) }
-{stBn: B ∈ Knave ↔ ¬ (A ∈ Knave ∧ B ∈ Knight ∧ C ∈ Knight ∨ A ∈ Knight ∧ B ∈ Knave ∧ C ∈ Knight ∨ A ∈ Knight ∧ B ∈ Knight ∧ C ∈ Knave) }
+{stA : A ∈ Knight ↔ (allKnave) }
+{stAn : A ∈ Knave ↔ ¬ (allKnave) }
+{stB: B ∈ Knight ↔ oneKnave }
+{stBn: B ∈ Knave ↔ ¬ (oneKnave) }
   : A ∈ Knave ∧ C ∈ Knight := by
 
   {
@@ -32,14 +30,23 @@ example
 --B: Exactly one of us is a knave.
   have AKnave : A ∈ Knave := by
     by_contra AKnight
-    rw [notinright_inleftIff] at AKnight
+    set_knave_to_knight at AKnight
     have knaves := stA.mp AKnight
     contradiction
 
+  have notallknaves := stAn.mp AKnave
   constructor
-  exact AKnave
+  assumption
   set_knight_or_knave B with BKnight BKnave
   ·
+    have oneKn := stB.mp BKnight 
+    unfold oneKnave at oneKn
+    simp [AKnave,BKnight,inleft_notinrightIff] at oneKn
+    set_knight_to_knave 
+    assumption
+
+    /-
+    unfold oneKnave at stBn
     rw [not_or] at stBn
     rw [not_or] at stBn
     by_contra CKnave 
@@ -56,15 +63,11 @@ example
     have BKnave := stBn.mpr (And.intro first 
     (And.intro second third)) 
     contradiction
-  · have notallknaves := stAn.mp AKnave
-    rw [not_and_or] at notallknaves 
-    have : ¬(A ∉ Knave) := by exact not_not.mpr AKnave
-    have BC := notleft_right notallknaves this 
-
-    rw [not_and_or] at BC 
-    have : ¬(B ∉ Knave) := by exact not_not.mpr BKnave
-    have CKnight := notleft_right BC this
-    rw [inleft_notinrightIff] 
+    -/
+  ·
+    unfold allKnave at notallknaves
+    simp [AKnave,BKnave] at notallknaves
+    set_knight_to_knave
     assumption
   }
 
@@ -135,21 +138,6 @@ example
 {A B C : K}
 {inst : DecidableEq K}
 {S : Finset K}
-{hS : S = {B}}
-: B ∈ S := by 
-  rw [hS]
-  -- fails
-  -- exact Finset.mem_singleton.mpr rfl
-  #check Finset.mem_singleton_self
-  apply Finset.mem_singleton_self
-  is_mem
-  --apply Finset.mem_insert_of_mem
-
-example
-{K : Type}
-{A B C : K}
-{inst : DecidableEq K}
-{S : Finset K}
 {hS : S = {A,B,C}}
 : A ∈ S
 := by
@@ -188,9 +176,9 @@ example
     rw [notinright_inleftIff] at AKnight
     have everyoneknave := stA.mp AKnight
     have AKnave: A ∈ Knave := by
-     rw [everyoneknave] ; 
+     rw [everyoneknave]
      is_mem
-    exact disjoint AKnight AKnave
+    contradiction
 --   Suppose instead, A and B say the following: 
 --A: All of us are knaves. 
 --B: Exactly one of us is a knave. 
@@ -280,7 +268,7 @@ example
       have : Knave = {A,B,C}:= by 
         exact Eq.symm (Finset.Subset.antisymm this knavesubU)
       contradiction
-    exact And.intro AKnave CKnight 
+    exact And.intro AKnave CKnight
 /-
      more complicated solution
     have U: Finset.univ = {A, B, C} := (univ_iff_all inst2 inst).mpr all 
@@ -315,9 +303,9 @@ example
         #check mem2_iff_or_finset
         rw [mem2_iff_or_finset] at xAB
         cases xAB
-        rw [h_2] 
+        rw [h_2]
         assumption
-        rw [h_2] 
+        rw [h_2]
         assumption
       #check Finset.card_le_of_subset
       have : ({A,B}: Finset Inhabitant).card =2 := by 
@@ -330,7 +318,7 @@ example
     #check Nat.le_antisymm
     #check full
     have : C ∉ Knave := @full2 Inhabitant _ _ _ Knave inst inst2 AKnave h_1 (Nat.le_antisymm knavele2 card_ge_2) AneB BneC AneC all
-    
+
     --have : C ∉ Knave := full2 Knave AKnave h_1 (Nat.le_antisymm knavele2 card_ge_2) AneB BneC AneC all
 
     -- and done............

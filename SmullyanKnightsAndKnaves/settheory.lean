@@ -599,16 +599,8 @@ theorem everyone_in_set_eq {inst : DecidableEq K} {S : Finset K} {A B C : K} (al
     · intro aKn
       rcases all a with h|h
       · rw [h]
-        exact Finset.mem_insert_self A {B, C}
-      · rcases h with h_1|h_1
-        · rw [h_1]
-          #check Finset.mem_insert_of_mem
-          apply Finset.mem_insert_of_mem
-          exact Finset.mem_insert_self B {C}
-        · rw [h_1]  
-          apply Finset.mem_insert_of_mem
-          apply Finset.mem_insert_of_mem
-          exact Finset.mem_singleton.mpr rfl
+        is_mem
+      · rcases h with h_1|h_1 <;> rw [h_1] ; is_mem
 
     · intro aIn
       rcases all a with h|h
@@ -622,21 +614,14 @@ theorem everyone_in_set_eq {inst : DecidableEq K} {S : Finset K} {A B C : K} (al
 
   · intro KnaveEveryone
     rw [KnaveEveryone]
-
     constructor
-    · exact Finset.mem_insert_self A {B, C}
+    · is_mem
     · constructor
-
-      · apply Finset.mem_insert_of_mem
-        exact Finset.mem_insert_self B {C}
-
-      · apply Finset.mem_insert_of_mem
-        apply Finset.mem_insert_of_mem
-        exact Finset.mem_singleton.mpr rfl
+      · is_mem
+      · is_mem
 
 theorem two_in_one_other_nonemp {inst : DecidableEq K} {A B C : K} {S S' : Finset K}
 (all : ∀ (x : K), x = A ∨ x = B ∨ x = C)
---{h : S ∩ S' = ∅}
 (Or : ∀(x:K), x ∈ S ∨ x ∈ S')
 (hA : A ∈ S)
 (hB : B ∈ S)
@@ -755,8 +740,8 @@ theorem full2
     assumption
     constructor
     assumption
-    constructor 
-    assumption 
+    constructor
+    assumption
     #check univ_iff_all 
     rw [(univ_iff_all).symm] at all
     have : {A,B,C} ⊆ S := by
@@ -795,10 +780,3 @@ theorem full2
 theorem memToFinset (Knight : Set K ) {finKnight : Fintype Knight}  (AKnight : A ∈ Knight) : A ∈ (Set.toFinset Knight) := by  
   have FinKnight:= Set.toFinset Knight
   exact Set.mem_toFinset.mpr AKnight
-
-axiom not_both
-  {Inhabitant : Type}
-  {A : Inhabitant}
-  {inst : DecidableEq Inhabitant}
-  {Knight : Finset Inhabitant} {Knave : Finset Inhabitant}
-  (AKnight : A ∈ Knight) (AKnave : A ∈ Knave)  : False

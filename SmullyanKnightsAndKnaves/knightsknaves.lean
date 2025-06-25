@@ -11,21 +11,29 @@ import SmullyanKnightsAndKnaves.settheory
 
 namespace settheory_approach
 
-
-axiom  Inhabitant : Type
+axiom Inhabitant : Type
 axiom Knight : Finset Inhabitant
 axiom Knave : Finset Inhabitant
---variable ( inst : DecidableEq Inhabitant)
 axiom inst : DecidableEq Inhabitant
 axiom A : Inhabitant
 axiom B : Inhabitant
 axiom C : Inhabitant
 
 variable [DecidableEq Inhabitant]
-axiom dis : Knight ∩ Knave = ∅ 
-axiom KorKn {A : Inhabitant}: A ∈ Knight ∨ A ∈ Knave 
+axiom dis : Knight ∩ Knave = ∅
+axiom KorKn {A : Inhabitant}: A ∈ Knight ∨ A ∈ Knave
+axiom not_both
+  {Inhabitant : Type}
+  {A : Inhabitant}
+  {inst : DecidableEq Inhabitant}
+  {Knight : Finset Inhabitant} {Knave : Finset Inhabitant}
+  (AKnight : A ∈ Knight) (AKnave : A ∈ Knave)  : False
 
 def oneKnight  : Prop:=   (A ∈ Knight ∧ B ∈ Knave ∧ C ∈ Knave) ∨ (A ∈ Knave ∧ B ∈ Knight ∧ C ∈ Knave) ∨ (A ∈ Knave ∧ B ∈ Knave ∧ C ∈ Knight)
+
+def oneKnave  : Prop:=   (A ∈ Knave ∧ B ∈ Knight ∧ C ∈ Knight) ∨ (A ∈ Knight ∧ B ∈ Knave ∧ C ∈ Knight) ∨ (A ∈ Knight ∧ B ∈ Knight ∧ C ∈ Knave)
+
+def allKnave : Prop := A ∈ Knave ∧ B ∈ Knave ∧ C ∈ Knave
 
 theorem disjoint
 {A : Inhabitant}
@@ -56,15 +64,8 @@ example {K : Type}
 
 -- try using Set.univ as an axiom instead and see if there are any advantages
 #check Finset.univ
-
-#check Finset.mem_union
 -------------
 -- using simp , experiment with simp_rw
-
-#check not_iff_not
-#check not_iff
-#check not_iff_self
-
 
 #check Set.mem_compl
   #check Set.mem_compl_iff
@@ -92,7 +93,6 @@ theorem IamKnave
 
     · have := stA.mpr AKnave
       contradiction
-      --exact disjoint h this AKnave
   }
 
 theorem IamKnaveIffFalse
@@ -104,13 +104,6 @@ theorem IamKnaveIffFalse
     exact fun a => a.elim
     exact IamKnave  
 
---inductive type interpretation?
---variable (Inhabitant : Type)
---#check (Sum Inhabitant Inhabitant)
---variable (A : Sum Knight Knave)
---variable (B : Knight)
-
-#check univ_iff_all
 theorem all_univ_subset
 {Inhabitant : Type}
 {inst2 : Fintype Inhabitant}
@@ -145,59 +138,7 @@ theorem all_univ_subset
     assumption
     -/
 
--- theorem used in simp would need arguments passed to it, change so that theorems used require fewer arguments
---namespace settheory_approach
---
---axiom Inhabitant : Type
---axiom inst222 : DecidableEq Type
---axiom inst : DecidableEq Inhabitant
---axiom inst1 : DecidableEq Inhabitant
---axiom inst2 : Fintype Inhabitant
---axiom Knight : Finset Inhabitant
---axiom Knave : Finset Inhabitant
---axiom inst22 : DecidableEq Inhabitant
---axiom inst22222 : Fintype Inhabitant
---set_option diagnostics true
---#check inst1
-----variable {inst32 : DecidableEq Inhabitant}
---def inst0 : DecidableEq Inhabitant := sorry
---variable [s : DecidableEq Inhabitant]
---#check Knight ∩ Knave
---example {A : Inhabitant} {h : A ∈ Knight}
-----{inst222 : DecidableEq Inhabitant}
---{hKKn : Knight ∩ Knave = ∅ }
---: 2=2 := by
---  rfl
---#check inleft_notinrightIff
---#check inleft_notinright
---
----- *
---macro "knight_to_knave" "at" t1:Lean.Parser.Tactic.locationWildcard : tactic =>
---do`(tactic| simp [inleft_notinrightIff] at $t1)
----- goal
---macro "knight_to_knave" : tactic =>
---do`(tactic| simp [inleft_notinrightIff])
----- hypothesis
---macro "knight_to_knave" "at" t1:Lean.Parser.Tactic.locationHyp : tactic =>
---do`(tactic| simp [inleft_notinrightIff] at $t1)
-----     (rw [inleft_notinrightIff] at BKnave <;> try assumption) ; simp at BKnave
---#check inleft_notinrightIff
----- this would work for one hypothesis but what about for *,everything?
---macro "knight_to_knave2" "at" t1:Lean.Parser.Tactic.locationHyp : tactic =>
---do`(tactic|
---rw [inleft_notinrightIff] at $t1 <;> try assumption )
---
----- *
---macro "knave_to_knight" "at" t1:Lean.Parser.Tactic.locationWildcard : tactic => 
---do`(tactic| simp [inright_notinleftIff] at $t1)
---macro "knave_to_knight" : tactic =>
---do`(tactic| simp [inright_notinleftIff])
----- hypothesis
---macro "knave_to_knight" "at" t1:Lean.Parser.Tactic.locationHyp : tactic =>
---do`(tactic| simp [inright_notinleftIff] at $t1)
---end settheory_approach
 
--- environment
 
 theorem inleft_notinright
 {A : Inhabitant}
@@ -258,13 +199,12 @@ theorem notinright_inleftIff
   · exact notinright_inleft
   · exact inleft_notinright dis
 
+axiom either (A : Inhabitant): A ∈ Knight ∨ A ∈ Knave
 
-
-axiom either (A : Inhabitant): A ∈ Knight ∨ A ∈ Knave 
 -- *
 macro "set_knight_to_knave" "at"  t1:Lean.Parser.Tactic.locationWildcard : tactic =>
 do`(tactic| simp [inleft_notinrightIff] at $t1)
-
+-- goal
 macro "set_knight_to_knave" : tactic =>
 do`(tactic| simp [inleft_notinrightIff])
 -- hypothesis

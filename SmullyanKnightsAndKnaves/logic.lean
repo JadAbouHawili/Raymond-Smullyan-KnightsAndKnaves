@@ -35,9 +35,6 @@ theorem IfToIff{p : Prop} {q: Prop} (h : p → q) (h' : ¬p → ¬q) : p ↔ q :
   --· intro hq
   --  exact (Function.mtr h') hq
 
-
-#check and_imp
-
 --theorem XorToOr
 --{Inhabitant : Type}
 --{inst : DecidableEq Inhabitant}{Knight : Finset Inhabitant } {Knave : Finset Inhabitant} (A : Inhabitant)

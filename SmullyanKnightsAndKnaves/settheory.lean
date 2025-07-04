@@ -707,6 +707,31 @@ theorem already_full
   exfalso 
   contradiction
 
+
+theorem full2_helper  
+{C : K}
+(S : Finset K) 
+{inst : DecidableEq K}
+{inst2 : Fintype K}
+(pair : S = {A,B})
+
+(AneB : A ≠ B)
+(BneC : B ≠ C)
+(AneC : A ≠ C)
+: C ∉ S := by {
+  intro CinS
+  rw [pair] at CinS
+  rw [Finset.mem_insert] at CinS
+  rw [Finset.mem_singleton] at CinS
+
+  cases CinS 
+  symm at AneC
+  contradiction
+  symm at BneC
+  contradiction
+
+}
+
 theorem full2 
 {A B C : K}
 (S : Finset K) 
@@ -720,13 +745,19 @@ theorem full2
 (AneC : A ≠ C)
 (all : ∀(x:K),x=A ∨ x=B ∨ x=C)
 : C ∉ S := by {
+  rw [Finset.card_eq_two] at Two
+  have ⟨x,y,_,main⟩ := Two
+  #check full2_helper
+  -- full2_helper not as helpful as anticipated
+  sorry
+  /-
   #check Finset.card_le_two
   intro CinS
-  #check Finset.card_eq_two 
+  #check Finset.card_eq_two
   have two := Two
   rw [Finset.card_eq_two] at Two
 
-  --have ⟨x,y,xney,Seqxy⟩ := Two  
+  --have ⟨x,y,xney,Seqxy⟩ := Two
   --rw [Seqxy] at AinS  
   --rw [Seqxy] at BinS  
   --rw [Seqxy] at CinS  
@@ -743,6 +774,7 @@ theorem full2
     constructor
     assumption
     #check univ_iff_all 
+    #check Finset.eq_iff_card_le_of_subset
     rw [(univ_iff_all).symm] at all
     have : {A,B,C} ⊆ S := by
       intro x
@@ -770,7 +802,7 @@ theorem full2
     --sorry
   rw [two] at this
   contradiction
-
+-/
 }
 
 -- transition from finset to set stuff and vice versa

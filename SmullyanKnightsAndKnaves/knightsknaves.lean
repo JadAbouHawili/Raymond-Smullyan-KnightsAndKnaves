@@ -79,7 +79,7 @@ example {K : Type}
 
 macro_rules
 | `(tactic| contradiction) => 
-  do `(tactic |solve  | ( apply not_both  ; repeat assumption) )
+  do `(tactic |solve  | ( exfalso ; apply not_both  ; repeat assumption) )
 theorem IamKnave
   {A : Inhabitant}
 (stA : A ∈ Knight  ↔ (A ∈ Knave) )

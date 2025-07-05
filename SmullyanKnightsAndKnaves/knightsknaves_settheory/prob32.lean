@@ -84,13 +84,18 @@ example
   · have oneKnave := stB.mp BKnight
     set_knight_to_knave
     intro CKnave
+    --     exact False.elim (not_both CKnave CKnave)
+    #check not_both
     contradiction
+    show_term contradiction
+
 
   · have notsingleknave := stBn.mp BKnave
     simp at notsingleknave 
     set_knight_to_knave
     intro CKnave
-    contradiction
+    exact False.elim (not_both CKnave CKnave)
+    show_term contradiction
 
 example
 {stA : A ∈ Knight  ↔ (Knave= {A,B,C}) }

@@ -23,10 +23,6 @@ variable [DecidableEq Inhabitant]
 axiom dis : Knight ∩ Knave = ∅
 axiom KorKn {A : Inhabitant}: A ∈ Knight ∨ A ∈ Knave
 axiom not_both
-  {Inhabitant : Type}
-  {A : Inhabitant}
-  {inst : DecidableEq Inhabitant}
-  {Knight : Finset Inhabitant} {Knave : Finset Inhabitant}
   (AKnight : A ∈ Knight) (AKnave : A ∈ Knave)  : False
 
 def oneKnight  : Prop:=   (A ∈ Knight ∧ B ∈ Knave ∧ C ∈ Knave) ∨ (A ∈ Knave ∧ B ∈ Knight ∧ C ∈ Knave) ∨ (A ∈ Knave ∧ B ∈ Knave ∧ C ∈ Knight)
@@ -81,7 +77,6 @@ macro_rules
 | `(tactic| contradiction) => 
   do `(tactic |solve  | ( exfalso ; apply not_both  ; repeat assumption) )
 theorem IamKnave
-  {A : Inhabitant}
 (stA : A ∈ Knight  ↔ (A ∈ Knave) )
   : False := by
 
@@ -96,7 +91,6 @@ theorem IamKnave
   }
 
 theorem IamKnaveIffFalse
-{A : Inhabitant}
   (Or : (A ∈ Knight ∨ A ∈ Knave))
 : False ↔  (A ∈ Knight  ↔ (A ∈ Knave))  
    := by

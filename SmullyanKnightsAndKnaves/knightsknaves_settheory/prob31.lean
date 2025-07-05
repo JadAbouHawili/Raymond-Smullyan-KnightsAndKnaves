@@ -5,13 +5,13 @@ open settheory_approach
 #check Knight
 
 
-variable {A B C : Inhabitant}
 inductive Solution (A B C : Inhabitant) (Knight : Finset Inhabitant) (Knave : Finset Inhabitant)
 | submit (h : A ∈ Knave ∧ B ∈ Knight ∧ C ∈ Knave) : Solution A B C (Knight) (Knave)
 -- all : ∀ (x : Inhabitant), x = A ∨ x = B ∨ x = C
 
 
 
+set_option push_neg.use_distrib true
 theorem all_in_one
   {inst : DecidableEq Inhabitant}
   {A B C : Inhabitant}
@@ -25,49 +25,32 @@ theorem all_in_one
     #check Finset.eq_of_subset_of_card_le 
     exact (everyone_in_set_eq all).mp ⟨hA,hB,hC⟩ 
 
+variable [DecidableEq Inhabitant]
+
 #check Knight
 #check Inhabitant
 example
-  {A B C : Inhabitant}
-  {inst : DecidableEq Inhabitant}
   {inst2 : Fintype Inhabitant}
   {all : Finset.univ = {A,B,C}}
   --{all : ∀(x : Inhabitant), x = A ∨ x = B ∨ x = C}
-
-{h : Knight ∩ Knave = ∅ }
-{h1 : A ∈ Knight ∨ A ∈ Knave }
-{h2: B ∈ Knight ∨ B ∈ Knave }
-{h3: C ∈ Knight ∨ C ∈ Knave }
 {stA : A ∈ Knight  ↔ (A ∈ Knave ∧ B ∈ Knave ∧ C ∈ Knave) }
 {stAn : A ∈ Knave ↔ ¬ (A ∈ Knave ∧ B ∈ Knave ∧ C ∈ Knave) }
 {stB: B ∈ Knight ↔ (Knight = {A} ∨ Knight = {B} ∨ Knight = {C}) }
 {stBn: B ∈ Knave ↔ ¬ (Knight = {A} ∨ Knight = {B} ∨ Knight = {C}) }
   : Solution A B C Knight Knave:= by
 
-  have AKnave : A ∈ Knave := by {
-      #check iff_iff_implies_and_implies
-      have := (iff_iff_implies_and_implies).mp stA
-      by_contra AKnight
-      rw [notinright_inleftIff] at AKnight
-      have AKnave := stA.mp AKnight
-      have := AKnave.left
-      contradiction
-      --exact IamKnave h h1 (by simp[AKnight,AKnave.left] )
-      --exact disjoint h AKnight AKnave.left 
-    }
-  have BKnight : B ∈ Knight := by 
-    by_contra BKnave
-    have notallKnaves := stAn.mp AKnave
-   -- rw [notinleft_inrightIff] at BKnave <;> try assumption
+  have AKnave : A ∈ Knave 
+  set_knave_to_knight
+  intro AKnight
+  have ⟨AKnave,_,_⟩  := stA.mp AKnight
+  contradiction
+
+  have notallKnaves := stAn.mp AKnave
+  have BKnight : B ∈ Knight := by {
+    set_knight_to_knave
+    intro BKnave
     #check inleft_notinrightIff
-    have : ¬(B ∈ Knight) := by assumption
-    --rw [inleft_notinrightIff (either B )] at this
-    set_knight_to_knave at this
-    --simp at BKnave
-    --set_knight_to_knave at BKnave
-    --rw [notinleft_inrightIff h2 h] at BKnave
     simp [AKnave,BKnave] at notallKnaves
-    -- stB is equivalent to Knight.card = 1
     -- have a theorem which says given the universe, Knight.card = 1, and the first element in not in knight and the second as well then the third has to be. this idea of a universe need to be explicitly explained.
     have : Knight ⊆ Finset.univ := by exact Finset.subset_univ Knight
     rw [all] at this 
@@ -78,7 +61,6 @@ example
 
     #check Finset.subset_insert_iff_of_not_mem
     #check Finset.subset_insert_iff_of_not_mem AKnave
---    simp [AKnave,BKnave] at this
     #check (Finset.subset_insert_iff_of_not_mem AKnave).mp this
 --    have smaller :=      (Finset.subset_insert_iff_of_not_mem AKnave).mp this
 
@@ -93,12 +75,14 @@ example
       intro xC
       rw[Finset.mem_singleton] at xC
       rw [xC]
-      exact (notright_left h3 notallKnaves )
-      
+      set_knight_to_knave 
+      assumption
+
     have : Knight = {C} := by exact Finset.Subset.antisymm this Csubset
 
     have BKnight := stB.mpr (by right ; right ; assumption)
     contradiction
+    }
 
   sorry
 example 
@@ -116,8 +100,6 @@ example
 
 open settheory_approach
 example
-  {A B C : Inhabitant}
-  {inst : DecidableEq Inhabitant}
   {inst2 : Fintype Inhabitant}
   {all : ∀(x : Inhabitant), x = A ∨ x = B ∨ x = C}
   { AneB : A ≠ B}
@@ -134,7 +116,6 @@ example
   : Solution A B C Knight Knave:= by
 --  A ∈ Knave ∧ B ∈ Knight ∧ C ∈ Knave
   {
-    
     -- this is similar to i am a knave
     have AKnave : A ∈ Knave := by {
       --#check iff_iff_implies_and_implies
@@ -142,8 +123,10 @@ example
       by_contra AKnight
       rw [notinright_inleftIff] at AKnight
       have AKnave := stA.mp AKnight
-      exact IamKnave (by simp[AKnight,AKnave.left] )
-      --exact disjoint h AKnight AKnave.left 
+      exact IamKnave (by 
+        apply iff_of_true
+        assumption
+        simp[AKnight,AKnave.left] )
     }
 
     have BKnight : ¬B ∈ Knave := by 

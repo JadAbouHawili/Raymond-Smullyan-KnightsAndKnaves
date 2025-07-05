@@ -1,19 +1,12 @@
----- adapat to problems with only 2 inhabitants
-
---"
---Suppose instead, A and B say the following:
---A: All of us are knaves.
---B: Exactly one of us is a knave.
---Can it be determined what B is? Can it be determined what C is?
---"
 import SmullyanKnightsAndKnaves.knightsknaves
 
--- exactly one of us is a knave
--- this can be represented as Knave = {A} ∨ Knave = {B} ∨ Knave = {C}
 set_option push_neg.use_distrib true
+set_option trace.Meta.Tactic.simp true
+set_option trace.Meta.Tactic.contradiction true
+set_option trace.Meta.synthInstance true
 
 open settheory_approach
-
+#help option
 --A:All of us are knaves.
 --B: Exactly one of us is a knave.
 variable [DecidableEq Inhabitant]
@@ -89,31 +82,43 @@ example
   assumption
   set_knight_or_knave B with BKnight BKnave
   · have oneKnave := stB.mp BKnight
-    -- replace rcases with just proving negation of the other disjuncts and simplifying
-    rcases oneKnave with h|h|h
-
     set_knight_to_knave
     intro CKnave
-    rw [h] at CKnave
     contradiction
 
-    set_knight_to_knave
-    intro CKnave
-    rw [h] at CKnave
-    contradiction
-
-
-    set_knight_to_knave
-    intro CKnave
-    rw [h] at CKnave
-    contradiction
   · have notsingleknave := stBn.mp BKnave
     simp at notsingleknave 
     set_knight_to_knave
     intro CKnave
     contradiction
 
-#check Finset.ssubset_iff_subset_ne.mpr 
+example
+{stA : A ∈ Knight  ↔ (Knave= {A,B,C}) }
+{stAn : A ∈ Knave ↔ ¬ (Knave = {A,B,C}) }
+{three : A ∈ Knight ↔ Knave.card=3}
+{stB : B ∈ Knight ↔ Knave.card=1}
+{stBn : B ∈ Knave ↔ Knave.card ≠ 1}
+  : A ∈ Knave ∧ C ∈ Knight := by
+    
+  have AKnave : A ∈ Knave
+  set_knave_to_knight
+  intro AKnight
+  have c := three.mp AKnight
+  contradiction
+
+  have notallKnave := stAn.mp AKnave
+
+  constructor
+  assumption
+  set_knight_to_knave
+  intro CKnave
+  set_knight_or_knave B with BKnight BKnave
+  · have one := stB.mp BKnight
+    contradiction
+  · contradiction
+
+
+#check Finset.ssubset_iff_subset_ne.mpr
 
 #check full2
 #check Finset.card_eq_two

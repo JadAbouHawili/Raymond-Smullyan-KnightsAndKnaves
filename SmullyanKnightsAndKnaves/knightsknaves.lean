@@ -18,6 +18,7 @@ axiom inst : DecidableEq Inhabitant
 axiom A : Inhabitant
 axiom B : Inhabitant
 axiom C : Inhabitant
+axiom AneC : A ≠ C
 
 variable [DecidableEq Inhabitant]
 axiom dis : Knight ∩ Knave = ∅
@@ -77,6 +78,7 @@ macro_rules
 | `(tactic| contradiction) => 
   do `(tactic |solve  | ( exfalso ; apply not_both  ; repeat assumption) )
 theorem IamKnave
+{A : Inhabitant}
 (stA : A ∈ Knight  ↔ (A ∈ Knave) )
   : False := by
 
@@ -84,11 +86,14 @@ theorem IamKnave
     rcases KorKn with AKnight|AKnave
 
     · have := stA.mp AKnight
+      apply not_both
       contradiction
 
     · have := stA.mpr AKnave
       contradiction
   }
+example (h : C ∈ Knight) (h' : C ∈ Knave) : False  := by 
+  apply not_both
 
 theorem IamKnaveIffFalse
   (Or : (A ∈ Knight ∨ A ∈ Knave))

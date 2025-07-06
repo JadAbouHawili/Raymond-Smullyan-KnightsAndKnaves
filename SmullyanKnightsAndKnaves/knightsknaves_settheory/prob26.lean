@@ -4,7 +4,7 @@ open settheory_approach
 
 variable [DecidableEq Inhabitant]
 example
-{hB : B ∈ Knight ↔ (A ∈ Knight ↔ A ∈ Knave)}
+{hB : B ∈ Knight ↔ (C ∈ Knight ↔ C ∈ Knave)}
 {hC : C ∈ Knight ↔ B ∈ Knave}
 : B ∈ Knave ∧ C ∈ Knight := by
   have BKnave : B ∈ Knave

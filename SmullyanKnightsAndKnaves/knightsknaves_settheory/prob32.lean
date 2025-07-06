@@ -23,6 +23,7 @@ example
     by_contra AKnight
     set_knave_to_knight at AKnight
     have knaves := stA.mp AKnight
+    have AKnave := knaves.left
     contradiction
 
   have notallknaves := stAn.mp AKnave
@@ -109,7 +110,7 @@ example
   set_knave_to_knight
   intro AKnight
   have c := three.mp AKnight
-  contradiction
+  sorry
 
   have notallKnave := stAn.mp AKnave
 
@@ -119,6 +120,16 @@ example
   intro CKnave
   set_knight_or_knave B with BKnight BKnave
   · have one := stB.mp BKnight
+    rw [Finset.card_eq_one] at one
+    have ⟨a,singleton⟩ := one 
+    rw [singleton] at AKnave 
+    rw [singleton] at CKnave 
+    rw [Finset.mem_singleton] at CKnave
+    rw [Finset.mem_singleton] at AKnave
+    rw [←CKnave] at AKnave
+    #check AneC
+    --exact AneC AKnave
+    #check full
     contradiction
   · contradiction
 

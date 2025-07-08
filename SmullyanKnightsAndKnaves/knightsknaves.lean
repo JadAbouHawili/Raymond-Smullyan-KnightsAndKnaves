@@ -24,6 +24,7 @@ variable [DecidableEq Inhabitant]
 axiom dis : Knight ∩ Knave = ∅
 axiom KorKn {A : Inhabitant}: A ∈ Knight ∨ A ∈ Knave
 axiom not_both
+  {A : Inhabitant}
   (AKnight : A ∈ Knight) (AKnave : A ∈ Knave)  : False
 
 def oneKnight  : Prop:=   (A ∈ Knight ∧ B ∈ Knave ∧ C ∈ Knave) ∨ (A ∈ Knave ∧ B ∈ Knight ∧ C ∈ Knave) ∨ (A ∈ Knave ∧ B ∈ Knave ∧ C ∈ Knight)
@@ -83,25 +84,22 @@ theorem IamKnave
   : False := by
 
   {
-    rcases KorKn with AKnight|AKnave
-
+    rcases @KorKn A with AKnight|AKnave
     · have := stA.mp AKnight
-      apply not_both
       contradiction
 
     · have := stA.mpr AKnave
       contradiction
   }
 example (h : C ∈ Knight) (h' : C ∈ Knave) : False  := by 
-  apply not_both
+  contradiction
 
 theorem IamKnaveIffFalse
-  (Or : (A ∈ Knight ∨ A ∈ Knave))
-: False ↔  (A ∈ Knight  ↔ (A ∈ Knave))  
+: False ↔  (A ∈ Knight  ↔ (A ∈ Knave))
    := by
     constructor
     exact fun a => a.elim
-    exact IamKnave  
+    exact IamKnave
 
 theorem all_univ_subset
 {Inhabitant : Type}
@@ -176,7 +174,7 @@ theorem inleft_notinrightIff
   constructor
   · exact inleft_notinright dis
   · exact notinright_inleft
-  
+
 theorem notinleft_inrightIff
 {A : Inhabitant}
 : A ∉ Knight ↔  A ∈ Knave := by

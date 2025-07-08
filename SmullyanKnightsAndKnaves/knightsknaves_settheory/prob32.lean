@@ -3,7 +3,7 @@ import SmullyanKnightsAndKnaves.knightsknaves
 set_option push_neg.use_distrib true
 set_option trace.Meta.Tactic.simp true
 set_option trace.Meta.Tactic.contradiction true
-set_option trace.Meta.synthInstance true
+--set_option trace.Meta.synthInstance true
 
 open settheory_approach
 #help option
@@ -67,6 +67,7 @@ example
 {stAn : A ∈ Knave ↔ ¬ (Knave = {A,B,C}) }
 {stB : B ∈ Knight ↔ Knave = {A} ∨ Knave = {B} ∨ Knave = {C}}
 {stBn : B ∈ Knave ↔ ¬ (Knave = {A} ∨ Knave = {B} ∨ Knave = {C})}
+(all : ∀ (x : Inhabitant), x = A ∨ x = B ∨ x = C)
   : A ∈ Knave ∧ C ∈ Knight := by
   have AKnave : A ∈ Knave
   set_knave_to_knight
@@ -85,18 +86,37 @@ example
   · have oneKnave := stB.mp BKnight
     set_knight_to_knave
     intro CKnave
-    --     exact False.elim (not_both CKnave CKnave)
-    #check not_both
-    contradiction
-    show_term contradiction
+    rcases oneKnave with single|single|single
+    · 
+      rw [single] at CKnave
+      rw [Finset.mem_singleton] at CKnave
+      symm at CKnave
+      sorry
+    · sorry
+    · sorry
 
 
   · have notsingleknave := stBn.mp BKnave
     simp at notsingleknave 
     set_knight_to_knave
     intro CKnave
-    exact False.elim (not_both CKnave CKnave)
-    show_term contradiction
+    #check Finset.Subset.antisymm
+    --show_term contradiction
+    have : Knave = {A,B,C} := by
+      apply Finset.Subset.antisymm
+      · intro a
+        intro aInKnave
+        repeat rw [Finset.mem_insert] 
+        rw [Finset.mem_singleton] 
+        exact all a
+      · intro a 
+        intro aIn
+        -- create this into a custom tactic(?)
+        repeat rw [Finset.mem_insert] at aIn
+        rw [Finset.mem_singleton] at aIn
+        rcases aIn with eq|eq|eq 
+        repeat rw [eq] ; assumption
+    contradiction
 
 example
 {stA : A ∈ Knight  ↔ (Knave= {A,B,C}) }
@@ -104,8 +124,9 @@ example
 {three : A ∈ Knight ↔ Knave.card=3}
 {stB : B ∈ Knight ↔ Knave.card=1}
 {stBn : B ∈ Knave ↔ Knave.card ≠ 1}
+{AneC : A ≠ C}
   : A ∈ Knave ∧ C ∈ Knight := by
-    
+
   have AKnave : A ∈ Knave
   set_knave_to_knight
   intro AKnight
@@ -131,7 +152,8 @@ example
     --exact AneC AKnave
     #check full
     contradiction
-  · contradiction
+  · -- already done...
+    contradiction
 
 
 #check Finset.ssubset_iff_subset_ne.mpr

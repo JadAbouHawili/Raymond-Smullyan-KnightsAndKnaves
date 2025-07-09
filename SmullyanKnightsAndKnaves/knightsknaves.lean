@@ -33,6 +33,27 @@ def oneKnave  : Prop:=   (A ∈ Knave ∧ B ∈ Knight ∧ C ∈ Knight) ∨ (A 
 
 def allKnave : Prop := A ∈ Knave ∧ B ∈ Knave ∧ C ∈ Knave
 
+-- this could be proven , would require adding more assumptions
+theorem knave_full3 (hA : A ∈ Knave) (hB : B ∈ Knave) (hC : C ∈ Knave) : Knave = {A,B,C} := by
+    sorry
+   /- 
+    have : Knave = {A,B,C} := by
+      apply Finset.Subset.antisymm
+      · intro a
+        intro aInKnave
+        repeat rw [Finset.mem_insert] 
+        rw [Finset.mem_singleton] 
+        exact all a
+      · intro a 
+        intro aIn
+        -- create this into a custom tactic(?)
+        repeat rw [Finset.mem_insert] at aIn
+        rw [Finset.mem_singleton] at aIn
+        rcases aIn with eq|eq|eq 
+        repeat rw [eq] ; assumption
+    contradiction
+    -/
+
 theorem disjoint
 {A : Inhabitant}
 (Aleft : A ∈ Knight)

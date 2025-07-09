@@ -102,22 +102,13 @@ example
     intro CKnave
     #check Finset.Subset.antisymm
     --show_term contradiction
+    #check full2
     have : Knave = {A,B,C} := by
-      apply Finset.Subset.antisymm
-      · intro a
-        intro aInKnave
-        repeat rw [Finset.mem_insert] 
-        rw [Finset.mem_singleton] 
-        exact all a
-      · intro a 
-        intro aIn
-        -- create this into a custom tactic(?)
-        repeat rw [Finset.mem_insert] at aIn
-        rw [Finset.mem_singleton] at aIn
-        rcases aIn with eq|eq|eq 
-        repeat rw [eq] ; assumption
+      apply knave_full3
+      repeat assumption
     contradiction
 
+variable [Fintype Inhabitant]
 example
 {stA : A ∈ Knight  ↔ (Knave= {A,B,C}) }
 {stAn : A ∈ Knave ↔ ¬ (Knave = {A,B,C}) }
@@ -125,12 +116,88 @@ example
 {stB : B ∈ Knight ↔ Knave.card=1}
 {stBn : B ∈ Knave ↔ Knave.card ≠ 1}
 {AneC : A ≠ C}
+(all : ∀ (x : Inhabitant), x = A ∨ x = B ∨ x = C)
   : A ∈ Knave ∧ C ∈ Knight := by
 
   have AKnave : A ∈ Knave
   set_knave_to_knight
   intro AKnight
   have c := three.mp AKnight
+  rw [Finset.card_eq_three] at c
+  have ⟨x,y,z,xney,xnez,ynez,knaveEq⟩ := c 
+  have : Knave ={A,B,C}
+  have : Knave ⊆ {A,B,C} := by
+      exact set_subset_univ all
+  have : Knave ⊆ (Finset.univ) := by
+      exact Finset.subset_univ Knave
+
+  -- do case for every x,y,z. every combination which is 27 to get this..
+  rcases all x with xA|xB|xC
+  ·
+    rcases all y with yA|yB|yC
+    · rcases all z with zA|zB|zC
+      · rw [xA] at xney
+        rw [yA] at xney 
+        contradiction
+      · rw [xA] at xney
+        rw [yA] at xney 
+        contradiction
+      · rw [xA] at xney
+        rw [yA] at xney 
+        contradiction
+    · rcases all z with zA|zB|zC
+      · rw [xA] at xnez
+        rw [zA] at xnez 
+        contradiction
+      · rw [yB] at ynez
+        rw [zB] at ynez 
+        contradiction
+      · rw [xA] at knaveEq
+        rw [yB] at knaveEq
+        rw [zC] at knaveEq
+        assumption
+    · rcases all z with zA|zB|zC
+      · rw [xA] at xnez
+        rw [zA] at xnez 
+        contradiction
+      · rw [xA] at knaveEq
+        rw [yC] at knaveEq
+        rw [zB] at knaveEq
+        rw [knaveEq]
+        sorry
+      · rw [zC] at ynez
+        rw [yC] at ynez
+        contradiction
+
+  ·
+    rcases all y with yA|yB|yC
+    · rcases all z with zA|zB|zC
+      · sorry
+      · sorry
+      · sorry
+    · rcases all z with zA|zB|zC
+      · sorry
+      · sorry
+      · sorry
+    · rcases all z with zA|zB|zC
+      · sorry
+      · sorry
+      · sorry
+  ·
+    rcases all y with yA|yB|yC
+    · rcases all z with zA|zB|zC
+      · sorry
+      · sorry
+      · sorry
+    · rcases all z with zA|zB|zC
+      · sorry
+      · sorry
+      · sorry
+    · rcases all z with zA|zB|zC
+      · sorry
+      · sorry
+      · sorry
+
   sorry
 
   have notallKnave := stAn.mp AKnave
@@ -148,11 +215,11 @@ example
     rw [Finset.mem_singleton] at CKnave
     rw [Finset.mem_singleton] at AKnave
     rw [←CKnave] at AKnave
-    #check AneC
-    --exact AneC AKnave
-    #check full
     contradiction
-  · -- already done...
+  · 
+    have : Knave = {A,B,C}
+    apply knave_full3 
+    repeat assumption
     contradiction
 
 

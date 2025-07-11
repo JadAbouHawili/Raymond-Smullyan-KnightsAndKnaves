@@ -51,6 +51,24 @@ theorem full
   exact AneB (card_eq One AinS BinS)
 }
 
+theorem full3 {K : Type} {A B C: K} 
+{inst : DecidableEq K}  {S : Finset K}
+{all : ∀ (x : K), x = A ∨ x = B ∨ x = C}
+  (hA : A ∈ S) (hB : B ∈ S) (hC : C ∈ S) : S = {A,B,C} := by
+    apply Finset.Subset.antisymm
+    · intro a
+      intro aInKnave
+      repeat rw [Finset.mem_insert] 
+      rw [Finset.mem_singleton] 
+      exact all a
+    · intro a aIn
+
+      -- create this into a custom tactic(?)
+      repeat rw [Finset.mem_insert] at aIn
+      rw [Finset.mem_singleton] at aIn
+      rcases aIn with eq|eq|eq 
+      repeat rw [eq] ; assumption
+
 theorem is_singleton {A : K} {S : Finset K}
 (AinS : A ∈ S) (OneS : S.card = 1 )
 : S={A} := by 

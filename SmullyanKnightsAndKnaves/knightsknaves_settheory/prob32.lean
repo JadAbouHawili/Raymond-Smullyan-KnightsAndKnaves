@@ -86,12 +86,46 @@ example
   · have oneKnave := stB.mp BKnight
     set_knight_to_knave
     intro CKnave
+    have : 2 ≤ Knave.card  := by
+        have : {A,C} ⊆ Knave := by
+          intro a aIn
+          rw [Finset.mem_insert] at aIn
+          rw [Finset.mem_singleton] at aIn
+          rcases aIn with h|h
+          rw [h] ; assumption
+          rw [h] ; assumption
+        #check Finset.card_le_card
+        have := Finset.card_le_card this
+        have last : ({A,C}:Finset Inhabitant).card = 2 := by
+          rw [Finset.card_eq_two] 
+          use A
+          use C
+          constructor 
+          exact AneC
+          rfl
+        rw [last] at this
+        assumption
+        /-
+        second approach must be studied , i was trying second approach to get away from using AneC but there is no way around that...
+        -/
+    have : 2 ≤ Knave.card  := by
+        #check Nat.two_le_iff
+        #check Nat.two_le_iff  Knave.card
+        rw[ Nat.two_le_iff  Knave.card]
+        constructor
+        · exact Finset.card_ne_zero_of_mem AKnave
+        · intro cardone
+          rw [cardone] at this
+          contradiction
     rcases oneKnave with single|single|single
-    · 
+    ·
       rw [single] at CKnave
       rw [Finset.mem_singleton] at CKnave
       symm at CKnave
-      sorry
+      #check AneC
+      -- contradiction doesn't work without this step
+      have : A ≠ C := AneC
+      contradiction
     · sorry
     · sorry
 
@@ -101,8 +135,6 @@ example
     set_knight_to_knave
     intro CKnave
     #check Finset.Subset.antisymm
-    --show_term contradiction
-    #check full2
     have : Knave = {A,B,C} := by
       apply knave_full3
       repeat assumption

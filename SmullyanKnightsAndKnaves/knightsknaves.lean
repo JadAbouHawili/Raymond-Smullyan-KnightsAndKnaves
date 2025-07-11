@@ -23,6 +23,8 @@ axiom AneC : A ≠ C
 variable [DecidableEq Inhabitant]
 axiom dis : Knight ∩ Knave = ∅
 axiom KorKn {A : Inhabitant}: A ∈ Knight ∨ A ∈ Knave
+
+axiom all : ∀ (x : Inhabitant), x = A ∨ x = B ∨ x = C
 axiom not_both
   {A : Inhabitant}
   (AKnight : A ∈ Knight) (AKnave : A ∈ Knave)  : False
@@ -33,26 +35,22 @@ def oneKnave  : Prop:=   (A ∈ Knave ∧ B ∈ Knight ∧ C ∈ Knight) ∨ (A 
 
 def allKnave : Prop := A ∈ Knave ∧ B ∈ Knave ∧ C ∈ Knave
 
--- this could be proven , would require adding more assumptions
+theorem all_in_one
+  {inst : DecidableEq Inhabitant}
+  {A B C : Inhabitant}
+  {S : Finset Inhabitant} 
+  {all : ∀(x : Inhabitant), x = A ∨ x = B ∨ x = C}
+  (hA : A ∈ S)
+  (hB : B ∈ S)
+  (hC : C ∈ S)
+  : S = {A,B,C}
+  := by 
+    #check Finset.eq_of_subset_of_card_le 
+    exact (everyone_in_set_eq all).mp ⟨hA,hB,hC⟩ 
 theorem knave_full3 (hA : A ∈ Knave) (hB : B ∈ Knave) (hC : C ∈ Knave) : Knave = {A,B,C} := by
-    sorry
-   /- 
-    have : Knave = {A,B,C} := by
-      apply Finset.Subset.antisymm
-      · intro a
-        intro aInKnave
-        repeat rw [Finset.mem_insert] 
-        rw [Finset.mem_singleton] 
-        exact all a
-      · intro a 
-        intro aIn
-        -- create this into a custom tactic(?)
-        repeat rw [Finset.mem_insert] at aIn
-        rw [Finset.mem_singleton] at aIn
-        rcases aIn with eq|eq|eq 
-        repeat rw [eq] ; assumption
-    contradiction
-    -/
+    apply full3
+    exact all
+    repeat assumption
 
 theorem disjoint
 {A : Inhabitant}

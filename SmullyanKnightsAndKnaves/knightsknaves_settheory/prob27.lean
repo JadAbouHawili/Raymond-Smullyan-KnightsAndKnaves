@@ -7,7 +7,6 @@ import SmullyanKnightsAndKnaves.knightsknaves
         #check ne_eq
         #check ne_false_of_eq_true
         #check ne_true_of_eq_false
-
 -- newformalization
 open settheory_approach
 variable [DecidableEq Inhabitant]
@@ -138,7 +137,7 @@ by
           · assumption
           · rw [h_3] at xK
             exfalso
-            contradiction
+
       · right
         rw [Finset.eq_singleton_iff_nonempty_unique_mem] 
         constructor

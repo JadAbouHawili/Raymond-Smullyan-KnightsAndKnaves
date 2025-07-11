@@ -1,34 +1,11 @@
 import SmullyanKnightsAndKnaves.knightsknaves
---import SmullyanKnightsAndKnaves.dsl_knights_knaves
 
 open settheory_approach
-#check Knight
-
-
-inductive Solution (A B C : Inhabitant) (Knight : Finset Inhabitant) (Knave : Finset Inhabitant)
-| submit (h : A ∈ Knave ∧ B ∈ Knight ∧ C ∈ Knave) : Solution A B C (Knight) (Knave)
--- all : ∀ (x : Inhabitant), x = A ∨ x = B ∨ x = C
-
-
 
 set_option push_neg.use_distrib true
-theorem all_in_one
-  {inst : DecidableEq Inhabitant}
-  {A B C : Inhabitant}
-  {S : Finset Inhabitant} 
-  {all : ∀(x : Inhabitant), x = A ∨ x = B ∨ x = C}
-  (hA : A ∈ S)
-  (hB : B ∈ S)
-  (hC : C ∈ S)
-  : S = {A,B,C}
-  := by 
-    #check Finset.eq_of_subset_of_card_le 
-    exact (everyone_in_set_eq all).mp ⟨hA,hB,hC⟩ 
 
 variable [DecidableEq Inhabitant]
 
-#check Knight
-#check Inhabitant
 example
   {inst2 : Fintype Inhabitant}
   {all : Finset.univ = {A,B,C}}
@@ -37,7 +14,9 @@ example
 {stAn : A ∈ Knave ↔ ¬ (A ∈ Knave ∧ B ∈ Knave ∧ C ∈ Knave) }
 {stB: B ∈ Knight ↔ (Knight = {A} ∨ Knight = {B} ∨ Knight = {C}) }
 {stBn: B ∈ Knave ↔ ¬ (Knight = {A} ∨ Knight = {B} ∨ Knight = {C}) }
-  : Solution A B C Knight Knave:= by
+  :
+  A ∈ Knave ∧ B ∈ Knight ∧ C ∈ Knave
+  := by
 
   have AKnave : A ∈ Knave 
   set_knave_to_knight
@@ -113,8 +92,10 @@ example
 {stAn : A ∈ Knave ↔ ¬ (A ∈ Knave ∧ B ∈ Knave ∧ C ∈ Knave) }
 {stB: B ∈ Knight ↔ (Knight = {A} ∨ Knight = {B} ∨ Knight = {C}) }
 {stBn: B ∈ Knave ↔ ¬ (Knight = {A} ∨ Knight = {B} ∨ Knight = {C}) }
-  : Solution A B C Knight Knave:= by
---  A ∈ Knave ∧ B ∈ Knight ∧ C ∈ Knave
+  : 
+
+  A ∈ Knave ∧ B ∈ Knight ∧ C ∈ Knave
+  := by
   {
     -- this is similar to i am a knave
     have AKnave : A ∈ Knave := by {
@@ -236,9 +217,11 @@ example
 {stAn : A ∈ Knave ↔ ¬ (Knave={A,B,C}) }
 {stB: B ∈ Knight ↔ (Knight = {A} ∨ Knight = {B} ∨ Knight = {C}) }
 {stBn: B ∈ Knave ↔ ¬ (Knight = {A} ∨ Knight = {B} ∨ Knight = {C}) }
-  : Solution A B C Knight Knave:= by
-    -- A ∈ Knave ∧ B ∈ Knight ∧ C ∈ Knave
-  --rw [everyone_knave_set_eq all] at stAn
+  :
+
+  A ∈ Knave ∧ B ∈ Knight ∧ C ∈ Knave
+  := by
+  rw [everyone_knave_set_eq all] at stAn
   -- also similar to I am a Knave
   have AKnave : A ∈ Knave := by
     by_contra AKnight
@@ -318,7 +301,7 @@ example
   -- now submit
   sorry
 
-example 
+example
 {K : Type}
 {A B C : K} { inst2 : Fintype K} {inst : DecidableEq K} 
 {S S' : Finset K} 

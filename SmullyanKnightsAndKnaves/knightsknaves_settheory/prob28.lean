@@ -56,8 +56,8 @@ example
   -- assuming B not knave gives contradiction
   #check Finset.subset_insert_iff_of_not_mem
   #check Finset.subset_singleton_iff
-  have U : Finset.univ = ({A,B} : Finset K):= univ_iff_all2.mpr all
-  have ⟨w,winKnave⟩  :  ∃ w : K, w ∈ Knave := by 
+  have U : Finset.univ = ({A,B} : Finset Inhabitant):= univ_iff_all2.mpr all
+  have ⟨w,winKnave⟩  :  ∃ w : Inhabitant, w ∈ Knave := by 
     by_contra h' 
     push_neg at h'
     #check Set.eq_empty_iff_forall_not_mem
@@ -76,7 +76,7 @@ example
     assumption 
   rw [BKnave] at winKnave
   constructor
-  rw [inleft_notinrightIff (h'' A) h]
+  rw [inleft_notinrightIff]
   assumption ; assumption
 
 #check all2_in_one_other_empty
@@ -101,28 +101,28 @@ example
   }
 
 
---open Lean Parser Elab Tactic
---elab "show_goal" t:tactic : tactic => do
---  logInfoAt t m!"⊢ {(← Elab.Tactic.getMainTarget)}"
---  evalTactic t
---
---def getTacs (t1 : Syntax) : Array Syntax :=
---  match t1 with
---    | .node _ ``tacticSeq #[.node _ ``tacticSeq1Indented #[.node _ `null args]] =>
---      args.filter (! ·.isOfKind `null)
---    | _ => #[t1]
---
---elab "show_goals1 " tacs:tacticSeq : tactic => do
---  let tacs := getTacs tacs
---  for t in tacs do
---    evalTactic (← `(tactic| show_goal $(⟨t⟩)))
---
---elab "show_goals " tacs:tacticSeq : tactic => do
---  let tacs := getTacs tacs
---  let _ ← tacs.mapM fun t => do
---    match t with
---      | `(tactic| · $ts) => evalTactic (← `(tactic| · show_goals1 $(⟨ts.raw⟩)))
---      | _ => evalTactic (← `(tactic| show_goals1 $(⟨t⟩)))
+open Lean Parser Elab Tactic
+elab "show_goal" t:tactic : tactic => do
+  logInfoAt t m!"⊢ {(← Elab.Tactic.getMainTarget)}"
+  evalTactic t
+
+def getTacs (t1 : Syntax) : Array Syntax :=
+  match t1 with
+    | .node _ ``tacticSeq #[.node _ ``tacticSeq1Indented #[.node _ `null args]] =>
+      args.filter (! ·.isOfKind `null)
+    | _ => #[t1]
+
+elab "show_goals1 " tacs:tacticSeq : tactic => do
+  let tacs := getTacs tacs
+  for t in tacs do
+    evalTactic (← `(tactic| show_goal $(⟨t⟩)))
+
+elab "show_goals " tacs:tacticSeq : tactic => do
+  let tacs := getTacs tacs
+  let _ ← tacs.mapM fun t => do
+    match t with
+      | `(tactic| · $ts) => evalTactic (← `(tactic| · show_goals1 $(⟨ts.raw⟩)))
+      | _ => evalTactic (← `(tactic| show_goals1 $(⟨t⟩)))
 
 --Raymond Smullyan, what is the name of this book, problem 28
 -- statement of `A` formalized with more complicated expression

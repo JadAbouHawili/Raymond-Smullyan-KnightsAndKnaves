@@ -55,7 +55,29 @@ theorem set_full3 { S : Finset Inhabitant} (hA : A ∈ S) (hB : B ∈ S) (hC : C
     repeat assumption
 
 #check singleton_iff_card_eq_one
---theorem singleton_iff_card_eq_one3 : Knave = {A} ∨ Knave = {B} ∨ Knave = {C} ↔ Knave.card = 1 :
+theorem singleton_iff_card_eq_one3 {S : Finset Inhabitant}: S = {A} ∨ S = {B} ∨ S = {C} ↔ S.card = 1 := by
+    constructor
+    intro eq
+    rw [Finset.card_eq_one]
+    rcases eq with h|h|h
+    use A ; use B ; use C
+
+    intro Scard
+    rw [Finset.card_eq_one] at Scard
+    have ⟨a,singleton⟩ := Scard
+    rcases all a with h|h|h
+
+    rw [h] at singleton
+    left
+    assumption
+
+    rw [h] at singleton
+    right ; left
+    assumption
+
+    rw [h] at singleton
+    right ; right
+    assumption
 
 theorem disjoint
 {A : Inhabitant}

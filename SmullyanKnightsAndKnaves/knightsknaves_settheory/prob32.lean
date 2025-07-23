@@ -146,20 +146,14 @@ example
     · sorry
 -/
 
-  · have notsingleknave := stBn.mp BKnave
-    simp at notsingleknave 
+  · --have notsingleknave := stBn.mp BKnave
+    --simp at notsingleknave 
     set_knight_to_knave
     intro CKnave
     #check Finset.Subset.antisymm
     have : Knave = {A,B,C} := by
       apply set_full3
       repeat assumption
-    have : Knight = {A,B,C} := by
-        have : A ∈ Knight := sorry
-        have : B ∈ Knight := sorry
-        have : C ∈ Knight := sorry
-        apply set_full3 
-        repeat assumption
     contradiction
 
 variable [Fintype Inhabitant]

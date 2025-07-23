@@ -18,7 +18,9 @@ axiom inst : DecidableEq Inhabitant
 axiom A : Inhabitant
 axiom B : Inhabitant
 axiom C : Inhabitant
+axiom AneB : A ≠ B
 axiom AneC : A ≠ C
+axiom BneC : B ≠ C
 
 variable [DecidableEq Inhabitant]
 axiom dis : Knight ∩ Knave = ∅
@@ -47,10 +49,13 @@ theorem all_in_one
   := by 
     #check Finset.eq_of_subset_of_card_le 
     exact (everyone_in_set_eq all).mp ⟨hA,hB,hC⟩ 
-theorem knave_full3 (hA : A ∈ Knave) (hB : B ∈ Knave) (hC : C ∈ Knave) : Knave = {A,B,C} := by
+theorem set_full3 { S : Finset Inhabitant} (hA : A ∈ S) (hB : B ∈ S) (hC : C ∈ S) : S = {A,B,C} := by
     apply full3
     exact all
     repeat assumption
+
+#check singleton_iff_card_eq_one
+--theorem singleton_iff_card_eq_one3 : Knave = {A} ∨ Knave = {B} ∨ Knave = {C} ↔ Knave.card = 1 :
 
 theorem disjoint
 {A : Inhabitant}

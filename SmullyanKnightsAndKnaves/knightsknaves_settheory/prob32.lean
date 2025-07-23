@@ -86,6 +86,22 @@ example
   · have oneKnave := stB.mp BKnight
     set_knight_to_knave
     intro CKnave
+    rcases oneKnave with s|s|s 
+    rw [s] at CKnave
+    simp at CKnave
+    symm at CKnave
+    exact AneC CKnave
+
+    rw [s] at CKnave
+    simp at CKnave
+    symm at CKnave
+    exact BneC CKnave
+
+    rw [s] at AKnave
+    simp at AKnave
+    exact AneC AKnave
+
+    /-
     have : 2 ≤ Knave.card  := by
         have : {A,C} ⊆ Knave := by
           intro a aIn
@@ -128,7 +144,7 @@ example
       contradiction
     · sorry
     · sorry
-
+-/
 
   · have notsingleknave := stBn.mp BKnave
     simp at notsingleknave 
@@ -136,12 +152,19 @@ example
     intro CKnave
     #check Finset.Subset.antisymm
     have : Knave = {A,B,C} := by
-      apply knave_full3
+      apply set_full3
       repeat assumption
+    have : Knight = {A,B,C} := by
+        have : A ∈ Knight := sorry
+        have : B ∈ Knight := sorry
+        have : C ∈ Knight := sorry
+        apply set_full3 
+        repeat assumption
     contradiction
 
 variable [Fintype Inhabitant]
 example
+{inst3 : Fintype Inhabitant}
 {stA : A ∈ Knight  ↔ (Knave= {A,B,C}) }
 {stAn : A ∈ Knave ↔ ¬ (Knave = {A,B,C}) }
 {three : A ∈ Knight ↔ Knave.card=3}
@@ -158,8 +181,8 @@ example
   rw [Finset.card_eq_three] at c
   have ⟨x,y,z,xney,xnez,ynez,knaveEq⟩ := c 
   have : Knave ={A,B,C}
-  have : Knave ⊆ {A,B,C} := by
-      exact set_subset_univ all
+ -- have : Knave ⊆ ({A,B,C} : Finset Inhabitant) := by
+ --     exact set_subset_univ all
   have : Knave ⊆ (Finset.univ) := by
       exact Finset.subset_univ Knave
 

@@ -4,9 +4,19 @@ set_option push_neg.use_distrib true
 set_option trace.Meta.Tactic.simp true
 set_option trace.Meta.Tactic.contradiction true
 --set_option trace.Meta.synthInstance true
+#check 2=2
+-- exclusive setup for levels with three inhabitants
+namespace settheory_approach
+axiom all : ∀ (x : Inhabitant), x = A ∨ x = B ∨ x = C
+-- supports theorems as well
+--theorem exclusive : 2=2 := sorry
+end settheory_approach
 
 open settheory_approach
+#check all
 #help option
+
+variable [Fintype Inhabitant]
 --A:All of us are knaves.
 --B: Exactly one of us is a knave.
 variable [DecidableEq Inhabitant]
@@ -63,11 +73,11 @@ theorem not_eq_singleton_already_full
 #check card_eq
 
 example
-{stA : A ∈ Knight  ↔ (Knave= {A,B,C}) }
+{stA : A ∈ Knight  ↔ (Knave= ({A,B,C} : Finset Inhabitant)) }
 {stAn : A ∈ Knave ↔ ¬ (Knave = {A,B,C}) }
 {stB : B ∈ Knight ↔ Knave = {A} ∨ Knave = {B} ∨ Knave = {C}}
 {stBn : B ∈ Knave ↔ ¬ (Knave = {A} ∨ Knave = {B} ∨ Knave = {C})}
-(all : ∀ (x : Inhabitant), x = A ∨ x = B ∨ x = C)
+--(all : ∀ (x : Inhabitant), x = A ∨ x = B ∨ x = C)
   : A ∈ Knave ∧ C ∈ Knight := by
   have AKnave : A ∈ Knave
   set_knave_to_knight
@@ -82,6 +92,7 @@ example
 
   constructor
   assumption
+
   set_knight_or_knave B with BKnight BKnave
   · have oneKnave := stB.mp BKnight
     set_knight_to_knave
@@ -90,16 +101,17 @@ example
     rw [s] at CKnave
     simp at CKnave
     symm at CKnave
-    exact AneC CKnave
+    contradiction
 
     rw [s] at CKnave
     simp at CKnave
     symm at CKnave
-    exact BneC CKnave
+    contradiction
 
+    #check Nat.two_le_iff
     rw [s] at AKnave
     simp at AKnave
-    exact AneC AKnave
+    contradiction
 
     /-
     have : 2 ≤ Knave.card  := by
@@ -151,29 +163,81 @@ example
     set_knight_to_knave
     intro CKnave
     #check Finset.Subset.antisymm
+    apply notallKnave
+    apply Finset.Subset.antisymm
+    · -- needs a tactic that would just do it...
+      #check univ_iff_all
+      --have := univ_iff_all.mpr all
+      --rw [univ_iff_all.symm] at all 
+      --#check Eq.symm all
+      -- custom tactic and have it hide Fintype Inhabitant...
+      apply set_subset_univ all
+      assumption
+
+    · -- trivial
+      #check C
+      intro a
+      intro h
+      mem_set at h
+      -- take cases and done
+      sorry
+    have cardne3: Knave.card ≠ 3 := sorry
+    have cardge3: 3 ≤ Knave.card := by 
+      #check Nat.le_of_lt_succ
+      #check Nat.succ_le_iff
+      apply Nat.succ_le_iff.mpr
+      apply Nat.two_lt_of_ne
+       
+      --apply?
     have : Knave = {A,B,C} := by
       apply set_full3
       repeat assumption
     contradiction
 
+/-
+cardinality approach:(does not work...)
+- When proving that A is a kanve:
+  - Assume A is a knight
+  - Conclude A's statement that knave.card=3
+  - now we want to prove that A is a knave
+    (but how?, would need to go through 3*3*3 = 27 cases)
+-/
 variable [Fintype Inhabitant]
 example
 {inst3 : Fintype Inhabitant}
 {stA : A ∈ Knight  ↔ (Knave= {A,B,C}) }
 {stAn : A ∈ Knave ↔ ¬ (Knave = {A,B,C}) }
-{three : A ∈ Knight ↔ Knave.card=3}
-{stB : B ∈ Knight ↔ Knave.card=1}
+{three : A ∈ Knight ↔ Knave.card=3 }
+{stB : B ∈ Knight ↔ Knave.card=1 }
 {stBn : B ∈ Knave ↔ Knave.card ≠ 1}
 {AneC : A ≠ C}
 (all : ∀ (x : Inhabitant), x = A ∨ x = B ∨ x = C)
   : A ∈ Knave ∧ C ∈ Knight := by
 
+  have : (Knave.card = 3) ↔ (Knave = ({A,B,C} : Finset Inhabitant) ) := by
+    constructor
+    intro card3
+    rw [Finset.card_eq_three] at card3
+    by_contra neq
+    have ⟨x,y,z,xney,xnez,ynez,eq⟩ := card3 
+    rw [eq] at neq
+    
+    sorry
+    intro eq 
+    rw [Finset.card_eq_three]
+    use A ; use B ; use C
+    exact ⟨AneB , AneC , BneC , eq⟩ 
   have AKnave : A ∈ Knave
   set_knave_to_knight
   intro AKnight
   have c := three.mp AKnight
   rw [Finset.card_eq_three] at c
   have ⟨x,y,z,xney,xnez,ynez,knaveEq⟩ := c 
+  have : A ∈ Knave
+  rw [knaveEq]
+  repeat rw [Finset.mem_insert]
+  rw [Finset.mem_singleton]
+  sorry
   have : Knave ={A,B,C}
  -- have : Knave ⊆ ({A,B,C} : Finset Inhabitant) := by
  --     exact set_subset_univ all
@@ -267,7 +331,7 @@ example
     contradiction
   · 
     have : Knave = {A,B,C}
-    apply knave_full3 
+    apply set_full3 
     repeat assumption
     contradiction
 

@@ -1,7 +1,6 @@
 import SmullyanKnightsAndKnaves.knightsknaves
 
 open settheory_approach
-
 set_option push_neg.use_distrib true
 
 variable [DecidableEq Inhabitant]

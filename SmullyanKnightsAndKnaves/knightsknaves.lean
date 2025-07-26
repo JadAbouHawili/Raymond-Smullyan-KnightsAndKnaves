@@ -23,10 +23,11 @@ axiom AneC : A ≠ C
 axiom BneC : B ≠ C
 
 variable [DecidableEq Inhabitant]
+variable (all : ∀ (x : Inhabitant), x = A ∨ x = B ∨ x = C)
 axiom dis : Knight ∩ Knave = ∅
 axiom KorKn {A : Inhabitant}: A ∈ Knight ∨ A ∈ Knave
 
-axiom all : ∀ (x : Inhabitant), x = A ∨ x = B ∨ x = C
+--axiom all : ∀ (x : Inhabitant), x = A ∨ x = B ∨ x = C
 axiom not_both
   {A : Inhabitant}
   (AKnight : A ∈ Knight) (AKnave : A ∈ Knave)  : False
@@ -49,13 +50,20 @@ theorem all_in_one
   := by 
     #check Finset.eq_of_subset_of_card_le 
     exact (everyone_in_set_eq all).mp ⟨hA,hB,hC⟩ 
-theorem set_full3 { S : Finset Inhabitant} (hA : A ∈ S) (hB : B ∈ S) (hC : C ∈ S) : S = {A,B,C} := by
+theorem set_full3 { S : Finset Inhabitant} (hA : A ∈ S) (hB : B ∈ S) (hC : C ∈ S) 
+
+{all : ∀ (x : Inhabitant), x = A ∨ x = B ∨ x = C}
+: S = {A,B,C}
+:= by
     apply full3
     exact all
     repeat assumption
 
 #check singleton_iff_card_eq_one
-theorem singleton_iff_card_eq_one3 {S : Finset Inhabitant}: S = {A} ∨ S = {B} ∨ S = {C} ↔ S.card = 1 := by
+theorem singleton_iff_card_eq_one3 {S : Finset Inhabitant}
+
+{all : ∀ (x : Inhabitant), x = A ∨ x = B ∨ x = C}
+: S = {A} ∨ S = {B} ∨ S = {C} ↔ S.card = 1 := by
     constructor
     intro eq
     rw [Finset.card_eq_one]
@@ -124,6 +132,20 @@ example {K : Type}
 macro_rules
 | `(tactic| contradiction) => 
   do `(tactic |solve  | ( exfalso ; apply not_both  ; repeat assumption) )
+
+macro_rules
+| `(tactic| contradiction) => 
+  do `(tactic |solve  | ( apply AneB ; assumption ))
+
+macro_rules
+| `(tactic| contradiction) => 
+  do `(tactic |solve  | ( apply AneC ; assumption ))
+
+macro_rules
+| `(tactic| contradiction) => 
+  do `(tactic |solve  | ( apply BneC ; assumption ))
+
+
 theorem IamKnave
 {A : Inhabitant}
 (stA : A ∈ Knight  ↔ (A ∈ Knave) )
@@ -271,4 +293,8 @@ do`(tactic| cases (either $t1)  )
 
 macro "set_knight_or_knave" t1:term "with" t2:rcasesPat t3:rcasesPat  : tactic =>
 do`(tactic| obtain $t2|$t3 := (either $t1)  )
+
+macro "mem_set" "at" t1:Lean.Parser.Tactic.locationHyp : tactic =>
+  do`(tactic| repeat simp only [Finset.mem_insert,Finset.mem_singleton] at $t1)
+
 end settheory_approach

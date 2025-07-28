@@ -17,75 +17,15 @@ axiom Knave : Finset Inhabitant
 axiom inst : DecidableEq Inhabitant
 axiom A : Inhabitant
 axiom B : Inhabitant
-axiom C : Inhabitant
 axiom AneB : A ≠ B
-axiom AneC : A ≠ C
-axiom BneC : B ≠ C
 
 variable [DecidableEq Inhabitant]
-variable (all : ∀ (x : Inhabitant), x = A ∨ x = B ∨ x = C)
 axiom dis : Knight ∩ Knave = ∅
 axiom KorKn {A : Inhabitant}: A ∈ Knight ∨ A ∈ Knave
 
---axiom all : ∀ (x : Inhabitant), x = A ∨ x = B ∨ x = C
 axiom not_both
   {A : Inhabitant}
   (AKnight : A ∈ Knight) (AKnave : A ∈ Knave)  : False
-
-def oneKnight  : Prop:=   (A ∈ Knight ∧ B ∈ Knave ∧ C ∈ Knave) ∨ (A ∈ Knave ∧ B ∈ Knight ∧ C ∈ Knave) ∨ (A ∈ Knave ∧ B ∈ Knave ∧ C ∈ Knight)
-
-def oneKnave  : Prop:=   (A ∈ Knave ∧ B ∈ Knight ∧ C ∈ Knight) ∨ (A ∈ Knight ∧ B ∈ Knave ∧ C ∈ Knight) ∨ (A ∈ Knight ∧ B ∈ Knight ∧ C ∈ Knave)
-
-def allKnave : Prop := A ∈ Knave ∧ B ∈ Knave ∧ C ∈ Knave
-
-theorem all_in_one
-  {inst : DecidableEq Inhabitant}
-  {A B C : Inhabitant}
-  {S : Finset Inhabitant} 
-  {all : ∀(x : Inhabitant), x = A ∨ x = B ∨ x = C}
-  (hA : A ∈ S)
-  (hB : B ∈ S)
-  (hC : C ∈ S)
-  : S = {A,B,C}
-  := by 
-    #check Finset.eq_of_subset_of_card_le 
-    exact (everyone_in_set_eq all).mp ⟨hA,hB,hC⟩ 
-theorem set_full3 { S : Finset Inhabitant} (hA : A ∈ S) (hB : B ∈ S) (hC : C ∈ S) 
-
-{all : ∀ (x : Inhabitant), x = A ∨ x = B ∨ x = C}
-: S = {A,B,C}
-:= by
-    apply full3
-    exact all
-    repeat assumption
-
-#check singleton_iff_card_eq_one
-theorem singleton_iff_card_eq_one3 {S : Finset Inhabitant}
-
-{all : ∀ (x : Inhabitant), x = A ∨ x = B ∨ x = C}
-: S = {A} ∨ S = {B} ∨ S = {C} ↔ S.card = 1 := by
-    constructor
-    intro eq
-    rw [Finset.card_eq_one]
-    rcases eq with h|h|h
-    use A ; use B ; use C
-
-    intro Scard
-    rw [Finset.card_eq_one] at Scard
-    have ⟨a,singleton⟩ := Scard
-    rcases all a with h|h|h
-
-    rw [h] at singleton
-    left
-    assumption
-
-    rw [h] at singleton
-    right ; left
-    assumption
-
-    rw [h] at singleton
-    right ; right
-    assumption
 
 theorem disjoint
 {A : Inhabitant}
@@ -137,9 +77,6 @@ macro_rules
 | `(tactic| contradiction) => 
   do `(tactic |solve  | ( apply AneB ; assumption ))
 
-macro_rules
-| `(tactic| contradiction) => 
-  do `(tactic |solve  | ( apply AneC ; assumption ))
 
 macro_rules
 | `(tactic| contradiction) => 
@@ -159,8 +96,6 @@ theorem IamKnave
     · have := stA.mpr AKnave
       contradiction
   }
-example (h : C ∈ Knight) (h' : C ∈ Knave) : False  := by 
-  contradiction
 
 theorem IamKnaveIffFalse
 : False ↔  (A ∈ Knight  ↔ (A ∈ Knave))

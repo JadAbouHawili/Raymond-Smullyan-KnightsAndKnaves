@@ -1,16 +1,10 @@
 import SmullyanKnightsAndKnaves.knightsknaves
+import SmullyanKnightsAndKnaves.knightsknaves_3
 
 set_option push_neg.use_distrib true
 set_option trace.Meta.Tactic.simp true
 set_option trace.Meta.Tactic.contradiction true
 --set_option trace.Meta.synthInstance true
-#check 2=2
--- exclusive setup for levels with three inhabitants
-namespace settheory_approach
-axiom all : ∀ (x : Inhabitant), x = A ∨ x = B ∨ x = C
--- supports theorems as well
---theorem exclusive : 2=2 := sorry
-end settheory_approach
 
 open settheory_approach
 #check all

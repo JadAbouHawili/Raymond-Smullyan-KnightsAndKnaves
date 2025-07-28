@@ -1,4 +1,5 @@
 import SmullyanKnightsAndKnaves.knightsknaves
+import SmullyanKnightsAndKnaves.knightsknaves_3
 
 open settheory_approach
 set_option push_neg.use_distrib true
@@ -8,7 +9,6 @@ variable [DecidableEq Inhabitant]
 example
   {inst2 : Fintype Inhabitant}
   {all : Finset.univ = {A,B,C}}
-  --{all : ∀(x : Inhabitant), x = A ∨ x = B ∨ x = C}
 {stA : A ∈ Knight  ↔ (A ∈ Knave ∧ B ∈ Knave ∧ C ∈ Knave) }
 {stAn : A ∈ Knave ↔ ¬ (A ∈ Knave ∧ B ∈ Knave ∧ C ∈ Knave) }
 {stB: B ∈ Knight ↔ (Knight = {A} ∨ Knight = {B} ∨ Knight = {C}) }

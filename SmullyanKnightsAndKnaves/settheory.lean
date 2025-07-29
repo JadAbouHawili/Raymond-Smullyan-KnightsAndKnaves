@@ -684,16 +684,6 @@ theorem univ_set_iff_or
     exact mem_iff_or_finset.mp mem
 
 
-#check Finset.univ_subset_iff
-#check Finset.subset_univ
-theorem set_subset_univ {inst : DecidableEq K} 
-{inst2 : Fintype K}
-{A B C : K} {S : Finset K}
-(all : ∀ (x : K), x = A ∨ x = B ∨ x = C)
-: S ⊆ {A,B,C} := by 
-  rw [(univ_iff_all).symm] at all
-  rw [←all]
-  exact Finset.subset_univ S
 
 theorem every_elt_in_univ {inst : DecidableEq K} {A B C : K} 
 {inst2 : Fintype K}

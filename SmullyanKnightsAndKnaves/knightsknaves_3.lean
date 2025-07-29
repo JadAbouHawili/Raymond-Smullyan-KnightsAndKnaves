@@ -16,6 +16,10 @@ macro_rules
 | `(tactic| contradiction) => 
   do `(tactic |solve  | ( apply AneC ; assumption ))
 
+macro_rules
+| `(tactic| contradiction) => 
+  do `(tactic |solve  | ( apply BneC ; assumption ))
+
 axiom all : ∀ (x : Inhabitant), x = A ∨ x = B ∨ x = C
 
 variable [DecidableEq Inhabitant]
@@ -67,4 +71,16 @@ theorem all_in_one
   := by 
     #check Finset.eq_of_subset_of_card_le 
     exact (everyone_in_set_eq all).mp ⟨hA,hB,hC⟩ 
+
+#check Finset.univ_subset_iff
+#check Finset.subset_univ
+theorem set_subset_univ  
+ {S : Finset Inhabitant}
+ {inst : Fintype Inhabitant}
+--(all : ∀ (x : K), x = A ∨ x = B ∨ x = C)
+: S ⊆ {A,B,C} := by 
+  have all := all
+  rw [(univ_iff_all).symm] at all
+  rw [←all]
+  exact Finset.subset_univ S
 end settheory_approach

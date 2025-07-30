@@ -107,7 +107,7 @@ theorem all_univ_subset
 {all : ∀ (x : Inhabitant), x = A ∨ x = B ∨ x = C}
 : Knight ⊆ ({A,B,C} : Finset Inhabitant) := by 
     #check univ_iff_all  
-    #check set_subset_univ
+    --#check set_subset_univ
     have Ueq : Finset.univ ={A,B,C}:= (univ_iff_all).mpr all
     --have := univ_iff_all 
     rw [←Ueq]
@@ -192,6 +192,24 @@ theorem notinright_inleftIff
   constructor
   · exact notinright_inleft
   · exact inleft_notinright dis
+
+#check not_eq_singleton_of_not_mem
+
+#check card_eq_one_iff_singletons
+#check card_eq
+theorem not_eq_singleton_already_full 
+{K : Type}
+{A B: K}
+{Knave : Finset K}
+(AneB : A ≠ B)
+(AKnave : A ∈ Knave)
+
+: Knave ≠ {B} := by
+        intro knaveB 
+        rw [knaveB] at AKnave
+        #check Finset.mem_singleton
+        rw [Finset.mem_singleton] at AKnave
+        contradiction
 
 axiom either (A : Inhabitant): A ∈ Knight ∨ A ∈ Knave
 

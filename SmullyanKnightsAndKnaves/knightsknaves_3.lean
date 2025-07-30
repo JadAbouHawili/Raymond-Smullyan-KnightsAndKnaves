@@ -77,10 +77,13 @@ theorem all_in_one
 theorem set_subset_univ  
  {S : Finset Inhabitant}
  {inst : Fintype Inhabitant}
---(all : ∀ (x : K), x = A ∨ x = B ∨ x = C)
 : S ⊆ {A,B,C} := by 
   have all := all
   rw [(univ_iff_all).symm] at all
   rw [←all]
   exact Finset.subset_univ S
+
+macro "by_universe" : tactic =>
+  `(tactic| (apply set_subset_univ; assumption))
+
 end settheory_approach

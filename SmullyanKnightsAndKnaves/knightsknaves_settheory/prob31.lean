@@ -6,9 +6,122 @@ set_option push_neg.use_distrib true
 
 variable [DecidableEq Inhabitant]
 
+-- A : all of us are knaves
+-- B : exactly one of us is a knight
+example 
+{stA : A ∈ Knight ↔ allKnave}
+{stAn : A ∈ Knave ↔ ¬allKnave}
+{stB : B ∈ Knight ↔ oneKnight}
+{stBn : B ∈ Knave ↔ ¬oneKnight}
+: A ∈ Knave ∧ B ∈ Knight ∧ C ∈ Knave := by
+  have AKnave : A ∈ Knave
+  set_knave_to_knight 
+  intro AKnight
+  have allKnaves := stA.mp AKnight
+  unfold allKnave at allKnaves
+  have AKnave := allKnaves.left
+  contradiction
+  constructor
+  assumption
+  
+  have notallknave := stAn.mp AKnave
+  have BKnight : B ∈ Knight
+  set_knight_to_knave
+  intro BKnave 
+  have notoneKnight := stBn.mp BKnave
+  unfold allKnave at notallknave
+  simp [AKnave,BKnave] at notallknave
+  set_knave_to_knight at notallknave
+  have OneKnight : oneKnight
+  unfold oneKnight
+  simp [AKnave,BKnave,notallknave]
+  contradiction
+
+  constructor
+  assumption
+  have OneKnight := stB.mp BKnight
+  unfold oneKnight at OneKnight
+  simp [AKnave,BKnight] at OneKnight
+  set_knave_to_knight at AKnave
+  set_knight_to_knave at BKnight
+  simp [AKnave,BKnight] at OneKnight
+  assumption
+
+example 
+{inst2 : Fintype Inhabitant}
+{stA : A ∈ Knight ↔ Knave = {A,B,C}}
+{stAn : A ∈ Knave ↔ Knave ≠ {A,B,C}}
+{stB : B ∈ Knight ↔ Knight = {A} ∨ Knight = {B} ∨ Knight = {C} }
+{stBn : B ∈ Knave ↔ ¬(Knight = {A} ∨ Knight = {B} ∨ Knight = {C}) }
+: A ∈ Knave ∧ B ∈ Knight ∧ C ∈ Knave := by
+  have AKnave : A ∈ Knave 
+  set_knave_to_knight 
+  intro AKnight
+  have allknave := stA.mp AKnight
+  have AKnave : A ∈ Knave
+  rw [allknave] 
+  is_mem
+  contradiction
+
+  have notallknave := stAn.mp AKnave
+  have BKnight : B ∈ Knight
+  set_knight_to_knave 
+  intro BKnave
+
+  have KnighteqC : Knight = {C}
+  apply Finset.Subset.antisymm
+  have : Knight ⊆ {A,B,C} := by by_universe
+  set_knave_to_knight at AKnave
+  have : Knight ⊆ {B,C} := by
+    exact (Finset.subset_insert_iff_of_not_mem AKnave).mp this
+
+  set_knave_to_knight at BKnave
+  have : Knight ⊆ {C} := by
+    exact (Finset.subset_insert_iff_of_not_mem BKnave).mp this
+  assumption
+
+  intro a h 
+  mem_set at h
+  rw [h]
+  set_knight_to_knave 
+  intro CKnave
+  have allknave : Knave = {A,B,C}
+  apply Finset.Subset.antisymm
+  by_universe
+  intro a h 
+  mem_set at h
+  rcases h with h|h|h
+  rw [h] ; assumption
+  rw [h] ; assumption
+  rw [h] ; assumption
+  contradiction
+
+  have BKnight : B ∈ Knight
+  rw [stB]
+  right ; right ; assumption
+  contradiction
+
+  have oneKnight := stB.mp BKnight
+  rcases oneKnight with singleton|singleton|singleton
+  have AKnight : A ∈ Knight
+  rw [singleton] ; is_mem
+  contradiction
+
+  have CKnave : C ∈ Knave
+  set_knave_to_knight
+  intro CKnight
+  rw [singleton] at CKnight
+  mem_set at CKnight
+  symm at CKnight ; contradiction
+  constructor ; assumption 
+  constructor ; assumption ; assumption
+
+  rw [singleton] at BKnight
+  mem_set at BKnight ; contradiction
+
 example
-  {inst2 : Fintype Inhabitant}
-  {all : Finset.univ = {A,B,C}}
+{inst2 : Fintype Inhabitant}
+{all : Finset.univ = {A,B,C}}
 {stA : A ∈ Knight  ↔ (A ∈ Knave ∧ B ∈ Knave ∧ C ∈ Knave) }
 {stAn : A ∈ Knave ↔ ¬ (A ∈ Knave ∧ B ∈ Knave ∧ C ∈ Knave) }
 {stB: B ∈ Knight ↔ (Knight = {A} ∨ Knight = {B} ∨ Knight = {C}) }
@@ -27,7 +140,6 @@ example
   have BKnight : B ∈ Knight := by {
     set_knight_to_knave
     intro BKnave
-    #check inleft_notinrightIff
     simp [AKnave,BKnave] at notallKnaves
     -- have a theorem which says given the universe, Knight.card = 1, and the first element in not in knight and the second as well then the third has to be. this idea of a universe need to be explicitly explained.
     have : Knight ⊆ Finset.univ := by exact Finset.subset_univ Knight
@@ -69,20 +181,13 @@ example
 {S' : Set K}
   (h : S ⊆ ({A}: Set K) ∪ S') (h' : A ∉ S) : S ⊆ S' := by exact (Set.subset_insert_iff_of_not_mem h').mp h
 
-example 
+#check Finset.singleton_subset_iff
+#check Finset.singleton_subset_singleton
+#check Finset.singleton_subset_set_iff
 
-{K : Type} {S : Set K}
-{A : K}
-{AinS : A ∈ S} : {A} ⊆ S := by exact Set.singleton_subset_iff.mpr AinS
-
-
-open settheory_approach
 example
   {inst2 : Fintype Inhabitant}
   {all : ∀(x : Inhabitant), x = A ∨ x = B ∨ x = C}
-  { AneB : A ≠ B}
-  { BneC : B ≠ C}
-  { AneC : A ≠ C}
 {h : Knight ∩ Knave = ∅ }
 {h1 : A ∈ Knight ∨ A ∈ Knave }
 {h2: B ∈ Knight ∨ B ∈ Knave }
@@ -134,7 +239,7 @@ example
       have cont := stBn.mp BKnave 
       push_neg at cont
       exact cont.right.right knightC
-     
+
     have BKnight : B ∈ Knight := by {
       by_contra BKnave
       rw [notinleft_inrightIff] at BKnave
@@ -204,9 +309,6 @@ example
   {A B C : Inhabitant}
   {inst : DecidableEq Inhabitant}
   {all : ∀(x : Inhabitant), x = A ∨ x = B ∨ x = C}
-  { AneB : A ≠ B}
-  { BneC : B ≠ C}
-  { AneC : A ≠ C}
 {h : Knight ∩ Knave = ∅ }
   {Or : ∀(x:Inhabitant), x ∈ Knave ∨ x ∈ Knight}
 {h1 : A ∈ Knight ∨ A ∈ Knave }
@@ -302,7 +404,8 @@ example
 
 example
 {K : Type}
-{A B C : K} { inst2 : Fintype K} {inst : DecidableEq K} 
+{A B C : K} 
+{inst : DecidableEq K} 
 {S S' : Finset K} 
 (all : ∀(x:K),x=A ∨ x=B ∨ x=C)
 (Or : ∀(x:K), x ∈ S ∨ x ∈ S')
@@ -324,7 +427,6 @@ example
     intro a
     constructor
     · intro ainS
-      #check {A,B,C}
       --#check Finset.instSingletonFinset
       #check (mem_iff_or_finset).mpr
 

@@ -14,11 +14,11 @@ def allKnave : Prop := A ∈ Knave ∧ B ∈ Knave ∧ C ∈ Knave
 
 macro_rules
 | `(tactic| contradiction) => 
-  do `(tactic |solve  | ( apply AneC ; assumption ))
+  do `(tactic |solve  | ( exfalso ; apply AneC ; assumption ))
 
 macro_rules
 | `(tactic| contradiction) => 
-  do `(tactic |solve  | ( apply BneC ; assumption ))
+  do `(tactic |solve  | (exfalso ; apply BneC ; assumption ))
 
 axiom all : ∀ (x : Inhabitant), x = A ∨ x = B ∨ x = C
 
@@ -85,5 +85,4 @@ theorem set_subset_univ
 
 macro "by_universe" : tactic =>
   `(tactic| (apply set_subset_univ; assumption))
-
 end settheory_approach

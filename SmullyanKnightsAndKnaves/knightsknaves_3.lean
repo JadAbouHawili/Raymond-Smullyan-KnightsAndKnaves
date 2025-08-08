@@ -68,7 +68,7 @@ theorem all_in_one
   (hB : B ∈ S)
   (hC : C ∈ S)
   : S = {A,B,C}
-  := by 
+  := by
     #check Finset.eq_of_subset_of_card_le 
     exact (everyone_in_set_eq all).mp ⟨hA,hB,hC⟩ 
 
@@ -85,4 +85,13 @@ theorem set_subset_univ
 
 macro "by_universe" : tactic =>
   `(tactic| (apply set_subset_univ; assumption))
+
+#check Finset.subset_insert_iff_of_not_mem
+--hypothesis
+macro "remove_top" "at" t1:Lean.Parser.Tactic.locationHyp : tactic =>
+do`(tactic |  rw[ Finset.subset_insert_iff_of_not_mem] at $t1 <;> try assumption)
+--goal
+macro "remove_top" : tactic =>
+do`(tactic |  rw[ Finset.subset_insert_iff_of_not_mem] <;> try assumption)
+
 end settheory_approach

@@ -24,7 +24,7 @@ theorem eq_of_or_not
   assumption
 example {P : Prop} (h : P) (h' : ¬P) : False := by 
   contradiction
-example 
+example
   {inst : DecidableEq Inhabitant}
   {inst2 : Fintype Inhabitant}
   (knavenonemp : Knave ≠ ∅)
@@ -80,26 +80,6 @@ example
   assumption ; assumption
 
 #check all2_in_one_other_empty
-
-example
-  {inst : DecidableEq Inhabitant}
-{stA : A ∈ Knight  ↔ ((A ∈ Knave) ∨ (B ∈ Knave)) }
-  : A ∈ Knight ∧ B ∈ Knave := by
-  {
-  -- book way, can't be further optimized
-    have AnKnave: A ∉ Knave := by 
-      intro AKnave
-      have AOrB : A ∈ Knave ∨ B ∈ Knave := by left ; exact AKnave 
-      have AKnight := stA.mpr AOrB
-      exact disjoint AKnight AKnave
-
-    have AKnight := notinright_inleft AnKnave 
-    constructor
-    · assumption
-    · have AknOrB := stA.mp AKnight
-      exact notleft_right AknOrB AnKnave 
-  }
-
 
 open Lean Parser Elab Tactic
 elab "show_goal" t:tactic : tactic => do
@@ -211,20 +191,19 @@ cases h1 with
                | inr h_1 => 
                obtain ⟨xKnave,yKnave⟩ := h_1 
                contradiction
-  
-| inr h_1 => 
+
+| inr h_1 =>
   obtain ⟨xKnave, xnKnight⟩ := h_1  
   have xLie := stnx xKnave
   push_neg at xLie
   obtain ⟨notneeded,ynKnight,ynKnave⟩:= xLie 
   simp [xKnave] at ynKnight
   simp [xKnave] at ynKnave
-  cases h2 with 
-    | inl h_1 => 
+  cases h2 with
+    | inl h_1 =>
       obtain ⟨yKnight,_⟩:= h_1 
       contradiction
     | inr h_1 =>
       obtain ⟨yKnave,_⟩:= h_1 
       contradiction
-
 }

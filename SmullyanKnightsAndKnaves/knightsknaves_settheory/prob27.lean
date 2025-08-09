@@ -1,4 +1,5 @@
 import SmullyanKnightsAndKnaves.knightsknaves
+import SmullyanKnightsAndKnaves.knightsknaves_3
 -- problem 27
 
 #check Finset.card_insert_of_not_mem
@@ -11,20 +12,17 @@ import SmullyanKnightsAndKnaves.knightsknaves
 open settheory_approach
 variable [DecidableEq Inhabitant]
 /-
-Suppose the stranger, instead of asking A what he is, 
-asked A, "How many knights are among you?" Again A 
-answers indistinctly. So the stranger asks B, "What did A 
-say? B replies, "A said that there is one knight among us." 
-Then C says, "Don't believe B; he is lying!" 
-Now what are B and C? 
+Suppose the stranger, instead of asking A what he is,
+asked A, "How many knights are among you?" Again A
+answers indistinctly. So the stranger asks B, "What did A
+say? B replies, "A said that there is one knight among us."
+Then C says, "Don't believe B; he is lying!"
+Now what are B and C?
 -/
 
 example
 (stB : (B ∈ Knight) ↔ (A ∈ Knight ↔ oneKnight))
---(stBn : (B ∈ Knave) → (A ∈ Knight → ¬ (
---  (A ∈ Knight ∧ B ∈ Knave ∧ C ∈ Knave) ∨ (A ∈ Knave ∧ B ∈ Knight ∧ C ∈ Knave) ∨ (A ∈ Knave ∧ B ∈ Knave ∧ C ∈ Knight)) ) )
 (stC : ( C ∈ Knight ↔ B ∈ Knave) )
---(stnC : ( C ∈ Knave → B ∈ Knight) )
 
   : B ∈ Knave ∧ C ∈ Knight := by 
   have : ¬B ∈ Knight 
@@ -55,7 +53,55 @@ example
   have CKnight :=  stC.mpr this
   constructor ; assumption ; assumption
 
-example  
+example
+{inst2 : Fintype Inhabitant}
+(stB : (B ∈ Knight) ↔ (A ∈ Knight ↔ Knight = {A} ∨ Knight = {B} ∨ Knight = {C}))
+(stC : ( C ∈ Knight ↔ B ∈ Knave) )
+(stCn : ( C ∈ Knave ↔ B ∈ Knight) )
+
+  : B ∈ Knave ∧ C ∈ Knight := by 
+  have BKnave : B ∈ Knave
+  set_knave_to_knight
+  intro BKnight
+  have CKnave := stCn.mpr BKnight
+  have stA := stB.mp BKnight
+  set_knight_or_knave A with AKnight AKnave
+  have oneKnight := stA.mp AKnight
+  rcases oneKnight with singleton|singleton|singleton
+  · 
+    rw [singleton] at BKnight
+    mem_set at BKnight
+    contradiction
+  
+  · rw [singleton] at AKnight
+    mem_set at AKnight
+    contradiction
+  · rw [singleton] at AKnight
+    mem_set at AKnight
+    contradiction
+
+  have : Knight = {B} := by
+    apply Finset.Subset.antisymm
+    · have : Knight ⊆ {A,B,C}
+      by_universe
+      set_knave_to_knight at CKnave
+      set_knave_to_knight at AKnave
+      remove_top at this
+      rw [Finset.pair_comm] at this
+      remove_top at this
+
+    · intro a h 
+      mem_set at h ; rw [h] 
+      assumption
+  have AKnight : A ∈ Knight
+  rw [stA]
+  right ; left ; assumption
+  contradiction
+
+  have CKnight := stC.mpr BKnave
+  constructor ; assumption ; assumption
+
+example
 (all : ∀(x :Inhabitant), x = A ∨ x = B ∨ x = C)
 (stB : B ∈ Knight ↔ ( A ∈ Knight ↔ Knight.card =1))
 (stBn : B ∈ Knave ↔ ¬( A ∈ Knight ↔ Knight.card =1))

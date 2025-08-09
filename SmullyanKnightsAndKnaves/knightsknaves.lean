@@ -77,6 +77,10 @@ macro_rules
 | `(tactic| contradiction) => 
   do `(tactic |solve  | ( apply AneB ; assumption ))
 
+macro_rules
+| `(tactic| contradiction) => 
+  do `(tactic |solve  | ( apply AneB.symm ; assumption ))
+
 theorem IamKnave
 {A : Inhabitant}
 (stA : A ∈ Knight  ↔ (A ∈ Knave) )

@@ -29,7 +29,8 @@ example
 {stAn : A ∈ Knave ↔ ¬ (A ∈ Knave ∨ B ∈ Knight)}
   : A ∈ Knight ∧ B ∈ Knight := by
   {
-    have AnKnave : A ∉ Knave := by
+    have AKnight : A ∈ Knight := by
+      set_knight_to_knave
       intro AKnave
       have Or : A ∈ Knave ∨ B ∈ Knight := by
       {
@@ -37,12 +38,13 @@ example
         assumption
       }
 
-      have := stAn.mp AKnave
+      have := stA.mpr Or
       contradiction
 
-    have AKnight := notright_left KorKn AnKnave
     have BKnight := stA.mp AKnight
     constructor
     assumption
-    exact notleft_right BKnight AnKnave
+    set_knight_to_knave at AKnight
+    simp [AKnight] at BKnight
+    assumption
   }

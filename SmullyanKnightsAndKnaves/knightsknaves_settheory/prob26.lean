@@ -1,4 +1,5 @@
 import SmullyanKnightsAndKnaves.knightsknaves
+import SmullyanKnightsAndKnaves.knightsknaves_3
 
 open settheory_approach
 

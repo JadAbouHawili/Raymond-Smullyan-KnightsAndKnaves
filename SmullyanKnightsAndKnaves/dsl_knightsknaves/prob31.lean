@@ -1,14 +1,13 @@
 import SmullyanKnightsAndKnaves.dsl_knights_knaves
 ---- adapt to problems with only 2
 --"
---Again we have three people, A, B, C, each of whom is either 
---a knight or a knave. A and B make the following statements: 
---A: All of us are knaves. 
---B: Exactly one of us is a knight. 
+--Again we have three people, A, B, C, each of whom is either
+--a knight or a knave. A and B make the following statements:
+--A: All of us are knaves.
+--B: Exactly one of us is a knight.
 --What are A, B, C?
 --"
 set_option diagnostics true
-#check Inter
 
 set_option push_neg.use_distrib true
 variable {A B C : Islander}
@@ -50,9 +49,8 @@ example
 
 #check Set.mem_setOf
 example{K : Type} (S : Set K) : S = {x | x ∈ S} := by exact rfl
-  
+
   --exact (Set.eq_univ_of_univ_subset fun ⦃a⦄ a_1 => all a).symm
 
 -- using Finset.univ instead of all
 -- another formalization using cardinalities instead of A ∈ Knave ∧ B ∈ Knave ∧ C ∈ Knave
-

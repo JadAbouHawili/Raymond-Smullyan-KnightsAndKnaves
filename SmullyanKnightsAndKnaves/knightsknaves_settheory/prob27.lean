@@ -2,12 +2,7 @@ import SmullyanKnightsAndKnaves.knightsknaves
 import SmullyanKnightsAndKnaves.knightsknaves_3
 -- problem 27
 
-#check Finset.card_insert_of_not_mem
-#check Finset.card_le_one_iff
 
-        #check ne_eq
-        #check ne_false_of_eq_true
-        #check ne_true_of_eq_false
 -- newformalization
 open settheory_approach
 variable [DecidableEq Inhabitant]
@@ -101,15 +96,13 @@ example
   have CKnight := stC.mpr BKnave
   constructor ; assumption ; assumption
 
+#check Finset.card_insert_of_not_mem
+#check Finset.card_le_one_iff
 example
-(all : ∀(x :Inhabitant), x = A ∨ x = B ∨ x = C)
 (stB : B ∈ Knight ↔ ( A ∈ Knight ↔ Knight.card =1))
 (stBn : B ∈ Knave ↔ ¬( A ∈ Knight ↔ Knight.card =1))
 (stC : C ∈ Knight ↔ B ∈ Knave)
 (stCn : C ∈ Knave ↔ B ∈ Knight)
-(AneB : A ≠ B)
-(BneC : B ≠ C)
-(AneC : A ≠ C)
 : B ∈ Knave ∧ C ∈ Knight := 
 by 
 
@@ -182,7 +175,8 @@ by
         · rcases h_2 with h_3|h_3
           · assumption
           · rw [h_3] at xK
-            exfalso
+            have := h_1.right
+            contradiction
 
       · right
         rw [Finset.eq_singleton_iff_nonempty_unique_mem] 
@@ -195,7 +189,7 @@ by
           contradiction
         · rcases h_2 with h_3|h_3
           · rw [h_3] at xK
-            exfalso
+            have := h_1.left
             contradiction
           · assumption
     have OneKnight : Knight.card =1 := by 

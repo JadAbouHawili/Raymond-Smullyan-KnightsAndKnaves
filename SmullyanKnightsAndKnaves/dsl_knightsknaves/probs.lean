@@ -78,11 +78,6 @@ example( Joe Bob Ted Zippy Alice Zoey : Prop)
 --For these reasons we know the knaves were Tracy and Oberon, and the only knight was Wendy.
 
 open settheory_approach
-#check inst
-#check Inhabitant
-#check A'
-example : A' ∈ Knight := by 
-  sorry
 example
   {Tracy Oberon Wendy: Inhabitant}
   {inst : DecidableEq Inhabitant}
@@ -121,9 +116,13 @@ example {K : Type} (A : Finset K) (ge1 : A.card ≥ 1) : ∃ a:K, {a} ⊆ A := b
   --by_contra h
   --push_neg at h
   have := gt_or_eq_of_le ge1
+  #check Finset.eq_of_superset_of_card_ge
+  #check Finset.eq_iff_card_ge_of_superset
   rcases this with h|h
   · --#check Finset.card_le_of_subset 
     #check Finset.subset_iff_eq_of_card_le
+    have : ∃ a:K, {a} ⊂ A := by 
+      sorry
     sorry
   · rw [Finset.card_eq_one] at h
     have ⟨a,ha⟩ := h

@@ -16,9 +16,18 @@ macro_rules
 | `(tactic| contradiction) => 
   do `(tactic |solve  | ( exfalso ; apply AneC ; assumption ))
 
+
+macro_rules
+| `(tactic| contradiction) => 
+  do `(tactic |solve  | ( exfalso ; apply AneC.symm ; assumption ))
+
 macro_rules
 | `(tactic| contradiction) => 
   do `(tactic |solve  | (exfalso ; apply BneC ; assumption ))
+
+macro_rules
+| `(tactic| contradiction) => 
+  do `(tactic |solve  | (exfalso ; apply BneC.symm ; assumption ))
 
 axiom all : ∀ (x : Inhabitant), x = A ∨ x = B ∨ x = C
 

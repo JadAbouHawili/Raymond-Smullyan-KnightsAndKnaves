@@ -2,7 +2,6 @@ import SmullyanKnightsAndKnaves.knightsknaves
 import SmullyanKnightsAndKnaves.knightsknaves_3
 -- problem 27
 
-
 -- newformalization
 open settheory_approach
 variable [DecidableEq Inhabitant]
@@ -115,49 +114,47 @@ by
   -- we know that there is at least one knight, if A were a knight then they are two but this woudl contradict A's statement
   set_knight_or_knave A with AKnight AKnave
   · have : Knight.card ≠ 1 := by {
-      rcases BCdiff with h_1|h_1
-      · 
-        by_contra OneKnight
+      rcases BCdiff with ⟨BKnight,CKnave⟩ |⟨BKnave, CKnight⟩ 
+      ·
+        intro OneKnight
         rw [Finset.card_eq_one] at OneKnight
         have ⟨x,xK⟩ := OneKnight 
-
-        have BeqX : B=x := by 
-          rw [xK] at h_1
-          rw [Finset.mem_singleton] at h_1
-          exact h_1.left
-
         rw [xK] at AKnight
-        rw [Finset.mem_singleton] at AKnight
-        rw [←BeqX] at AKnight
-        exact AneB AKnight
+        mem_set at AKnight
+        rw [xK] at BKnight
+        mem_set at BKnight
+        rw [←AKnight] at BKnight
+        contradiction
+
       · intro OneKnight
         rw [Finset.card_eq_one] at OneKnight
         have ⟨x,xK⟩ := OneKnight 
-        have CeqX : C=x := by 
-          rw [xK] at h_1
-          rw [Finset.mem_singleton] at h_1
-          exact h_1.right
         rw [xK] at AKnight
-        rw [Finset.mem_singleton] at AKnight
-        rw [←CeqX] at AKnight
-        exact AneC AKnight
+        mem_set at AKnight
+        rw [xK] at CKnight
+        mem_set at CKnight
+        rw [←CKnight] at AKnight
+        contradiction
+
     }
-    simp [this] at stBn
-    have BKnave := stBn.mpr AKnight
+    simp [this] at stB
+    rw [not_iff_not.symm] at stB
+    simp at stB
+    have BKnave := stB.mpr AKnight
+    set_knight_to_knave at BKnave
     have BKnight := stC.mpr BKnave
     constructor
     assumption
     assumption
 
   · rw [inright_notinleftIff] at AKnave
-    #check Finset.card_eq_one
     #check Finset.eq_singleton_iff_unique_mem
     simp [AKnave] at stBn
     simp [AKnave] at stB
     have : Knight.Nonempty := by {
       rcases BCdiff with h_1|h_1
-      · have := h_1.left 
-        use B 
+      · have := h_1.left
+        use B
       · use C
         exact h_1.right
       }
@@ -179,9 +176,9 @@ by
             contradiction
 
       · right
-        rw [Finset.eq_singleton_iff_nonempty_unique_mem] 
+        rw [Finset.eq_singleton_iff_nonempty_unique_mem]
         constructor
-        assumption 
+        assumption
         intro x
         intro xK
         rcases all x with h_2|h_2

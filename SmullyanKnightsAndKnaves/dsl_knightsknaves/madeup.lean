@@ -8,12 +8,11 @@ A : All of us are knights
 B: Exactly one of us is a knave
 "
 -/
-variable {Inhabitant : Type}
-variable { A B : Inhabitant}
 
 #check mem_of_eq_singleton
 #check Set.eq_singleton_iff_unique_mem
 #check Finset.eq_singleton_iff_unique_mem
+open settheory_approach
 example {K : Type} {S : Set K}
 {A : K}
 {h : {A} = S}
@@ -24,10 +23,7 @@ example {K : Type} {S : Set K}
 
 example
   {inst : DecidableEq Inhabitant}
-  {Knight : Finset Inhabitant} {Knave : Finset Inhabitant}
-{h : Knight ∩ Knave = ∅ }
 {all2 : ∀ (x : Inhabitant), x = A ∨ x = B}
-{Or : ∀(x :Inhabitant), x ∈ Knight ∨ x ∈ Knave}
 {stA : A ∈ Knight ↔ (Knight={A,B}) }
 {stAn : A ∈ Knave ↔ ¬ (Knight={A,B}) }
 {stB: B ∈ Knight ↔  (Knave={A} ∨ Knave={B}) }
@@ -35,16 +31,16 @@ example
   : A∈ Knave := by
 
   {
-    rcases Or B with BKnight|BKnave
+    rcases KorKn with BKnight|BKnave
     · have oneknave := stB.mp BKnight 
       rcases oneknave with KA|KB
       · exact mem_of_eq_singleton KA
       · #check mem_of_eq_singleton  
         have BKnave := mem_of_eq_singleton KB
         exfalso
-        exact disjoint h BKnight BKnave
+        contradiction
     · by_contra AKnight 
-      rw [notinright_inleftIff (Or A) h] at AKnight
+      set_knave_to_knight at AKnight
       have KAB := stA.mp AKnight 
 --      #check Finset.eq_of_not_mem_of_mem_insert
       #check Finset.erase_eq_iff_eq_insert
@@ -59,7 +55,7 @@ example
 
       #check Finset.insert_eq_of_mem 
       have BKnight := this KAB
-      exact disjoint h BKnight BKnave
+      contradiction
   }
 
 -- given a proof of p, goal is changed to ¬p

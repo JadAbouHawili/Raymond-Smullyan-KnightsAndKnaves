@@ -18,29 +18,32 @@ example
 {atleastKnight : A.isKnight or B.isKnight or C.isKnight}
 {atleastKnave : A.isKnave or B.isKnave or C.isKnave}
 : A.isKnave and B.isKnave and C.isKnight := by 
-  knight_to_knave at *
 
   have AKnave : A.isKnave 
-  apply notisKnight_isKnave
+  knave_to_knight
   intro AKnight
-  have AnKnave := isKnight_notisKnave AKnight
-  simp [AnKnave] at stC
-  simp [AnKnave] at stB 
-  #check said_knight
+  knight_to_knave at AKnight
+  simp [AKnight] at stC
+  simp [AKnight] at stB 
   have BKnight := said_knight stB trivial
-  have Asaid := knight_said stA AKnight
   have CKnight := said_knight stC BKnight
-  --apply isKnave_notisKnight atleastKnave
-  #check isKnight_notisKnaveIff
-  knave_to_knight atleastKnave
+  knave_to_knight at stA
+  simp[BKnight , CKnight] at stA
+  have AKnight := said_knight stA trivial
+
+  knave_to_knight at  atleastKnave
   simp [AKnight,BKnight,CKnight] at atleastKnave
 
-  have CKnight := said_knight stC (by left ; assumption)
-  have BCdiff := knave_said stA AKnave 
-  simp [isKnight_notisKnave CKnight] at BCdiff
 
-  constructor <;> try constructor
-  repeat assumption
+  have BCdiff := knave_said stA AKnave 
+  knight_to_knave at atleastKnight
+  simp [AKnave] at atleastKnight
+
+  rcases atleastKnight with h|h
+  simp [h] at BCdiff
+  have : C.isKnight 
+  sorry
+  sorry
 
 -- more complicated
 example

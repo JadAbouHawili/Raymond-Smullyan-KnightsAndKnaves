@@ -6,11 +6,13 @@ import Mathlib.Data.Set.Basic
 import Mathlib.Data.Fintype.Card
 import Mathlib.Data.Multiset.Basic
 import Mathlib.Tactic.Have
+import Lean
 import SmullyanKnightsAndKnaves.logic
 import SmullyanKnightsAndKnaves.settheory
 
 namespace settheory_approach
 
+open Lean Elab Tactic
 axiom Inhabitant : Type
 axiom Knight : Finset Inhabitant
 axiom Knave : Finset Inhabitant
@@ -216,6 +218,29 @@ theorem not_eq_singleton_already_full
         contradiction
 
 axiom either (A : Inhabitant): A ∈ Knight ∨ A ∈ Knave
+#check not_both
+
+-- Alternative: elab version for more control
+--elab "contradiction_hyp " t1:term ", " t2:term : tactic => do
+--  let goal ← getMainGoal
+--  let notBothApp ← `(not_both $t1 $t2)
+--  let expr ← elabTerm notBothApp none
+--  goal.assign expr
+
+
+macro "contradiction_hyp" t1:ident  t2:ident : tactic =>
+  do`(tactic| exact not_both $t1 $t2)
+
+
+
+
+-- Alternative syntax using elab for more control
+--elab "not_both_exact " t1:term " " t2:term : tactic => do
+--  let goal ← getMainGoal
+--  let t1Expr ← elabTerm t1 none
+--  let t2Expr ← elabTerm t2 none
+--  let notBothExpr ← elabTerm (← `(not_both $t1 $t2)) none
+--  goal.assign notBothExpr
 
 -- *
 macro "set_knight_to_knave" "at"  t1:Lean.Parser.Tactic.locationWildcard : tactic =>

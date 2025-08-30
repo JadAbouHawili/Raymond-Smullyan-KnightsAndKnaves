@@ -1,24 +1,33 @@
 import SmullyanKnightsAndKnaves.knightsknaves
-
 open settheory_approach
+#check 2=2
+#check Finset.card_eq_one
 example
-{K : Type}
-{x y : K} {inst : DecidableEq K}
-  (Knight : Finset K ) (Knave : Finset K)
-  (h : Knight ∩ Knave = ∅ ) (h1 : x ∈ Knight ∨ x ∈ Knave) (h2 : y ∈ Knight ∨ y ∈ Knave) 
+{inst : DecidableEq Inhabitant}
 
-  -- x says y is a knight
-  -- y says that x and y are of different type
-  (stx : x ∈ Knight ↔ y ∈ Knight)
-  (sty : y ∈ Knight ↔ (y ∈ Knight ∧ x ∈ Knave) ∨ (y ∈ Knave ∧ x ∈ Knight ) )
-  (styn : y ∈ Knave ↔ ¬( (y ∈ Knight ∧ x ∈ Knave) ∨ (y ∈ Knave ∧ x ∈ Knight )) )
-  --(styn : y ∈ Knave ↔ x ∉ Knave ∨ y ∉ Knight)
-  : x ∈ Knave ∧ y ∈ Knave := by
-    rw [not_or] at styn
-    rw [not_and_or] at styn
-    rw [not_and_or] at styn
-    -- assuming x knight, we get y knight, then we get x and y are different type which is contradiction. so x knave which means y not knight i.e y knave. 
-    sorry
+  -- A says B is a knight
+  -- B says that A and B are of different type
+  (stA : A ∈ Knight ↔ B ∈ Knight)
+  (stB : B ∈ Knight ↔ A ∈ Knave)
+  (styn : B ∈ Knave ↔ ¬( (B ∈ Knight ∧ A ∈ Knave) ∨ (B ∈ Knave ∧ A ∈ Knight )) )
+  : A ∈ Knave ∧ B ∈ Knight := by
+    {
+
+    --rw [not_or] at styn
+    --rw [not_and_or] at styn
+    --rw [not_and_or] at styn
+    -- assuming x knight, we get y knight, then we get x and y are different type which is contradiction. so x knave which means y not knight i.e y knave.
+
+    have AKnave : A ∈ Knave
+    set_knave_to_knight
+    intro AKnight
+    have BKnight := stA.mp AKnight
+    have AKnave := stB.mp BKnight
+    contradiction_hyp AKnight AKnave
+
+    have BKnight := stB.mpr AKnave
+    constructor ; repeat assumption
+    }
 
 example
   {x y : Inhabitant}
@@ -36,12 +45,12 @@ example
   rw [notinleft_inrightIff] at stx
   rw [notinleft_inrightIff] at stx
   rw [stx]
-  simp 
+  simp
 
   have this:=h2
 
   rcases h2  with h_1|h_1
-  rw [sty] at h_1 
+  rw [sty] at h_1
   rw [stx] at h_1
   nth_rw 1 [stx.symm] at h_1
   rw [inright_notinleftIff]  at h_1
@@ -84,7 +93,7 @@ example
     have WendyKnight := stW.mpr OberonKnave
     have TracyKnave : Tracy ∈ Knave := by {
       rw [inleft_notinrightIff] at WendyKnight
-      exact stTn.mpr WendyKnight 
+      exact stTn.mpr WendyKnight
     }
 
     constructor
@@ -96,17 +105,19 @@ example
 
 ------------------
 -- inverse direction is obvious...
-example {K : Type} (A : Finset K) (ge1 : A.card ≥ 1) : ∃ a:K, {a} ⊆ A := by 
-  --rw [] at ge1 
+example {K : Type} (A : Finset K) (ge1 : A.card ≥ 1) : ∃ a:K, {a} ⊆ A := by
+  --rw [] at ge1
   --by_contra h
   --push_neg at h
   have := gt_or_eq_of_le ge1
+  #check Finset.card_le_one_iff_subset_singleton
   #check Finset.eq_of_superset_of_card_ge
   #check Finset.eq_iff_card_ge_of_superset
   rcases this with h|h
-  · --#check Finset.card_le_of_subset 
+  · --#check Finset.card_le_of_subset
     #check Finset.subset_iff_eq_of_card_le
-    have : ∃ a:K, {a} ⊂ A := by 
+    have : ∃ a:K, {a} ⊂ A := by
+      exact?
       sorry
     sorry
   · rw [Finset.card_eq_one] at h

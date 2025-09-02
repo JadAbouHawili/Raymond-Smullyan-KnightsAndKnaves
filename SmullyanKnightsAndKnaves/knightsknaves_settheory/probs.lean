@@ -102,25 +102,3 @@ example
     assumption
     assumption
   }
-
-------------------
--- inverse direction is obvious...
-example {K : Type} (A : Finset K) (ge1 : A.card ≥ 1) : ∃ a:K, {a} ⊆ A := by
-  --rw [] at ge1
-  --by_contra h
-  --push_neg at h
-  have := gt_or_eq_of_le ge1
-  #check Finset.card_le_one_iff_subset_singleton
-  #check Finset.eq_of_superset_of_card_ge
-  #check Finset.eq_iff_card_ge_of_superset
-  rcases this with h|h
-  · --#check Finset.card_le_of_subset
-    #check Finset.subset_iff_eq_of_card_le
-    have : ∃ a:K, {a} ⊂ A := by
-      exact?
-      sorry
-    sorry
-  · rw [Finset.card_eq_one] at h
-    have ⟨a,ha⟩ := h
-    use a
-    rw [ha]

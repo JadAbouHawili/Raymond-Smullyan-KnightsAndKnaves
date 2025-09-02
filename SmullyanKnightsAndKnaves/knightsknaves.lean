@@ -6,7 +6,7 @@ import Mathlib.Data.Set.Basic
 import Mathlib.Data.Fintype.Card
 import Mathlib.Data.Multiset.Basic
 import Mathlib.Tactic.Have
-import Lean
+import Lean.Parser.Term
 import SmullyanKnightsAndKnaves.logic
 import SmullyanKnightsAndKnaves.settheory
 
@@ -32,7 +32,7 @@ axiom not_both
 theorem disjoint
 {A : Inhabitant}
 (Aleft : A ∈ Knight)
-(Aright : A ∈ Knave)  : False := by 
+(Aright : A ∈ Knave)  : False := by
   have := Finset.mem_inter_of_mem Aleft Aright
   rw [dis] at this
   contradiction
@@ -45,8 +45,8 @@ example {K : Type} {A B C : K} (S : Set K) (h : S ⊆ {A,B,C}) (h': A ∉ S) : S
 #check Finset.eq_iff_card_ge_of_superset
 -- A ∈ S and S.card=1 , so S={A}
 example {K : Type}
-{A : K} {S : Finset K } 
-{L : Finset K} {sub : S ⊆ L} : S.card ≤ L.card := by 
+{A : K} {S : Finset K }
+{L : Finset K} {sub : S ⊆ L} : S.card ≤ L.card := by
   exact Finset.card_le_card sub
 
 #check Insert
@@ -68,19 +68,19 @@ example {K : Type}
 --theorem mem_iff_or_finset
 --
 --{K : Type}
---{inst : DecidableEq K} 
+--{inst : DecidableEq K}
 --{A B C: K} {x : K} : x ∈ ({A,B,C} : Finset K) ↔  x = A ∨ x =B ∨ x = C := by
 
 macro_rules
-| `(tactic| contradiction) => 
+| `(tactic| contradiction) =>
   do `(tactic |solve  | ( exfalso ; apply not_both  ; repeat assumption) )
 
 macro_rules
-| `(tactic| contradiction) => 
+| `(tactic| contradiction) =>
   do `(tactic |solve  | ( apply AneB ; assumption ))
 
 macro_rules
-| `(tactic| contradiction) => 
+| `(tactic| contradiction) =>
   do `(tactic |solve  | ( apply AneB.symm ; assumption ))
 
 theorem IamKnave
@@ -111,17 +111,17 @@ theorem all_univ_subset
 {A B C : Inhabitant}
 {Knight : Finset Inhabitant}
 {all : ∀ (x : Inhabitant), x = A ∨ x = B ∨ x = C}
-: Knight ⊆ ({A,B,C} : Finset Inhabitant) := by 
-    #check univ_iff_all  
+: Knight ⊆ ({A,B,C} : Finset Inhabitant) := by
+    #check univ_iff_all
     --#check set_subset_univ
     have Ueq : Finset.univ ={A,B,C}:= (univ_iff_all).mpr all
-    --have := univ_iff_all 
+    --have := univ_iff_all
     rw [←Ueq]
     #check Finset.subset_univ
     exact Finset.subset_univ Knight
     --exact set_subset_univ
     /-
-    have : Knight ⊆ {A,B,C} := by 
+    have : Knight ⊆ {A,B,C} := by
       intro x
       intro xK
       rcases all x with h_1|h_1
@@ -131,7 +131,7 @@ theorem all_univ_subset
         · rw [h_2]
           apply Finset.mem_insert_of_mem
           exact Finset.mem_insert_self B {C}
-        · rw [h_2] 
+        · rw [h_2]
           apply Finset.mem_insert_of_mem
           apply Finset.mem_insert_of_mem
           exact Finset.mem_singleton.mpr rfl
@@ -144,7 +144,7 @@ theorem inleft_notinright
 {A : Inhabitant}
 (h : Knight ∩ Knave = ∅ )
 (h' : A ∈ Knight) : A ∉ Knave := by
-  intro a 
+  intro a
   #check Finset.mem_inter_of_mem
   have := Finset.mem_inter_of_mem h' a
   rw [h] at this
@@ -159,7 +159,7 @@ theorem inright_notinleft
 {A : Inhabitant}
 (h : Knight ∩ Knave = ∅ )
 (h' : A ∈ Knave) : A ∉ Knight := by
-  intro a 
+  intro a
   have := Finset.mem_inter_of_mem h' a
   rw [Finset.inter_comm] at h
   rw [h] at this
@@ -203,7 +203,7 @@ theorem notinright_inleftIff
 
 #check card_eq_one_iff_singletons
 #check card_eq
-theorem not_eq_singleton_already_full 
+theorem not_eq_singleton_already_full
 {K : Type}
 {A B: K}
 {Knave : Finset K}
@@ -211,7 +211,7 @@ theorem not_eq_singleton_already_full
 (AKnave : A ∈ Knave)
 
 : Knave ≠ {B} := by
-        intro knaveB 
+        intro knaveB
         rw [knaveB] at AKnave
         #check Finset.mem_singleton
         rw [Finset.mem_singleton] at AKnave
@@ -234,6 +234,7 @@ macro "contradiction_hyp" t1:ident  t2:ident : tactic =>
 
 
 
+
 -- Alternative syntax using elab for more control
 --elab "not_both_exact " t1:term " " t2:term : tactic => do
 --  let goal ← getMainGoal
@@ -250,7 +251,7 @@ macro "set_knight_to_knave" : tactic =>
 do`(tactic| simp [inleft_notinrightIff])
 -- hypothesis
 macro "set_knight_to_knave" "at" t1:Lean.Parser.Tactic.locationHyp : tactic =>
-do`(tactic| 
+do`(tactic|
 simp [inleft_notinrightIff] at $t1)
 
 -- *
@@ -261,7 +262,7 @@ macro "set_knave_to_knight" : tactic =>
 do`(tactic| simp [inright_notinleftIff])
 -- hypothesis
 macro "set_knave_to_knight" "at" t1:Lean.Parser.Tactic.locationHyp : tactic =>
-do`(tactic| 
+do`(tactic|
 simp [inright_notinleftIff] at $t1)
 
 macro "set_knight_or_knave" t1:term  : tactic =>

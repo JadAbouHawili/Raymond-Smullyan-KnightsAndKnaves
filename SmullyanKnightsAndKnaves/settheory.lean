@@ -183,7 +183,7 @@ theorem not_in_of_singleton
 }
 
   #check Finset.subset_of_eq
-  #check Finset.card_eq_of_equiv
+  --#check Finset.card_eq_of_equiv
   #check Finset.card_le_card
   --have := Finset.card_eq_of_equiv (by exact Equiv.setCongr singleton )
   #check Finset.nontrivial_iff_ne_singleton

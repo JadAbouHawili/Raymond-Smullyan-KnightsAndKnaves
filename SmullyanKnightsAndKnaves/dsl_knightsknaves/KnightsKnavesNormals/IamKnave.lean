@@ -1,10 +1,8 @@
 import SmullyanKnightsAndKnaves.knightsknaves
 
+open settheory_approach
 example
-{Inhabitant : Type}
-{A : Inhabitant}
   {inst : DecidableEq Inhabitant}
-  {Knight : Finset Inhabitant} {Knave : Finset Inhabitant}
   {Normal : Finset Inhabitant} 
 {hKKn : Knight ∩ Knave = ∅ }
 {hKN : Knight ∩ Normal = ∅ }
@@ -13,13 +11,12 @@ example
 {stA : A ∈ Knight → (A ∈ Knave) }
 {stAn : A ∈ Knave → ¬ (A ∈ Knave) }
   : A ∈ Normal := by
-
   {
     #check IamKnave
     have AnKnight : A ∉ Knight := by 
       intro AKnight 
       have AKnave := stA AKnight
-      exact disjoint hKKn AKnight AKnave
+      contradiction
 
     have AnKnave : A ∉ Knave := by 
       intro AKnave 
@@ -30,12 +27,8 @@ example
     assumption
   }
 
-
 example 
-{Inhabitant : Type}
-{A : Inhabitant}
   {inst : DecidableEq Inhabitant}
-  {Knight : Finset Inhabitant} {Knave : Finset Inhabitant}
   {Normal : Finset Inhabitant}
 {hKKn : Knight ∩ Knave = ∅ }
 {hKnN : Knave ∩ Normal = ∅ }
@@ -47,7 +40,7 @@ example
   have AnKnight : A ∉ Knight := by 
     intro AKnight 
     have AKnave := stA AKnight 
-    exact disjoint hKKn AKnight AKnave
+    contradiction
 
   have AnKnave : A ∉ Knave := by
     intro AKnave 

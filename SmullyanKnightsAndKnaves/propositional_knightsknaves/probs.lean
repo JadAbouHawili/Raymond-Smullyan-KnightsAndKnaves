@@ -135,5 +135,7 @@ example
     have nc := (not_iff_not.mpr h2).mp hB
     simp [*] at h1
   -- now i have C
+  have hC := h2.mp this
+
   sorry
 

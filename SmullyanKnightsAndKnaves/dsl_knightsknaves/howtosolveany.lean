@@ -1,5 +1,6 @@
 
 import SmullyanKnightsAndKnaves.knightsknaves
+import SmullyanKnightsAndKnaves.knightsknaves_3
 
 /-
 This can be done in other provers more 'naturally'
@@ -7,12 +8,9 @@ https://www.youtube.com/watch?v=oEAa2pQKqQU
 https://summerofgodel.blogspot.com/2019/04/table-of-contents-for-series-of-posts.html?
 
 -/
+open settheory_approach
 example
-  {Inhabitant : Type}
-  {A B C : Inhabitant}
   {inst : DecidableEq Inhabitant}
-  (Knight : Finset Inhabitant ) (Knave : Finset Inhabitant)
-(h : Knight ∩ Knave = ∅ )
 (h1 : A ∈ Knight ∨ A ∈ Knave ) 
 (h2: B ∈ Knight ∨ B ∈ Knave )
 (h3: C ∈ Knight ∨ C ∈ Knave )
@@ -26,20 +24,16 @@ example
     · cases h3
       simp [*] at *
       · tauto
-      · have := inleft_notinright h h_1 
+      · set_knight_to_knave at h_1
         tauto
-    · cases h3 
+    · cases h3
       · tauto
       · tauto
 
   · rcases h2 with h_11|h_22
     · rcases h3 with h_2|h_1
       · tauto
-      · have := inright_notinleft h h_1 
-        have := stB.mp h_11
-        exfalso
-        exact IamKnave h AOr this
-        --tauto
+      · tauto
 
     · cases h3 
       · tauto
@@ -47,11 +41,7 @@ example
 }
 
 example 
-  {Inhabitant : Type}
   {x y : Inhabitant}
-  (Knight : Set Inhabitant ) (Knave : Set Inhabitant) 
-  --(uni : Knight ∪ Knave) 
-  (h : Knight ∩ Knave = ∅ )
   (h1 : Xor' (x ∈ Knight) (x ∈ Knave) ) 
   (h2: Xor' (y ∈ Knight)  (y ∈ Knave) )
   -- theres x and y, x says at least one of us is a knave

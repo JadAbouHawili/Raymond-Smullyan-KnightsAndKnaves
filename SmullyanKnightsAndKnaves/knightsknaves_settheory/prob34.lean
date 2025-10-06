@@ -1,4 +1,5 @@
 import SmullyanKnightsAndKnaves.knightsknaves
+import SmullyanKnightsAndKnaves.knightsknaves_3
 
 /-
 We again have three inhabitants, A, B, and C, each of whom 

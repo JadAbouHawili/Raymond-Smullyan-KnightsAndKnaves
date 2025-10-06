@@ -122,7 +122,6 @@ example
 #check Finset.singleton_subset_set_iff
 
 example
-  {A B C : Inhabitant}
   {inst : DecidableEq Inhabitant}
   {all : ∀(x : Inhabitant), x = A ∨ x = B ∨ x = C}
 {h : Knight ∩ Knave = ∅ }
@@ -138,7 +137,6 @@ example
 
   A ∈ Knave ∧ B ∈ Knight ∧ C ∈ Knave
   := by
-  rw [everyone_knave_set_eq all] at stAn
   -- also similar to I am a Knave
   have AKnave : A ∈ Knave := by
     by_contra AKnight

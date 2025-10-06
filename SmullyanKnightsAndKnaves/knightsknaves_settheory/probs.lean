@@ -38,7 +38,6 @@ example
   (stx : x ∈ Knight ↔ y ∈ Knight)
   (sty : y ∈ Knight ↔ x ∈ Knight ∧ y ∈ Knave ∨ x ∈ Knave ∧ y ∈ Knight)
   : x ∈ Knave ∧ y ∈ Knave := by
-  #check IfToIff
 
   rw [not_iff_not.symm] at stx
 

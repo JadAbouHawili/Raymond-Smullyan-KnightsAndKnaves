@@ -1,13 +1,3 @@
-import Mathlib.Data.Set.Basic
-import Mathlib.Data.Fintype.Card
-import Mathlib.Data.Multiset.Basic
-import Mathlib.Data.Set.Basic
-import Mathlib.Data.Set.Basic
-import Mathlib.Data.Fintype.Card
-import Mathlib.Data.Multiset.Basic
-import Mathlib.Tactic.Have
-import Lean.Parser.Term
-import SmullyanKnightsAndKnaves.logic
 import SmullyanKnightsAndKnaves.settheory
 
 namespace settheory_approach

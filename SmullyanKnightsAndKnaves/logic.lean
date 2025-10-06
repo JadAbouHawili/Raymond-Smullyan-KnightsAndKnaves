@@ -5,40 +5,21 @@ import Mathlib.Data.Set.Basic
 import Mathlib.Data.Set.Basic
 import Mathlib.Data.Fintype.Card
 import Mathlib.Data.Multiset.Basic
+import Mathlib.Tactic.Have
 
-theorem notleft_right {P Q : Prop} (Or : P ∨ Q)(notleft : ¬P) : Q := by 
+theorem notleft_right {P Q : Prop} (Or : P ∨ Q)(notleft : ¬P) : Q := by
   cases Or
   contradiction
   assumption
 
-theorem notright_left {P Q : Prop} (Or : P ∨ Q)(notright : ¬Q) : P := by 
+theorem notright_left {P Q : Prop} (Or : P ∨ Q)(notright : ¬Q) : P := by
   cases Or
   assumption
   contradiction
-
-#check iff_iff_implies_and_implies
-#check not_imp_not
-theorem IffToIf {p : Prop} {q: Prop} (h : p ↔ q) : (p → q) ∧ (¬p → ¬q) := by 
-  rw [not_imp_not]
-  exact iff_iff_implies_and_implies.mp h
-
-  --constructor
-  --· exact h.mp
-  --· exact Function.mt (h.mpr)
-
-theorem IfToIff{p : Prop} {q: Prop} (h : p → q) (h' : ¬p → ¬q) : p ↔ q := by 
-  rw [not_imp_not] at h'
-  exact iff_iff_implies_and_implies.mpr ⟨h,h'⟩
-
-  --constructor
-  --· assumption
-  --· intro hq
-  --  exact (Function.mtr h') hq
 
 --theorem XorToOr
---{Inhabitant : Type}
---{inst : DecidableEq Inhabitant}{Knight : Finset Inhabitant } {Knave : Finset Inhabitant} (A : Inhabitant)
---(h : Knight ∩ Knave = ∅ ) : Xor' (A ∈ Knight) (A ∈ Knave) ↔ A ∈ Knight ∨ A ∈ Knave := by 
+--{Knight : Finset Inhabitant } {Knave : Finset Inhabitant} (A : Inhabitant)
+--(h : Knight ∩ Knave = ∅ ) : Xor' (A ∈ Knight) (A ∈ Knave) ↔ A ∈ Knight ∨ A ∈ Knave := by
 --  constructor
 --  unfold Xor' at *
 --  · intro h'
@@ -57,3 +38,31 @@ theorem IfToIff{p : Prop} {q: Prop} (h : p → q) (h' : ¬p → ¬q) : p ↔ q :
 --      constructor
 --      assumption
 --      exact inright_notinleft h h_2
+theorem XorToOr {K : Type} {A : K} (S : Set K) (S' : Set K) (h : S ∩ S' = ∅) : Xor' (A ∈ S) (A ∈ S') ↔ A ∈ S ∨ A ∈ S' := by
+  rw [xor_iff_or_and_not_and] 
+  rw [not_and_or]
+  constructor
+  intro a1
+  · have : A ∈ S ↔ A ∉ S' := by{
+    constructor
+    · intro h1
+      intro h2
+      have := Set.mem_inter h1 h2
+      rw [h] at this
+      contradiction
+    · intro h1
+      simp [h1] at a1
+      assumption
+      }
+    simp [this]
+    apply em'
+  · intro a1
+    constructor
+    assumption
+    rcases a1 with ha1|ha2
+    simp [ha1]
+    intro
+    -- contradiction should handle this
+    try contradiction
+    sorry
+    sorry

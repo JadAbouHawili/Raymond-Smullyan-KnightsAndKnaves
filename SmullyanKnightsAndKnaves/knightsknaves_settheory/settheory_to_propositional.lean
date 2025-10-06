@@ -1,0 +1,2 @@
+-- Knave = {A,B,C} ↔  A ∈ Knave ∧ B ∈ Knave ∧ C ∈ Knave
+--  rw [everyone_knave_set_eq all] at stAn

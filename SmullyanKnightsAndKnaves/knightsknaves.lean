@@ -15,6 +15,7 @@ variable [DecidableEq Inhabitant]
 axiom dis : Knight ∩ Knave = ∅
 axiom KorKn {A : Inhabitant}: A ∈ Knight ∨ A ∈ Knave
 
+-- axiom then theorem?? remove the axiom and refactor
 axiom not_both
   {A : Inhabitant}
   (AKnight : A ∈ Knight) (AKnave : A ∈ Knave)  : False
@@ -23,6 +24,7 @@ theorem disjoint
 {A : Inhabitant}
 (Aleft : A ∈ Knight)
 (Aright : A ∈ Knave)  : False := by
+  #check disjoint_finset
   have := Finset.mem_inter_of_mem Aleft Aright
   rw [dis] at this
   contradiction

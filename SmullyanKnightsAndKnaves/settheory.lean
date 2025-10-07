@@ -23,17 +23,65 @@ macro "is_mem" : tactic =>
 variable {K : Type}
 variable {A B : K}
 
-theorem disjoint_general
+#check Finset.mem_inter.mpr
+theorem disjoint_finset
 {K : Type}
 {inst : DecidableEq K}  {left : Finset K} {right : Finset K}
 {A : K}
 (h : left ∩ right = ∅ )
 (hk : A ∈ left)
 (hkn : A ∈ right)  : False := by 
-  --have := Finset.mem_inter.mpr (And.intro hk hkn )
-  have := Finset.mem_inter_of_mem hk hkn 
+  have := Finset.mem_inter_of_mem hk hkn
   rw [h] at this
   contradiction
+
+macro_rules
+| `(tactic| contradiction) => 
+  do `(tactic |solve  | ( apply disjoint_finset ; repeat assumption ) )
+
+theorem disjoint_set
+{K : Type}
+{left : Set K} {right : Set K}
+{A : K}
+(h : left ∩ right = ∅ )
+(hk : A ∈ left)
+(hkn : A ∈ right)  : False := by
+  have := Set.mem_inter hk hkn
+  rw [h] at this
+  contradiction
+
+macro_rules
+| `(tactic| contradiction) => 
+  do `(tactic |solve  | ( apply disjoint_set ; repeat assumption ) )
+
+theorem XorToOr {K : Type} {A : K} (S : Set K) (S' : Set K) (h : S ∩ S' = ∅) : Xor' (A ∈ S) (A ∈ S') ↔ A ∈ S ∨ A ∈ S' := by
+  rw [xor_iff_or_and_not_and] 
+  rw [not_and_or]
+  constructor
+  intro a1
+  · have : A ∈ S ↔ A ∉ S' := by{
+    constructor
+    · intro h1
+      intro h2
+      have := Set.mem_inter h1 h2
+      rw [h] at this
+      contradiction
+    · intro h1
+      simp [h1] at a1
+      assumption
+      }
+    simp [this]
+    apply em'
+  · intro a1
+    constructor
+    assumption
+    rcases a1 with ha1|ha2
+    simp [ha1]
+    intro
+    contradiction
+    simp [ha2]
+    intro
+    contradiction
 
 theorem card_eq {Normal : (Finset K)} (h : Normal.card =1) (ANormal : A ∈ Normal) ( BNormal : B ∈ Normal) : A=B := by 
   have := Nat.le_of_eq h
@@ -71,10 +119,35 @@ theorem full3 {K : Type} {A B C: K}
 
 theorem is_singleton {A : K} {S : Finset K}
 (AinS : A ∈ S) (OneS : S.card = 1 )
-: S={A} := by 
+: S={A} := by
+/- simpler solution
+  have ⟨a,hA⟩  := Finset.card_eq_one.mp OneS
+  rw [hA] at AinS
+  rw [Finset.mem_singleton] at AinS
+  rw [AinS]
+  assumption
+  -/
+
+
   have OneS2 := Finset.card_eq_one.mp OneS
   #check Finset.nontrivial_iff_ne_singleton
+  #check Finset.one_lt_card_iff_nontrivial
   #check Finset.Nontrivial
+
+  by_contra ne_singleton
+  push_neg at ne_singleton
+  have := (Finset.nontrivial_iff_ne_singleton AinS).mpr ne_singleton
+  rw [Finset.one_lt_card_iff_nontrivial.symm] at this
+  rw [OneS] at this
+  contradiction
+  
+
+/-
+  have OneS2 := Finset.card_eq_one.mp OneS
+  #check Finset.nontrivial_iff_ne_singleton
+  #check Finset.one_lt_card_iff_nontrivial
+  #check Finset.Nontrivial
+
   by_contra ne_singleton
   push_neg at ne_singleton
   have := (Finset.nontrivial_iff_ne_singleton AinS).mpr ne_singleton
@@ -85,22 +158,15 @@ theorem is_singleton {A : K} {S : Finset K}
   #check card_eq
   #check Finset.nontrivial_iff_ne_singleton 
   exact xney (card_eq OneS hx hy )
+  -/
 
-
-
-#check is_singleton
--- is single_iff_exists and singleton_iff_card_eq_one pointless?? i probably only would need the forward direction in a problem , also the assumption ruins the original point of the lemma which was built on an error in my reasoning.
 theorem singleton_iff_exists {S : Finset K}
-{B : K} (BinS : B ∈ S): S={B} ↔ ∃x, S={x} := by 
+{B : K} (BinS : B ∈ S): S={B} ↔ ∃x, S={x} := by
   constructor
   · intro singleton
-    use B 
-  · intro exist
-    have ⟨x,hx⟩ := exist  
-    rw [hx] at BinS  
-    have Beqx := Finset.mem_singleton.mp BinS
-    rw [Beqx]
-    assumption
+    use B
+  · rw [Finset.card_eq_one.symm] 
+    exact is_singleton BinS
 
 
 theorem full_singleton  
@@ -113,8 +179,6 @@ theorem full_singleton
    rw [singleton] at AinS 
    have AeqB := Finset.mem_singleton.mp AinS
    contradiction
-   
-   --exact AneB (by )
 ---
   --#check Finset.eq_singleton_iff_unique_mem
   --have exist: ∃x, S={x} := by use B
@@ -132,10 +196,11 @@ theorem full_singleton
 #check Finset.eq_singleton_iff_unique_mem
 #check Finset.mem_singleton
 theorem mem_of_eq_singleton 
-
 {K : Type}
 {S : Finset K} {A : K} (h : S={A}) : A ∈ S := by 
-  exact (Finset.eq_singleton_iff_unique_mem.mp h).left
+  rw [h]
+  is_mem
+  --exact (Finset.eq_singleton_iff_unique_mem.mp h).left
 
   /-
   symm at h
@@ -529,13 +594,12 @@ theorem all3_in_one_other_empty
   intro xInS'
   rcases all x with h_1|h_2
   · rw [h_1] at xInS'
-    exact disjoint_general h hA xInS'
+    exact disjoint_finset h hA xInS'
   · rcases h_2 with h_3|h_4
     · rw [h_3] at xInS'
-      exact disjoint_general h hB xInS' 
+      exact disjoint_finset h hB xInS'
     · rw [h_4] at xInS'
-      exact disjoint_general h hC xInS' 
-
+      exact disjoint_finset h hC xInS'
 
 -- if one is empty then the other eq_all
 theorem S_union_S'_eq_univ

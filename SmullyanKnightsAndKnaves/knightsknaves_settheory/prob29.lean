@@ -9,7 +9,7 @@ example
   {
     have forward := stA.mp
     rw [imp_or] at forward
-    rw [inright_notinleftIff] at forward
+    set_knave_to_knight at forward
     rw [imp_not_self] at forward
 
     set_knight_or_knave A with h_1 h_2

@@ -15,19 +15,11 @@ variable [DecidableEq Inhabitant]
 axiom dis : Knight ∩ Knave = ∅
 axiom KorKn {A : Inhabitant}: A ∈ Knight ∨ A ∈ Knave
 
--- axiom then theorem?? remove the axiom and refactor
-axiom not_both
-  {A : Inhabitant}
-  (AKnight : A ∈ Knight) (AKnave : A ∈ Knave)  : False
-
 theorem disjoint
 {A : Inhabitant}
-(Aleft : A ∈ Knight)
-(Aright : A ∈ Knave)  : False := by
-  #check disjoint_finset
-  have := Finset.mem_inter_of_mem Aleft Aright
-  rw [dis] at this
-  contradiction
+(AKnight : A ∈ Knight)
+(AKnave : A ∈ Knave)  : False := by
+  exact disjoint_finset dis AKnight AKnave
 
 example {K : Type} {A B C : K} (S : Set K) (h : S ⊆ {A,B,C}) (h': A ∉ S) : S ⊆ {B,C} := by
   exact (Set.subset_insert_iff_of_not_mem h').mp h
@@ -65,7 +57,7 @@ example {K : Type}
 
 macro_rules
 | `(tactic| contradiction) =>
-  do `(tactic |solve  | ( exfalso ; apply not_both  ; repeat assumption) )
+  do `(tactic |solve  | ( exfalso ; apply disjoint  ; repeat assumption) )
 
 macro_rules
 | `(tactic| contradiction) =>
@@ -132,64 +124,57 @@ theorem all_univ_subset
 
 
 
-theorem inleft_notinright
+-- generalize to set theory using disjoint axiom , use here without disjoint axiom
+theorem knight_notknave
 {A : Inhabitant}
-(h : Knight ∩ Knave = ∅ )
 (h' : A ∈ Knight) : A ∉ Knave := by
-  intro a
-  #check Finset.mem_inter_of_mem
-  have := Finset.mem_inter_of_mem h' a
-  rw [h] at this
-  contradiction
+  exact inleft_notinright_finset dis h'
 
-theorem notinleft_inright
+theorem notknight_knave
 {A : Inhabitant}
 (h' : A ∉ Knight) : A ∈ Knave := by
   exact notleft_right KorKn h'
 
-theorem inright_notinleft
+theorem knave_notknight
 {A : Inhabitant}
-(h : Knight ∩ Knave = ∅ )
 (h' : A ∈ Knave) : A ∉ Knight := by
-  intro a
-  have := Finset.mem_inter_of_mem h' a
-  rw [Finset.inter_comm] at h
-  rw [h] at this
-  contradiction
+  exact inright_notinleft_finset dis h'
 
-theorem notinright_inleft
+omit [DecidableEq Inhabitant] in
+theorem notknave_knight
 {A : Inhabitant}
 (h' : A ∉ Knave) : A ∈ Knight := by
   exact notright_left KorKn h'
 
+
 -------------------
-theorem inleft_notinrightIff
+theorem knight_notknaveIff
 {A : Inhabitant}
 : A ∈ Knight ↔  ¬(A ∈ Knave) := by
   constructor
-  · exact inleft_notinright dis
-  · exact notinright_inleft
+  · exact knight_notknave
+  · exact notknave_knight
 
-theorem notinleft_inrightIff
+theorem notknight_knaveIff
 {A : Inhabitant}
 : A ∉ Knight ↔  A ∈ Knave := by
   constructor
-  · exact notinleft_inright
-  · exact inright_notinleft dis
+  · exact notknight_knave
+  · exact knave_notknight
 
-theorem inright_notinleftIff
+theorem knave_notknightIff
   {A : Inhabitant}
 : A ∈ Knave ↔  A ∉ Knight := by
   constructor
-  · exact inright_notinleft dis
-  · exact notleft_right KorKn
+  · exact knave_notknight
+  · exact notknight_knave
 
-theorem notinright_inleftIff
+theorem notknave_knightIff
   {A : Inhabitant}
  : A ∉ Knave ↔  A ∈ Knight := by
   constructor
-  · exact notinright_inleft
-  · exact inleft_notinright dis
+  · exact notknave_knight
+  · exact knight_notknave
 
 #check not_eq_singleton_of_not_mem
 
@@ -210,7 +195,6 @@ theorem not_eq_singleton_already_full
         contradiction
 
 axiom either (A : Inhabitant): A ∈ Knight ∨ A ∈ Knave
-#check not_both
 
 -- Alternative: elab version for more control
 --elab "contradiction_hyp " t1:term ", " t2:term : tactic => do
@@ -220,11 +204,8 @@ axiom either (A : Inhabitant): A ∈ Knight ∨ A ∈ Knave
 --  goal.assign expr
 
 
-macro "contradiction_hyp" t1:ident  t2:ident : tactic =>
-  do`(tactic| exact not_both $t1 $t2)
-
-
-
+--macro "contradiction_hyp" t1:ident  t2:ident : tactic =>
+--  do`(tactic| exact not_both $t1 $t2)
 
 
 -- Alternative syntax using elab for more control
@@ -237,25 +218,25 @@ macro "contradiction_hyp" t1:ident  t2:ident : tactic =>
 
 -- *
 macro "set_knight_to_knave" "at"  t1:Lean.Parser.Tactic.locationWildcard : tactic =>
-do`(tactic| simp [inleft_notinrightIff] at $t1)
+  do`(tactic| simp only [knight_notknaveIff,not_not] at $t1)
 -- goal
 macro "set_knight_to_knave" : tactic =>
-do`(tactic| simp [inleft_notinrightIff])
+  do`(tactic| simp only [knight_notknaveIff,not_not])
 -- hypothesis
 macro "set_knight_to_knave" "at" t1:Lean.Parser.Tactic.locationHyp : tactic =>
 do`(tactic|
-simp [inleft_notinrightIff] at $t1)
+  simp only [knight_notknaveIff,not_not] at $t1)
 
 -- *
 macro "set_knave_to_knight" "at"  t1:Lean.Parser.Tactic.locationWildcard : tactic =>
-do`(tactic| simp [inright_notinleftIff] at $t1)
+  do`(tactic| simp only [knave_notknightIff,not_not] at $t1)
 -- goal
 macro "set_knave_to_knight" : tactic =>
-do`(tactic| simp [inright_notinleftIff])
+  do`(tactic| simp only [knave_notknightIff,not_not])
 -- hypothesis
 macro "set_knave_to_knight" "at" t1:Lean.Parser.Tactic.locationHyp : tactic =>
 do`(tactic|
-simp [inright_notinleftIff] at $t1)
+  simp only[knave_notknightIff,not_not] at $t1)
 
 macro "set_knight_or_knave" t1:term  : tactic =>
 do`(tactic| cases (either $t1)  )

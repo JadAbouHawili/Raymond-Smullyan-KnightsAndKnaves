@@ -19,9 +19,9 @@ example
 (stC : ( C ∈ Knight ↔ B ∈ Knave) )
 
   : B ∈ Knave ∧ C ∈ Knight := by 
-  have : ¬B ∈ Knight 
+  have : ¬B ∈ Knight
   intro BKnight
-  rw [not_iff_not.symm] at stC  
+  rw [not_iff_not.symm] at stC
   set_knave_to_knight at stC
   have CKnave := stC.mpr BKnight
 
@@ -147,9 +147,8 @@ by
     assumption
     assumption
 
-  · rw [inright_notinleftIff] at AKnave
+  · set_knave_to_knight at AKnave
     #check Finset.eq_singleton_iff_unique_mem
-    simp [AKnave] at stBn
     simp [AKnave] at stB
     have : Knight.Nonempty := by {
       rcases BCdiff with h_1|h_1
@@ -158,12 +157,12 @@ by
       · use C
         exact h_1.right
       }
-    have BorC: Knight = {B} ∨ Knight = {C} := by 
+    have BorC: Knight = {B} ∨ Knight = {C} := by
       rcases BCdiff with h_1|h_1
       · left
-        rw [Finset.eq_singleton_iff_nonempty_unique_mem] 
+        rw [Finset.eq_singleton_iff_nonempty_unique_mem]
         constructor
-        assumption 
+        assumption
         intro x
         intro xK
         rcases all x with h_2|h_2
@@ -196,6 +195,7 @@ by
       · rw [h_1]
         rfl
 
+    simp [AKnave] at stBn
     have BKnave : B ∈ Knave := by exact stBn.mpr OneKnight
     have CKnight : C ∈ Knight:= by exact stC.mpr BKnave 
     constructor

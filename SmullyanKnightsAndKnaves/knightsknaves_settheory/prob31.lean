@@ -187,8 +187,7 @@ example
         rcases xs with h_1|h_2
         · rw [h_1] at xKnight
           exfalso
-          show_term contradiction
-          exact disjoint xKnight AKnave
+          contradiction
         · rcases h_2 with h_3|h_4
           · rw [h_3] at xKnight
             exfalso

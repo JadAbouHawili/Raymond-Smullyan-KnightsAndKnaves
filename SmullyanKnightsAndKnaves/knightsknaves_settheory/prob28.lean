@@ -8,76 +8,86 @@ set_option push_neg.use_distrib true
    #check Finset.subset_of_eq
   #check Finset.ssubset_iff_subset_ne
   #check Finset.subset_iff
+
 open settheory_approach
-theorem eq_of_or_not
-{A B w : Type}
-{p : Type → Prop}
-(AorB : w = A ∨ w = B)
-(npA : ¬(p A))
-(pw : p w)
 
-: w = B := by 
-  rcases AorB with h|h
-  rw [h] at pw
-  contradiction
 
-  assumption
-example {P : Prop} (h : P) (h' : ¬P) : False := by 
-  contradiction
 example
   {inst : DecidableEq Inhabitant}
   {inst2 : Fintype Inhabitant}
-  (knavenonemp : Knave ≠ ∅)
 (all : ∀ (x : Inhabitant), x = A ∨ x = B)
-  (h'' : ∀ (x: Inhabitant), x ∈ Knight ∨ x ∈ Knave)
   (stA : A ∈ Knight ↔ Knave.card ≥ 1)
   (stAn : A ∈ Knave ↔ Knave.card < 1)
   : A ∈ Knight ∧ B ∈ Knave:= by
-  #check Nat.lt_one_iff
   rw [Nat.lt_one_iff] at stAn
   rw [Finset.card_eq_zero] at stAn
 
--- can form the statement A ∈ Knave → Knave=∅ 
--- i.e A ∈ Knave → False
-  have AnKnave : A ∈ Knave → False :=by
+  have AKnight : A ∈ Knight :=by
+    set_knight_to_knave
     intro AKnave
     have := stAn.mp AKnave
     rw [this] at AKnave
     contradiction
-  simp  at AnKnave
-  -- get Knave.card ≥ 1
-  -- get Knave ⊆ {A,B} , Knave ⊆ {B}, Knave.card ≤ 1
-  -- have not on both sides of stAn
-  #check not_iff_not
-  have notstAn:= not_iff_not.mpr stAn
-  have atLeastKnave := notstAn.mp AnKnave
-  simp at atLeastKnave
+  have cardGEOne := stA.mp AKnight
+  constructor
+  assumption
+  set_knave_to_knight
+  intro BKnight
+
+
+  have U : Finset.univ = ({A,B} : Finset Inhabitant):= univ_iff_all2.mpr all
+  have subsetUniv: Knave ⊆ {A,B} := by 
+    rw [←U]
+    exact Finset.subset_univ Knave
+  set_knight_to_knave at BKnight
+  set_knight_to_knave at AKnight
+  -- make this into a custom tactic
+  have : Knave ⊆ {B} := by exact (Finset.subset_insert_iff_of_not_mem AKnight).mp subsetUniv
+  have : Knave ⊆ ∅ := by exact (Finset.subset_insert_iff_of_not_mem BKnight).mp this
+  simp at this
+  rw [this] at cardGEOne
+  contradiction
+
+example
+  {inst : DecidableEq Inhabitant}
+  {inst2 : Fintype Inhabitant}
+(all : ∀ (x : Inhabitant), x = A ∨ x = B)
+  (stA : A ∈ Knight ↔ Knave.card ≥ 1)
+  (stAn : A ∈ Knave ↔ Knave.card < 1)
+  : A ∈ Knight ∧ B ∈ Knave:= by
+  rw [Nat.lt_one_iff] at stAn
+  rw [Finset.card_eq_zero] at stAn
+
+  have AKnight : A ∈ Knight :=by
+    set_knight_to_knave
+    intro AKnave
+    have := stAn.mp AKnave
+    rw [this] at AKnave
+    contradiction
+
+  have cardGEOne := stA.mp AKnight
 
   -- assuming B not knave gives contradiction
   #check Finset.subset_insert_iff_of_not_mem
   #check Finset.subset_singleton_iff
-  have U : Finset.univ = ({A,B} : Finset Inhabitant):= univ_iff_all2.mpr all
   have ⟨w,winKnave⟩  :  ∃ w : Inhabitant, w ∈ Knave := by 
     by_contra h' 
     push_neg at h'
     #check Set.eq_empty_iff_forall_not_mem
     have Knaveemp := Finset.eq_empty_of_forall_not_mem h'
+    rw [Knaveemp] at cardGEOne
     contradiction
-  #check eq_of_or_not
-  have AnKnave : ¬A ∈ Knave := by 
-    exact AnKnave 
 
-
-  have BKnave : w=B := by 
+  have BKnave : w=B := by
     rcases all w with h_1|h_2
     rw [h_1] at winKnave 
     contradiction
+    assumption
 
-    assumption 
   rw [BKnave] at winKnave
   constructor
-  rw [inleft_notinrightIff]
-  assumption ; assumption
+  assumption
+  assumption
 
 #check all2_in_one_other_empty
 
@@ -104,19 +114,55 @@ elab "show_goals " tacs:tacticSeq : tactic => do
       | `(tactic| · $ts) => evalTactic (← `(tactic| · show_goals1 $(⟨ts.raw⟩)))
       | _ => evalTactic (← `(tactic| show_goals1 $(⟨t⟩)))
 
+
+example 
+  {inst : DecidableEq Inhabitant}
+{stA : A ∈ Knight ↔ (A ∈ Knave ∨ B ∈ Knave)}
+: A ∈ Knight ∧ B ∈ Knave := by 
+--Let's start with proving that `A` is a knight. (use `have`)
+  have AKnight : A ∈ Knight 
+ -- Change the goal to `¬isKnave A` using the `knight_to_knave` tactic
+  set_knight_to_knave
+-- Assume `isKnave A`
+  intro AKnave
+
+-- Let's first prove `isKnave A ∨ isKnave B`. Type `∨` by \\or.
+  have orexp:  A ∈ Knave or  B ∈ Knave
+-- Choose which side to prove, `left` or `right`?
+  left
+  assumption
+  -- `A`'s statement is true, so `A` is a knight.
+  have AKnight := stA.mpr orexp
+--But we already knew that `A` is a knave, `contradiction`.
+  contradiction
+
+-- `A` is a knight, so we can conclude `A`'s statement.
+
+  have orexp :=  stA.mp AKnight
+  /-
+`{orexp}` can be simplified, using `simp` and the fact that `A` is a knight and that knights are not knaves.
+
+  First, change `isKnave A` in `{orexp}` to `¬isKnight A` then use `simp` and the fact that `A` is a knight to simplify `{orexp}`
+  -/
+  set_knave_to_knight at orexp
+  simp [AKnight] at orexp
+
+-- Now close the goal
+  set_knight_to_knave at orexp
+  constructor
+  assumption ; assumption
+
 --Raymond Smullyan, what is the name of this book, problem 28
 -- statement of `A` formalized with more complicated expression
-example 
-  {x y : Inhabitant}
+example
   {inst : DecidableEq Inhabitant}
-  (h : Knight ∩ Knave = ∅ )
-  (stx : (x ∈ Knight) ↔ (x ∈ Knight ∧  y ∈ Knave)
-                    ∨ (x ∈ Knave ∧ y ∈ Knight)
-                    ∨ (x ∈ Knave ∧ y ∈ Knave)  )
-  : x ∈ Knight ∧ y ∈ Knave:= by
+  (stx : (A ∈ Knight) ↔ (A ∈ Knight ∧  B ∈ Knave)
+                    ∨ (A ∈ Knave ∧ B ∈ Knight)
+                    ∨ (A ∈ Knave ∧ B ∈ Knave)  )
+  : (A ∈ Knight) and (B ∈ Knave):= by
   {
-  set_knight_or_knave x with h_1 h_2
-  · set_knight_or_knave y with h_3 h_4 
+  set_knight_or_knave A with h_1 h_2
+  · set_knight_or_knave B with h_3 h_4 
     · constructor
       assumption
 
@@ -124,35 +170,34 @@ example
       rw [not_iff_not.symm] at stx
       have conc := stx2.mp h_1
       -- notice that the negation of the right hand side of stx2 is true
-      have this := eq_true h_1
-      have this2:= eq_true h_3
-
-      simp[this,this2] at conc
-      have this3:= inleft_notinright h h_1
-      have this4:= eq_false this3
-      simp[this4] at conc
+      simp[h_1,h_3] at conc
+      set_knight_to_knave at h_1
+      simp [h_1] at conc
       assumption
-
     · constructor
       assumption ; assumption
-  · set_knight_or_knave y with h_1 h_1
+  · set_knight_or_knave B with h_1 h_1
     · have := not_iff_not.mpr stx
-      have this2:= this.mp (inright_notinleft h h_2)
+      set_knave_to_knight at h_2
+      have this2:= this.mp h_2
       contrapose this2
       push_neg
       right
       left
       constructor
+      set_knight_to_knave at h_2
       assumption;assumption
     · constructor
       · have := not_iff_not.mpr stx 
         rw [not_or] at this
         push_neg at this
-        have this2 := this.mp (inright_notinleft h h_2)
+        set_knave_to_knight at h_2
+        have this2 := this.mp (h_2)
         contrapose this2
         push_neg
         right
         right
+        set_knight_to_knave at this2
         constructor
         assumption ;assumption
       · assumption

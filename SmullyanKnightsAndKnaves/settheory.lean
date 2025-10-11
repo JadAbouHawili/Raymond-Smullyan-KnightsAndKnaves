@@ -4,6 +4,8 @@ import Mathlib.Data.Multiset.Basic
 
 import SmullyanKnightsAndKnaves.logic
 
+infixr:35 " and " => And
+infixr:30 " or  "  => Or
 
 macro "is_mem2" : tactic =>
   do`(tactic| first |(apply Finset.mem_singleton_self) | (apply Finset.mem_insert_self) | apply Finset.mem_insert_of_mem) --; try apply Finset.mem_insert_self )
@@ -884,3 +886,88 @@ theorem full2
 theorem memToFinset (Knight : Set K ) {finKnight : Fintype Knight}  (AKnight : A ∈ Knight) : A ∈ (Set.toFinset Knight) := by  
   have FinKnight:= Set.toFinset Knight
   exact Set.mem_toFinset.mpr AKnight
+
+
+theorem inleft_notinright_finset
+{S S' : Finset K}
+{inst : DecidableEq K}
+{A : K}
+(h : S ∩ S' = ∅ )
+(h' : A ∈ S) : A ∉ S' := by
+  intro a
+  have := Finset.mem_inter_of_mem h' a
+  rw [h] at this
+  contradiction
+
+theorem notinleft_inright
+{S S' : Finset K}
+{A : K}
+(SorS' : A ∈ S ∨ A ∈ S')
+(h' : A ∉ S) : A ∈ S' := by
+  exact notleft_right SorS' h'
+
+theorem inright_notinleft_finset
+{S S' : Finset K}
+{inst : DecidableEq K}
+{A : K}
+(h : S ∩ S' = ∅ )
+(h' : A ∈ S') : A ∉ S := by
+  intro a
+  have := Finset.mem_inter_of_mem h' a
+  rw [Finset.inter_comm] at h
+  rw [h] at this
+  contradiction
+
+theorem notinright_inleft
+{S S' : Finset K}
+{A : K}
+(SorS' : A ∈ S ∨ A ∈ S')
+(h' : A ∉ S') : A ∈ S := by
+  exact notright_left SorS' h'
+
+-------------------
+theorem inleft_notinrightIff
+
+{S S' : Finset K}
+{A : K}
+{inst : DecidableEq K}
+(h : S ∩ S' = ∅ )
+(SorS' : A ∈ S ∨ A ∈ S')
+: A ∈ S ↔  ¬(A ∈ S') := by
+  constructor
+  · exact inleft_notinright_finset h
+  · exact notinright_inleft SorS'
+
+theorem notinleft_inrightIff
+{S S' : Finset K}
+{A : K}
+{inst : DecidableEq K}
+(h : S ∩ S' = ∅ )
+(SorS' : A ∈ S ∨ A ∈ S')
+: A ∉ S ↔  A ∈ S' := by
+  constructor
+  · exact notinleft_inright SorS'
+  · exact inright_notinleft_finset h
+
+theorem inright_notinleftIff
+{S S' : Finset K}
+{A : K}
+{inst : DecidableEq K}
+(h : S ∩ S' = ∅ )
+(SorS' : A ∈ S ∨ A ∈ S')
+: A ∈ S' ↔  A ∉ S := by
+  constructor
+  · exact inright_notinleft_finset h
+  · exact notleft_right SorS'
+
+theorem notinright_inleftIff
+{S S' : Finset K}
+{A : K}
+{inst : DecidableEq K}
+(h : S ∩ S' = ∅ )
+(SorS' : A ∈ S ∨ A ∈ S')
+ : A ∉ S' ↔  A ∈ S := by
+  constructor
+  · exact notinright_inleft SorS'
+  · exact inleft_notinright_finset h
+

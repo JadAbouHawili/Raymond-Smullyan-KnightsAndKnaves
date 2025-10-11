@@ -82,7 +82,6 @@ example
 {stWn : Wendy ∈ Knave ↔ ¬ (Oberon ∈ Knave)}
   : Tracy ∈ Knave ∧ Oberon ∈ Knave ∧ Wendy ∈ Knight := by
   {
-    #check settheory_approach.notinright_inleftIff
     have OberonKnave : Oberon ∈ Knave := by {
       by_contra OberonKnight
       rw [notinright_inleftIff] at OberonKnight

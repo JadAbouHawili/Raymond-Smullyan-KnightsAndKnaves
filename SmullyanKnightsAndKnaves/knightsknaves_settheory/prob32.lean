@@ -30,7 +30,7 @@ example
   ·
     have oneKn := stB.mp BKnight 
     unfold oneKnave at oneKn
-    simp [AKnave,BKnight,inleft_notinrightIff] at oneKn
+    simp [AKnave,BKnight,knight_notknaveIff] at oneKn
     set_knight_to_knave 
     assumption
   ·

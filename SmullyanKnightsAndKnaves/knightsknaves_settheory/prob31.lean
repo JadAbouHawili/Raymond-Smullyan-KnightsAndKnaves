@@ -23,7 +23,7 @@ example
   contradiction
   constructor
   assumption
-  
+
   have notallknave := stAn.mp AKnave
   have BKnight : B ∈ Knight
   set_knight_to_knave
@@ -139,8 +139,8 @@ example
   := by
   -- also similar to I am a Knave
   have AKnave : A ∈ Knave := by
-    by_contra AKnight
-    rw [notinright_inleftIff] at AKnight
+    set_knave_to_knight
+    intro AKnight
     have everyoneknave := stA.mp AKnight  
     have AKnave: A ∈ Knave := by rw [everyoneknave] ; apply Finset.mem_insert_self
     contradiction
@@ -151,8 +151,8 @@ example
     contradiction
   simp [AnKnight] at stB
   have BKnight2 : B ∈ Knight := by 
-    by_contra BKnave 
-    rw [notinleft_inrightIff] at BKnave 
+    set_knight_to_knave
+    intro BKnave
     have CnKnave : C ∉ Knave := by 
       intro CKnave 
       have : Knave = {A,B,C} := by 
@@ -162,8 +162,8 @@ example
     -- so Knight = {C} so B knight, contradiction 
     sorry
   have BKnight : B ∈ Knight := by 
-    by_contra BKnave
-    rw [notinleft_inrightIff] at BKnave
+    set_knight_to_knave
+    intro BKnave
     have notoneknight := stBn.mp BKnave
     push_neg at notoneknight
     -- by stAn, C is a knight because otherwise Knave={A,B,C}. then knight={C} contradiction
@@ -202,7 +202,7 @@ example
   -- repeated pattern of reasoning
   -- A ∉ Knight so Knight ≠ {A}
   #check not_eq_singleton_of_not_mem
-  rw [inright_notinleftIff] at AKnave
+  set_knave_to_knight at AKnave
   have KneA := not_eq_singleton_of_not_mem AKnave 
    
   #check already_full

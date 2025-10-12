@@ -27,16 +27,15 @@ example
      rw [not_and_or] at BCnotsametype
      rw [not_and_or] at BCnotsametype
      have AC:= BCnotsametype.left
-     rw [inright_notinleftIff]
+     simp [AKnight] at AC
+     set_knight_to_knave at AC
+     assumption
 
-     rw [inleft_notinrightIff] at AKnight
-     rw [notinleft_inrightIff] at AC
-     exact notleft_right AC AKnight
    · have BKnight := stAn.mp AKnave
-     rw [notinright_inleftIff] at BKnight
+     set_knave_to_knight at BKnight
      have AC := stB.mp BKnight
      rcases AC with h_1|h_2
-     · rw [inright_notinleftIff] at AKnave
+     · set_knave_to_knight at AKnave
        exfalso
        exact AKnave h_1.left
      · exact h_2.right

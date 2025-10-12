@@ -9,7 +9,7 @@ variable [DecidableEq Inhabitant]
 Suppose the stranger, instead of asking A what he is,
 asked A, "How many knights are among you?" Again A
 answers indistinctly. So the stranger asks B, "What did A
-say? B replies, "A said that there is one knight among us."
+say?B replies, "A said that there is one knight among us."
 Then C says, "Don't believe B; he is lying!"
 Now what are B and C?
 -/
@@ -46,6 +46,46 @@ example
   set_knight_to_knave  at this
   have CKnight :=  stC.mpr this
   constructor ; assumption ; assumption
+
+
+
+example
+{inst2 : Fintype Inhabitant}
+(stB : (B ∈ Knight) ↔ (A ∈ Knight ↔Knight.card = 1))
+(stC : ( C ∈ Knight ↔ B ∈ Knave) )
+(stCn : ( C ∈ Knave ↔ B ∈ Knight) )
+
+  : B ∈ Knave ∧ C ∈ Knight := by 
+  have BKnave : B ∈ Knave
+  set_knave_to_knight
+  intro BKnight
+  have CKnave := stCn.mpr BKnight
+  have stA := stB.mp BKnight
+  have AKnave : A ∈ Knave
+  set_knave_to_knight
+  intro AKnight
+  have KnightCard := stA.mp AKnight
+  rw [Finset.card_eq_one] at KnightCard
+  have ⟨a,ha⟩ := KnightCard 
+  rw [ha] at AKnight
+  rw [ha] at BKnight
+  rw [Finset.mem_singleton] at AKnight
+  rw [Finset.mem_singleton] at BKnight
+  rw [←AKnight] at BKnight
+  contradiction
+  set_knave_to_knight at AKnave
+  simp [AKnave] at stA
+  apply stA
+  rw [Finset.card_eq_one]
+  use B
+  -- back to the same point
+  sorry
+  sorry
+
+
+
+
+
 
 example
 {inst2 : Fintype Inhabitant}

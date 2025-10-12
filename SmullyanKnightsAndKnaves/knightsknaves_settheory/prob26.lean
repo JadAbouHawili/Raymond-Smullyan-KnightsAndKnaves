@@ -9,7 +9,7 @@ example
 {hC : C ∈ Knight ↔ B ∈ Knave}
 : B ∈ Knave ∧ C ∈ Knight := by
   have BKnave : B ∈ Knave
-  set_knave_to_knight 
+  set_knave_to_knight
   intro BKnight
   have hA := hB.mp BKnight
   exact IamKnave hA

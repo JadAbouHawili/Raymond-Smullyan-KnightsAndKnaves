@@ -82,7 +82,6 @@ example
   ·
     set_knight_to_knave
     intro CKnave
-    #check Finset.Subset.antisymm
     apply notallKnave
     apply Finset.Subset.antisymm
     · by_universe
@@ -93,4 +92,11 @@ example
       intro h
       mem_set at h
       -- take cases and done
+
+      -- special angle bracket notation would rewrite, why is that
+      --rcases h with h1|h2|h3
+
+
+
+
       sorry

@@ -244,7 +244,5 @@ do`(tactic| cases (either $t1)  )
 macro "set_knight_or_knave" t1:term "with" t2:rcasesPat t3:rcasesPat  : tactic =>
 do`(tactic| obtain $t2|$t3 := (either $t1)  )
 
-macro "mem_set" "at" t1:Lean.Parser.Tactic.locationHyp : tactic =>
-  do`(tactic| repeat simp only [Finset.mem_insert,Finset.mem_singleton] at $t1)
 
 end settheory_approach

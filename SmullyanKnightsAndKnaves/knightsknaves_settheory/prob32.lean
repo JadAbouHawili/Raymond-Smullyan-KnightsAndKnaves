@@ -45,6 +45,8 @@ example
 {stAn : A ∈ Knave ↔ ¬ (Knave = {A,B,C}) }
 {stB : B ∈ Knight ↔ Knave = {A} ∨ Knave = {B} ∨ Knave = {C}}
 {stBn : B ∈ Knave ↔ ¬ (Knave = {A} ∨ Knave = {B} ∨ Knave = {C})}
+{all2: 
+ ∀ (x : Inhabitant), x = A or x = B or x = C}
   : A ∈ Knave ∧ C ∈ Knight := by
   have AKnave : A ∈ Knave
   set_knave_to_knight
@@ -85,6 +87,9 @@ example
     apply notallKnave
     apply Finset.Subset.antisymm
     · by_universe
+      assumption
+       
+
 
     · -- trivial
       #check C
@@ -95,8 +100,5 @@ example
 
       -- special angle bracket notation would rewrite, why is that
       --rcases h with h1|h2|h3
-
-
-
 
       sorry

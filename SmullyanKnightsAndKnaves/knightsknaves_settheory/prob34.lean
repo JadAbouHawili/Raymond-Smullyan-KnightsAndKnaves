@@ -2,13 +2,13 @@ import SmullyanKnightsAndKnaves.knightsknaves
 import SmullyanKnightsAndKnaves.knightsknaves_3
 
 /-
-We again have three inhabitants, A, B, and C, each of whom 
-is a knight or a knave. Two people are said to be of the same 
-type if they are both knights or both knaves. A and B make 
-the following statements: 
-A: B is a knave. 
-B: A and C are of the same type. 
-What is C? 
+We again have three inhabitants, A, B, and C, each of whom
+is a knight or a knave. Two people are said to be of the same
+type if they are both knights or both knaves. A and B make
+the following statements:
+A: B is a knave.
+B: A and C are of the same type.
+What is C?
 -/
 open settheory_approach
 

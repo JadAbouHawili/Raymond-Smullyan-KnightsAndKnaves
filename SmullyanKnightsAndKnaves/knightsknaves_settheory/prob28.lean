@@ -1,4 +1,5 @@
 import SmullyanKnightsAndKnaves.knightsknaves
+
 import Lean
 -- prob28
 -- included in game as dsl_iknaveorknave
@@ -10,6 +11,32 @@ set_option push_neg.use_distrib true
   #check Finset.subset_iff
 
 open settheory_approach
+
+
+
+theorem univ_iff_all2
+{K : Type}
+{inst : Fintype K} {inst2 : DecidableEq K} {A B : K}   : Finset.univ = ({A,B} : Finset K) ↔  ∀ (x : K), x = A ∨ x = B := by
+  constructor
+  ·
+    intro U
+    intro x
+    have xinU := Finset.mem_univ x
+    rw [U] at xinU
+    mem_finset at xinU
+    assumption
+
+  · intro all
+    apply Finset.eq_of_subset_of_card_le
+    intro x
+    intro hx
+    rcases all x with h|h
+    · rw [h]
+      is_mem
+    · rw [h]
+      is_mem
+    apply Finset.card_le_card
+    apply Finset.subset_univ
 
 
 example
@@ -89,7 +116,6 @@ example
   assumption
   assumption
 
-#check all2_in_one_other_empty
 
 open Lean Parser Elab Tactic
 elab "show_goal" t:tactic : tactic => do

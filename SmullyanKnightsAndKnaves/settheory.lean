@@ -7,30 +7,31 @@ import SmullyanKnightsAndKnaves.logic
 infixr:35 " and " => And
 infixr:30 " or  "  => Or
 
-macro "mem_set": tactic =>
+macro "mem_finset": tactic =>
   do`(tactic| repeat simp only [Finset.mem_insert,Finset.mem_singleton] )
 
-macro "mem_set" "at" t1:Lean.Parser.Tactic.locationHyp : tactic =>
+macro "mem_finset" "at" t1:Lean.Parser.Tactic.locationHyp : tactic =>
   do`(tactic| repeat simp only [Finset.mem_insert,Finset.mem_singleton] at $t1)
+
+macro "mem_set": tactic =>
+  do`(tactic| repeat simp only [Set.mem_insert,Set.mem_singleton] )
+macro "mem_set" "at" t1:Lean.Parser.Tactic.locationHyp : tactic =>
+  do`(tactic| repeat simp only [Set.mem_insert,Set.mem_singleton] at $t1)
 
 
 macro "is_mem2" : tactic =>
-  do`(tactic| first |(apply Finset.mem_singleton_self) | (apply Finset.mem_insert_self) | apply Finset.mem_insert_of_mem) --; try apply Finset.mem_insert_self )
+  do`(tactic| first |(apply Finset.mem_singleton_self) | (apply Finset.mem_insert_self) | apply Finset.mem_insert_of_mem)
+
 --  a ∈ {a}
 #check Finset.mem_singleton_self
 -- a ∈ insert a s
 #check Finset.mem_insert_self
 -- a ∈ s → a ∈ insert b s
 #check Finset.mem_insert_of_mem
+
 macro "is_mem" : tactic =>
   do`(tactic | repeat is_mem2)
 
-#check Finset.mem_singleton
-#check Finset.mem_insert_of_mem
-#check Finset.mem_insert_self
-
-variable {K : Type}
-variable {A B : K}
 
 #check Finset.mem_inter.mpr
 theorem disjoint_finset
@@ -44,10 +45,10 @@ theorem disjoint_finset
   rw [h] at this
   contradiction
 
+
 macro_rules
 | `(tactic| contradiction) => 
   do `(tactic |solve  | ( apply disjoint_finset ; repeat assumption ) )
-
 theorem disjoint_set
 {K : Type}
 {left : Set K} {right : Set K}
@@ -63,423 +64,97 @@ macro_rules
 | `(tactic| contradiction) => 
   do `(tactic |solve  | ( apply disjoint_set ; repeat assumption ) )
 
-theorem XorToOr {K : Type} {A : K} (S : Set K) (S' : Set K) (h : S ∩ S' = ∅) : Xor' (A ∈ S) (A ∈ S') ↔ A ∈ S ∨ A ∈ S' := by
-  rw [xor_iff_or_and_not_and] 
-  rw [not_and_or]
-  constructor
-  intro a1
-  · have : A ∈ S ↔ A ∉ S' := by{
-    constructor
-    · intro h1
-      intro h2
-      have := Set.mem_inter h1 h2
-      rw [h] at this
-      contradiction
-    · intro h1
-      simp [h1] at a1
-      assumption
-      }
-    simp [this]
-    apply em'
-  · intro a1
-    constructor
-    assumption
-    rcases a1 with ha1|ha2
-    simp [ha1]
-    intro
-    contradiction
-    simp [ha2]
-    intro
-    contradiction
 
-theorem XorToOrKnightKnave {Inhabitant : Type} {inst : DecidableEq Inhabitant}{Knight : Finset Inhabitant } {Knave : Finset Inhabitant} (A : Inhabitant)
-(h : Knight ∩ Knave = ∅ ) : Xor' (A ∈ Knight) (A ∈ Knave) ↔ A ∈ Knight ∨ A ∈ Knave := by
-  constructor
-  unfold Xor' at *
-  · intro h'
-    rcases h' with h_1|h_1
-    · exact Or.inl (h_1.left)
-    · exact Or.inr (h_1.left)
-
-  · intro h'
-    unfold Xor'
-    cases h'
-    · left
-      constructor
-      assumption
-      intro 
-      contradiction
-    · right
-      constructor
-      assumption
-      intro
-      contradiction
-
-#check Finset.card_eq_one
-theorem two_in_card_eq_one {K : Type} {A B : K} {S : (Finset K)} (h : S.card =1) (AinS : A ∈ S) ( BinS : B ∈ S) : A=B := by 
-  #check Finset.card_le_one_iff
-  rw [Finset.card_eq_one] at h
-  have ⟨a,ha⟩ := h 
-  rw [ha] at AinS
-  rw [ha] at BinS
-  mem_set at BinS
-  mem_set at AinS
-  rw [←BinS] at AinS
-  assumption
-/-
-  --cleaner
-  have := Nat.le_of_eq h
-  rw [Finset.card_le_one_iff] at this
-  exact this AinS BinS
-  -/
-
-theorem full
-{S : Finset K}
-{B : K}
-(AinS: A ∈ S)
-(One : S.card =1)
-(AneB : A ≠ B)
-: B ∉ S := by {
-  by_contra BinS
-  exact AneB (two_in_card_eq_one One AinS BinS)
-}
-
-theorem full3 {K : Type} {A B C: K} 
-{inst : DecidableEq K}  {S : Finset K}
-{all : ∀ (x : K), x = A ∨ x = B ∨ x = C}
-  (hA : A ∈ S) (hB : B ∈ S) (hC : C ∈ S) : S = {A,B,C} := by
-    apply Finset.Subset.antisymm
-    · intro a
-      intro aInKnave
-      repeat rw [Finset.mem_insert] 
-      rw [Finset.mem_singleton] 
-      exact all a
-    · intro a aIn
-
-      -- create this into a custom tactic(?)
-      repeat rw [Finset.mem_insert] at aIn
-      rw [Finset.mem_singleton] at aIn
-      rcases aIn with eq|eq|eq 
-      repeat rw [eq] ; assumption
-
-theorem is_singleton {A : K} {S : Finset K}
-(AinS : A ∈ S) (OneS : S.card = 1 )
-: S={A} := by
-/- simpler solution
-  have ⟨a,hA⟩  := Finset.card_eq_one.mp OneS
-  rw [hA] at AinS
-  rw [Finset.mem_singleton] at AinS
-  rw [AinS]
-  assumption
-  -/
-
-
-  have OneS2 := Finset.card_eq_one.mp OneS
-  #check Finset.nontrivial_iff_ne_singleton
-  #check Finset.one_lt_card_iff_nontrivial
-  #check Finset.Nontrivial
-
-  by_contra ne_singleton
-  push_neg at ne_singleton
-  have := (Finset.nontrivial_iff_ne_singleton AinS).mpr ne_singleton
-  rw [Finset.one_lt_card_iff_nontrivial.symm] at this
-  rw [OneS] at this
+theorem inleft_notinright_finset
+{K : Type}
+{S S' : Finset K}
+{inst : DecidableEq K}
+{A : K}
+(h : S ∩ S' = ∅ )
+(h' : A ∈ S) : A ∉ S' := by
+  intro a
+  have := Finset.mem_inter_of_mem h' a
+  rw [h] at this
   contradiction
 
-/-
-  have OneS2 := Finset.card_eq_one.mp OneS
-  #check Finset.nontrivial_iff_ne_singleton
-  #check Finset.one_lt_card_iff_nontrivial
-  #check Finset.Nontrivial
-
-  by_contra ne_singleton
-  push_neg at ne_singleton
-  have := (Finset.nontrivial_iff_ne_singleton AinS).mpr ne_singleton
-  unfold Finset.Nontrivial at this
-  unfold Set.Nontrivial at this
-  have ⟨x,hx,y,hy,xney⟩ := this 
-  #check full
-  #check card_eq
-  #check Finset.nontrivial_iff_ne_singleton 
-  exact xney (card_eq OneS hx hy )
-  -/
-
-theorem singleton_iff_exists {S : Finset K}
-{B : K} (BinS : B ∈ S): S={B} ↔ ∃x, S={x} := by
-  constructor
-  · intro singleton
-    use B
-  · rw [Finset.card_eq_one.symm] 
-    exact is_singleton BinS
-
-
-theorem full_singleton  
-{S : Finset K} 
-{B : K}
-(singleton : S={B})
-(AinS: A ∈ S)
-(AneB : A ≠ B)
-: False := by {
-   rw [singleton] at AinS 
-   have AeqB := Finset.mem_singleton.mp AinS
-   contradiction
----
-  --#check Finset.eq_singleton_iff_unique_mem
-  --have exist: ∃x, S={x} := by use B
-  --rw [Finset.card_eq_one.symm] at exist 
-  --#check card_eq
-  --exact AneB (card_eq exist AinS
-
-  --exact AneB (card_eq (by rw [Finset.card_eq_one] ; use B) AinS (by rw [singleton] ; exact Finset.mem_singleton.mpr rfl))
-
-  --by_contra BinS
-  --exact AneB (card_eq One AinS BinS)
-}
-
-
-#check Finset.eq_singleton_iff_unique_mem
-#check Finset.mem_singleton
-#check Finset.mem_inter_of_mem
-theorem mem_of_eq_singleton 
+theorem notinleft_inright
 {K : Type}
-{S : Finset K} {A : K} (h : S={A}) : A ∈ S := by 
-  rw [h]
-  is_mem
-  --exact (Finset.eq_singleton_iff_unique_mem.mp h).left
+{S S' : Finset K}
+{A : K}
+(SorS' : A ∈ S ∨ A ∈ S')
+(h' : A ∉ S) : A ∈ S' := by
+  exact notleft_right SorS' h'
 
-  /-
-  symm at h
-  have := Finset.subset_of_eq h
-  exact Finset.singleton_subset_iff.mp this
-  -/
-
-theorem singleton_iff_card_eq_one 
+theorem inright_notinleft_finset
 {K : Type}
-{S : Finset K}
-{B : K}
-{all : ∀(x:K), x=B}
-: S={B} ↔ S.card=1 := by 
-  constructor
-  · intro singleton
-    rw [Finset.card_eq_one]
-    #check Classical.not_forall_not
-    use B
-  · intro One
-    rw [Finset.card_eq_one] at One
-    have ⟨x,hx⟩ := One
-    have := all x
-    rw [this] at hx
-    rw [Finset.eq_singleton_iff_unique_mem] 
-    constructor
-    #check mem_of_eq_singleton  
-    exact mem_of_eq_singleton hx
-    intro y
-    intro yinS
-    have := all y
-    assumption
-
-theorem not_in_of_singleton  
-{S : Finset K} 
-{B : K}
-(singleton : S={B})
-(AneB : A ≠ B)
-: A ∉ S := by {
-  by_contra AinS
-  exact full_singleton singleton AinS AneB
-  --exact AneB (card_eq (by rw [Finset.card_eq_one] ; use B) AinS (by rw [singleton] ; exact Finset.mem_singleton.mpr rfl))
-
-  --by_contra BinS
-  --exact AneB (card_eq One AinS BinS)
-}
-
-  #check Finset.subset_of_eq
-  --#check Finset.card_eq_of_equiv
-  #check Finset.card_le_card
-  --have := Finset.card_eq_of_equiv (by exact Equiv.setCongr singleton )
-  #check Finset.nontrivial_iff_ne_singleton
--- A ∈ S and S.card=1 , so S={A}
-theorem eq_singleton_card_one {A : K} {S : Finset K } 
-(singleton : S={A}) : S.card=1 := by 
-  rw [Finset.card_eq_one]
-  use A
-  --#check congrArg
-  --have : S.card=({A} : Finset K).card  := by
-  --  exact congrArg Finset.card singleton
-  --rw [this]
-  --exact rfl
-
-/-
-  #check Finset.subset_of_eq
---  #check Finset.card_le_of_subset
-  #check Finset.card_eq_of_equiv
-  --have := Finset.card_eq_of_equiv (by exact Equiv.setCongr singleton )
-  have Sin := Finset.subset_of_eq singleton
-  have Sless := (Finset.eq_iff_card_le_of_subset Sin).mp
- -- have Sless := Finset.card_le_of_subset Sin
-  have Aless:  (({A}:Finset K).card) ≤ S.card  := by 
-     exact (Finset.eq_iff_card_ge_of_superset Sin).mpr (id (Eq.symm singleton))
-  #check Finset.eq_iff_card_le_of_subset
-  #check Finset.card_le_one_iff_subset_singleton
---  have Aless := (Finset.eq_iff_card_le_of_subset Ain).mp
-
-  exact (Nat.le_antisymm Aless Sless).symm
-
-
-  --rw [(Finset.nontrivial_iff_ne_singleton).symm] at ne_singleton
--/
-
-#check Insert
-theorem forward {A B C : K} (all : ∀ (x : K), x = A ∨ x = B ∨ x = C) : (Set.univ)  = ({A,B,C} : Set K) := by 
-  #check Set.univ_subset_iff
-  #check Set.eq_univ_of_univ_subset
-  apply Set.eq_of_subset_of_subset
-  · intro x
-    intro xU
-    exact all x
-
-  -----
-   --- exact fun ⦃a⦄ a_1 => all a
-
-  ·
-    #check Set.mem_univ
-    intro x
-    rw [eq_true (Set.mem_univ x)]
-    rw [implies_true]
-    trivial
-
-    --exact fun _ => trivial
-    ---
-    --intro x
-    --intro xABC
-    --exact trivial
-
-  -------
-    --- exact fun ⦃a⦄ a => trivial
-
-theorem backward  {A B C : K} (h : (Set.univ)  = ({A,B,C} : Set K) ):  ∀ (x : K), x = A ∨ x = B ∨ x = C:= by 
-  intro x
-  have : x ∈ Set.univ := by exact trivial
+{S S' : Finset K}
+{inst : DecidableEq K}
+{A : K}
+(h : S ∩ S' = ∅ )
+(h' : A ∈ S') : A ∉ S := by
+  intro a
+  have := Finset.mem_inter_of_mem h' a
+  rw [Finset.inter_comm] at h
   rw [h] at this
-  exact this
+  contradiction
 
-theorem univ_or  {A B C : K} :  (Set.univ)  = ({A,B,C} : Set K)  ↔  ∀ (x : K), x = A ∨ x = B ∨ x = C:= by 
+theorem notinright_inleft
+{K : Type}
+{S S' : Finset K}
+{A : K}
+(SorS' : A ∈ S ∨ A ∈ S')
+(h' : A ∉ S') : A ∈ S := by
+  exact notright_left SorS' h'
+
+-------------------
+theorem inleft_notinrightIff
+
+{K : Type}
+{S S' : Finset K}
+{A : K}
+{inst : DecidableEq K}
+(h : S ∩ S' = ∅ )
+(SorS' : A ∈ S ∨ A ∈ S')
+: A ∈ S ↔  ¬(A ∈ S') := by
   constructor
-  exact fun a x => backward a x
-  #check forward
-  exact forward
+  · exact inleft_notinright_finset h
+  · exact notinright_inleft SorS'
 
-theorem card_eq_one_iff_singletons 
-{A B C : K} {S : Finset K}
-(all : ∀(x : K), x = A ∨ x = B ∨ x = C)
-: S.card =1 ↔  S = {A} ∨ S = {B} ∨ S = {C}
-  := by 
+theorem notinleft_inrightIff
+{K : Type}
+{S S' : Finset K}
+{A : K}
+{inst : DecidableEq K}
+(h : S ∩ S' = ∅ )
+(SorS' : A ∈ S ∨ A ∈ S')
+: A ∉ S ↔  A ∈ S' := by
   constructor
-  · intro OneS
-    rw [Finset.card_eq_one] at OneS
-    have ⟨x,hx⟩ := OneS
-    have Ors := all x
-    rcases Ors with h_1|h_2
-    · rw [h_1] at hx
-      -- A ∈ S and S.card=1 , so S={A}
-      #check full_singleton
-      left
-      assumption
-    · rcases h_2 with h_11|h_22
-      -- identical reasoning
-      · right
-        left
-        rw [h_11] at hx
-        assumption
+  · exact notinleft_inright SorS'
+  · exact inright_notinleft_finset h
 
-      · right
-        right
-        rw [h_22] at hx
-        assumption
-
-  · intro singletons
-    rcases singletons with h_1|h_2
-    ·
-      exact eq_singleton_card_one h_1
-    · rcases h_2 with h_11|h_22
-      · exact eq_singleton_card_one h_11
-      · exact eq_singleton_card_one h_22
-
-theorem card_eq_one_iff_singletons_univ (A B C : K) {S : Finset K} 
-(U : (Set.univ)  = ({A,B,C} : Set K))
---(all : ∀(x : K), x = A ∨ x = B ∨ x = C)
-: S.card = 1 ↔ S = {A} ∨ S = {B} ∨ S = {C} := by  
-  have all := univ_or.mp U
-  exact card_eq_one_iff_singletons all 
-
--- can use to intuitively explain other things like x ∈ {A} means x=A etc.. start from it and then say more generally ...
--- mem1_iff_or for x ∈ {A}
--- mem2_iff_or for x ∈ {A,B} , can use repeat rw way
-theorem mem_iff_or 
-(A B C: K) (x : K) : x ∈ ({A,B,C} : Set K) ↔  x = A ∨ x =B ∨ x = C := by
+theorem inright_notinleftIff
+{K : Type}
+{S S' : Finset K}
+{A : K}
+{inst : DecidableEq K}
+(h : S ∩ S' = ∅ )
+(SorS' : A ∈ S ∨ A ∈ S')
+: A ∈ S' ↔  A ∉ S := by
   constructor
-  · intro xIn
-    exact xIn
-  · intro Ors
-    exact Ors
+  · exact inright_notinleft_finset h
+  · exact notleft_right SorS'
 
-theorem mem2_iff_or_finset {inst : DecidableEq K} 
-{A B : K} {x : K} : x ∈ ({A,B} : Finset K) ↔  x = A ∨ x =B := by
+theorem notinright_inleftIff
+{K : Type}
+{S S' : Finset K}
+{A : K}
+{inst : DecidableEq K}
+(h : S ∩ S' = ∅ )
+(SorS' : A ∈ S ∨ A ∈ S')
+ : A ∉ S' ↔  A ∈ S := by
   constructor
-  · intro xIn
-    mem_set at xIn
-    assumption
-  · intro xIn
-    mem_set
-    assumption
-
-theorem mem_iff_or_finset {inst : DecidableEq K}
-{A B C: K} {x : K} : x ∈ ({A,B,C} : Finset K) ↔  x = A ∨ x =B ∨ x = C := by
-  constructor
-  · intro xIn
-    mem_set at xIn
-    assumption
-  · intro Ors
-    mem_set
-    assumption
-
-#check Finset.mem_insert_self
-#check Finset.mem_insert_of_mem
-#check mem_of_eq_singleton
-
-theorem one_in_of_card_eq_one {A B C : K} {S : Finset K}  (U : Set.univ = ({A,B,C} : Set K)) (h : S.card = 1)
-(AneB : A ≠ B)
-(BneC : B ≠ C)
-(AneC : A ≠ C)
-: A ∈ S ∧ B ∉ S ∧ C ∉ S ∨ A ∉ S ∧ B ∈ S ∧ C ∉ S ∨ A ∉ S ∧ B ∉ S ∧ C ∈ S := by
-  rw [card_eq_one_iff_singletons_univ A B C U ] at h  
-  rcases h with h_1|h_1
-  · left
-    constructor
-    · exact mem_of_eq_singleton h_1
-    · constructor
-      ·         exact not_in_of_singleton h_1 (AneB.symm)
-      · exact not_in_of_singleton h_1 (AneC.symm)
-
-  -- similarly
-  · rcases h_1 with h|h
-    · right
-      left
-      constructor
-      · exact not_in_of_singleton h AneB
-      · constructor
-        · exact mem_of_eq_singleton h
-        · exact not_in_of_singleton h BneC.symm
-
-    · right
-      right
-      constructor
-      · exact not_in_of_singleton h AneC
-      · constructor
-        · exact not_in_of_singleton h BneC
-        · exact mem_of_eq_singleton h
-
-example {K : Type} (A B C: K) ( all : ∀(x : K), x = A ∨ x = B ∨ x = C) : @Set.univ K = {A,B,C} := by
-  exact (Set.eq_univ_of_univ_subset fun ⦃a⦄ a_1 => all a).symm
+  · exact notinright_inleft SorS'
+  · exact inleft_notinright_finset h
 
 theorem univ_iff_all {K : Type} {inst : Fintype K} {inst2 : DecidableEq K} {A B C : K}   : Finset.univ = ({A,B,C} : Finset K) ↔  ∀ (x : K), x = A ∨ x = B ∨ x = C:= by 
 --  #check Finset.toSet Finset.univ
@@ -526,469 +201,22 @@ theorem univ_iff_all {K : Type} {inst : Fintype K} {inst2 : DecidableEq K} {A B 
 
     · exact fun a_1 => Finset.mem_univ a
 
-theorem univ_iff_all2 {inst : Fintype K} {inst2 : DecidableEq K} {A B : K}   : Finset.univ = ({A,B} : Finset K) ↔  ∀ (x : K), x = A ∨ x = B := by 
-  constructor
-  · 
-    intro U 
-    intro x
-    #check Finset.mem_univ
-    have xinU := Finset.mem_univ x
-    rw [U] at xinU
-    rw [Finset.mem_insert] at xinU
-    rw [Finset.mem_singleton] at xinU
-    assumption
 
-  · intro all 
-    apply Finset.eq_of_subset_of_card_le 
+theorem set_subset_univ  
+{Inhabitant : Type}
+{inst : DecidableEq Inhabitant}
+{A B C : Inhabitant}
 
-    intro x
-    intro hx
-    rcases all x with h|h
-    · rw [h]
-      apply Finset.mem_insert_self
-    · rw [h]
-      apply Finset.mem_insert_of_mem 
-      rw [Finset.mem_singleton]
-
-    apply Finset.card_le_card
-    apply Finset.subset_univ
-
-#check Finset.Nonempty
-#check Finset.empty
-#check not_iff_not.mpr Finset.not_nonempty_iff_eq_empty
-#check Finset.not_nonempty_iff_eq_empty.mpr
-#check Finset.univ_inter
-example {K : Type} {inst3 : Unique K} {inst : Fintype K} {inst2 : DecidableEq K} {S : Finset K}: Finset.univ ∩ S = ∅ → S = ∅ := by 
-  intro h
-  rw [Finset.univ_inter] at h
-  assumption
-
-theorem all2_in_one_other_empty 
-{K : Type}
-{A B : K}
-{inst : Fintype K}
-{inst2 : DecidableEq K} {S S' : Finset K} (h : S ∩ S' = ∅)(all : ∀(x:K), x = A ∨ x = B) (hA : A ∈ S) (hB : B ∈ S) : S' = ∅ := by 
-  have : S = (Finset.univ) := by 
-    have := (@univ_iff_all2 K inst inst2  ).mpr all
-    rw [this]
-    apply Finset.ext
-    intro a
-    constructor
-    · intro aSprime
-      exact mem2_iff_or_finset.mpr (all a)
-    · intro h 
-      #check mem2_iff_or_finset
-      rw [mem2_iff_or_finset] at h
-      rcases h with h|h
-      rw [h]
-      assumption
-      rw [h]
-      assumption
-
-  rw [this] at h
-  rw [Finset.inter_comm] at h
-  rw [Finset.inter_univ] at h
-  assumption
-
-  --by_contra nonemp 
-----  have := (not_iff_not.mpr Finset.not_nonempty_iff_eq_empty).mpr nonemp
-  --rw [(not_iff_not.mpr Finset.not_nonempty_iff_eq_empty).symm] at nonemp
-
-  --push_neg at nonemp
-  ---- now use helper theorem
-  --unfold Finset.Nonempty at nonemp 
-  --have ⟨x,hx⟩ := nonemp 
-  --rcases all x with h_1|h_2
-  --· rw [h_1] at hx
-  --  exact disjoint h hA hx 
-  --· rw [h_2] at hx
-  --  exact disjoint h hB hx
-
-theorem all3_in_one_other_empty 
-{K : Type}
-{inst : DecidableEq K} {A B C : K} {S S' : Finset K}
-{all : ∀(x:K), x=A ∨ x=B ∨ x=C}
-(hA : A ∈ S)
-(hB : B ∈ S)
-(hC : C ∈ S)
-(h : S ∩ S'= ∅ )
-: S'=∅ := by 
-  rw [Finset.eq_empty_iff_forall_not_mem] 
-  intro x
-  intro xInS'
-  rcases all x with h_1|h_2
-  · rw [h_1] at xInS'
-    exact disjoint_finset h hA xInS'
-  · rcases h_2 with h_3|h_4
-    · rw [h_3] at xInS'
-      exact disjoint_finset h hB xInS'
-    · rw [h_4] at xInS'
-      exact disjoint_finset h hC xInS'
-
--- if one is empty then the other eq_all
-theorem S_union_S'_eq_univ
-{inst : DecidableEq K} {inst2 : Fintype K} {A B C : K} {S S' : Finset K}
-(all : ∀(x:K), x=A ∨ x=B ∨ x=C)
-(Or : ∀(x:K), x ∈ S ∨ x ∈ S')
-: S ∪ S' = Finset.univ := by  
-  #check Set.eq_of_subset_of_subset
-  #check Finset.eq_of_subset_of_card_le
-  #check Finset.card_le_univ
-  #check Finset.subset_univ
-  --apply Finset.eq_of_subset_of_card_le
-  --· apply Finset.subset_univ
-  --· sorry
-
-  apply Finset.ext
-  intro a
-  constructor
-  · #check Finset.mem_univ
-    intro 
-    apply Finset.mem_univ
-  · have : S ∪ S' = {A,B,C} := by 
-      apply Finset.ext 
-      intro b
-      constructor
-      · intro t
-        #check mem_iff_or_finset
-        rw [mem_iff_or_finset]
-        exact all b
-      · intro t
-        #check Finset.mem_union 
-        rw [Finset.mem_union]
-        exact Or b
-
-    intro inU
-    rw [this]
-    #check univ_iff_all
-    have Ueq : Finset.univ ={A,B,C}:= (univ_iff_all).mpr all
-    rw [←Ueq]
-    trivial
-
-theorem empty_eq_all {inst : DecidableEq K} {A B C : K} {S S' : Finset K}
-{inst2 : Fintype K}
-{all : ∀(x:K), x=A ∨ x=B ∨ x=C}
-{Or : ∀(x:K), x ∈ S ∨ x ∈ S'}
-(Semp : S= ∅ ) : S' ={A,B,C} := by 
-  #check S_union_S'_eq_univ
-  have : S ∪ S' = Finset.univ := S_union_S'_eq_univ all Or
+{all2 : ∀ (x : Inhabitant), x = A ∨ x = B ∨ x = C}
+ {S : Finset Inhabitant}
+ {inst : Fintype Inhabitant}
+: S ⊆ ({A,B,C} : Finset Inhabitant) := by 
+  have all := all2
   #check univ_iff_all
-  have U: Finset.univ = {A,B,C} := (univ_iff_all).mpr all
-  rw [U] at this
-  rw [Semp] at this
-  simp at this
-  #check Finset.empty_union
-  assumption
-
-theorem all3_in_one_other_eq_all {inst : DecidableEq K} {A B C : K} {S S' : Finset K}
-{all : ∀(x:K), x=A ∨ x=B ∨ x=C}
-(hA : A ∈ S)
-(hB : B ∈ S)
-(hC : C ∈ S)
-(h : S ∩ S'= ∅ ) : S={A,B,C} := by 
-  apply Finset.ext
-  intro a
-  constructor
-  · intro aInS
-    -- S is the whole universe, so S' empty
-    -- S = Finset.univ , Finset.univ ∩ S' = ∅ #check Finset.inter
-    sorry
-  · sorry 
-
-theorem everyone_in_set_eq {inst : DecidableEq K} {S : Finset K} {A B C : K} (all : ∀ (x : K), x = A ∨ x = B ∨ x = C) : (A ∈ S ∧ B ∈ S ∧ C ∈ S) ↔ (S = ({A,B,C} : Finset K) ) := by 
-  constructor
-  · intro allknaves
-    #check Finset.ext_iff
-    apply Finset.ext
-    intro a
-    constructor
-    · intro aKn
-      rcases all a with h|h
-      · rw [h]
-        is_mem
-      · rcases h with h_1|h_1 <;> rw [h_1] ; is_mem
-
-    · intro aIn
-      rcases all a with h|h
-      · rw [h]  
-        exact allknaves.left
-      · rcases h with h_1|h_1
-        · rw [h_1]
-          exact allknaves.right.left
-        · rw [h_1]
-          exact allknaves.right.right
-
-  · intro KnaveEveryone
-    rw [KnaveEveryone]
-    constructor
-    · is_mem
-    · constructor
-      · is_mem
-      · is_mem
-
-theorem two_in_one_other_nonemp {inst : DecidableEq K} {A B C : K} {S S' : Finset K}
-(all : ∀ (x : K), x = A ∨ x = B ∨ x = C)
-(Or : ∀(x:K), x ∈ S ∨ x ∈ S')
-(hA : A ∈ S)
-(hB : B ∈ S)
-(notall : S ≠ ({A,B,C} : Finset K) ) : S' ≠ ∅ := by 
-  intro S'emp
-  --rw [Finset.eq_empty_iff_forall_not_mem] at S'emp
-  have hnC : C ∉ S := by 
-    intro hC 
-    #check all3_in_one_other_empty 
-    #check everyone_in_set_eq
-    exact notall ((everyone_in_set_eq all).mp ⟨hA,⟨hB,hC⟩ ⟩  )
-    --exact all3_in_one_other_empty hA hB hC h
-  have := Or C
-  simp [hnC] at this
-  rw [S'emp] at this
-  contradiction
-
-
-#check univ_iff_all
-theorem univ_set_iff_or 
-{K : Type}
-{x : K}
-{inst : DecidableEq K} {A B C : K} 
-{inst3 : DecidableEq Bool}
-{inst2 : Fintype K}
-: (x = A ∨ x = B ∨ x = C) ↔ x ∈ ({A,B,C} : Finset K) := by 
-  #check univ_iff_all
-  --rw [univ_iff_all inst2 inst] 
-  constructor 
-  · 
-    #check mem_iff_or
-    intro ors
-    have := (@mem_iff_or_finset _ inst _ _ _ x).mpr ors
-    assumption
-    --exact fun a ↦ (fun {K} {inst} {A B C x} ↦ mem_iff_or_finset.mpr) a
-
-    --intro all
-    --have U : Finset.univ = {A, B, C} := (univ_iff_all inst2 inst).mpr (all)
-    --rw [←U]
-    --exact Finset.mem_univ x
-  · intro mem
-    exact mem_iff_or_finset.mp mem
-
-
-
-theorem every_elt_in_univ {inst : DecidableEq K} {A B C : K} 
-{inst2 : Fintype K}
-{all : ∀ (x : K), x = A ∨ x = B ∨ x = C}
-: ∀(x:K), x ∈ ({A,B,C} : Finset K) := by 
-  --have : Finset.univ = {A,B,C} := univ_iff_all.mpr all
   rw [(univ_iff_all).symm] at all
   rw [←all]
-  intro x
-  exact Finset.mem_univ x
+  exact Finset.subset_univ S
 
-theorem not_eq_singleton_of_not_mem {A : K} {S : Finset K} (h : A ∉ S) : S ≠ {A} := by 
-  intro eq
-  have := mem_of_eq_singleton eq
-  contradiction
+macro "by_universe" : tactic =>
+  `(tactic| (apply set_subset_univ; assumption))
 
-theorem already_full 
-{A B : K}
-{S : Finset K}
-(hA : A ∈ S)
-(either_single : S={A} ∨ S={B})
-(AneB : A ≠ B)
-: S={A} := by
-  rcases either_single with h|h
-  assumption
-  
-  rw [h] at hA 
-  rw [Finset.mem_singleton] at hA
-  exfalso 
-  contradiction
-
-
-theorem full2_helper  
-{C : K}
-(S : Finset K) 
-{inst : DecidableEq K}
-{inst2 : Fintype K}
-(pair : S = {A,B})
-
-(AneB : A ≠ B)
-(BneC : B ≠ C)
-(AneC : A ≠ C)
-: C ∉ S := by {
-  intro CinS
-  rw [pair] at CinS
-  rw [Finset.mem_insert] at CinS
-  rw [Finset.mem_singleton] at CinS
-
-  cases CinS 
-  symm at AneC
-  contradiction
-  symm at BneC
-  contradiction
-
-}
-
-theorem full2 
-{A B C : K}
-(S : Finset K) 
-{inst : DecidableEq K}
-{inst2 : Fintype K}
-(AinS: A ∈ S)
-(BinS: B ∈ S)
-(Two : S.card =2)
-(AneB : A ≠ B)
-(BneC : B ≠ C)
-(AneC : A ≠ C)
-(all : ∀(x:K),x=A ∨ x=B ∨ x=C)
-: C ∉ S := by {
-  rw [Finset.card_eq_two] at Two
-  have ⟨x,y,_,main⟩ := Two
-  #check full2_helper
-  -- full2_helper not as helpful as anticipated
-  sorry
-  /-
-  #check Finset.card_le_two
-  intro CinS
-  #check Finset.card_eq_two
-  have two := Two
-  rw [Finset.card_eq_two] at Two
-
-  --have ⟨x,y,xney,Seqxy⟩ := Two
-  --rw [Seqxy] at AinS  
-  --rw [Seqxy] at BinS  
-  --rw [Seqxy] at CinS  
-
-  have : S.card=3 := by 
-    rw [Finset.card_eq_three]
-    use A
-    use B
-    use C
-    constructor
-    assumption
-    constructor
-    assumption
-    constructor
-    assumption
-    #check univ_iff_all 
-    #check Finset.eq_iff_card_le_of_subset
-    rw [(univ_iff_all).symm] at all
-    have : {A,B,C} ⊆ S := by
-      intro x
-      intro hx
-      #check mem_iff_or_finset
-      rw [mem_iff_or_finset] at hx
-      rcases hx  with h|h
-      rw [←h] at AinS
-      assumption
-      rcases h with h_1|h_1
-      rw[h_1] 
-      assumption
-      rw[h_1] 
-      assumption
-
-    #check Finset.eq_of_subset_of_card_le
-    --#check Finset.card_le_of_subset
-    apply Finset.eq_of_subset_of_card_le
-    rw [←all]
-    apply Finset.subset_univ S
-    --#check Finset.card_le_of_subset
-    -- make my own theorem which would avoid using Finset.card_le_of_subset
-    apply Finset.card_le_card
-    assumption
-    --sorry
-  rw [two] at this
-  contradiction
--/
-}
-
--- transition from finset to set stuff and vice versa
--- this2: B ∈ Set.toFinset (Knight) := by
--- {hK : Finset Knight}
--- this was being considered when Set was still used, but now everything if Finset
-theorem memToFinset (Knight : Set K ) {finKnight : Fintype Knight}  (AKnight : A ∈ Knight) : A ∈ (Set.toFinset Knight) := by  
-  have FinKnight:= Set.toFinset Knight
-  exact Set.mem_toFinset.mpr AKnight
-
-
-theorem inleft_notinright_finset
-{S S' : Finset K}
-{inst : DecidableEq K}
-{A : K}
-(h : S ∩ S' = ∅ )
-(h' : A ∈ S) : A ∉ S' := by
-  intro a
-  have := Finset.mem_inter_of_mem h' a
-  rw [h] at this
-  contradiction
-
-theorem notinleft_inright
-{S S' : Finset K}
-{A : K}
-(SorS' : A ∈ S ∨ A ∈ S')
-(h' : A ∉ S) : A ∈ S' := by
-  exact notleft_right SorS' h'
-
-theorem inright_notinleft_finset
-{S S' : Finset K}
-{inst : DecidableEq K}
-{A : K}
-(h : S ∩ S' = ∅ )
-(h' : A ∈ S') : A ∉ S := by
-  intro a
-  have := Finset.mem_inter_of_mem h' a
-  rw [Finset.inter_comm] at h
-  rw [h] at this
-  contradiction
-
-theorem notinright_inleft
-{S S' : Finset K}
-{A : K}
-(SorS' : A ∈ S ∨ A ∈ S')
-(h' : A ∉ S') : A ∈ S := by
-  exact notright_left SorS' h'
-
--------------------
-theorem inleft_notinrightIff
-
-{S S' : Finset K}
-{A : K}
-{inst : DecidableEq K}
-(h : S ∩ S' = ∅ )
-(SorS' : A ∈ S ∨ A ∈ S')
-: A ∈ S ↔  ¬(A ∈ S') := by
-  constructor
-  · exact inleft_notinright_finset h
-  · exact notinright_inleft SorS'
-
-theorem notinleft_inrightIff
-{S S' : Finset K}
-{A : K}
-{inst : DecidableEq K}
-(h : S ∩ S' = ∅ )
-(SorS' : A ∈ S ∨ A ∈ S')
-: A ∉ S ↔  A ∈ S' := by
-  constructor
-  · exact notinleft_inright SorS'
-  · exact inright_notinleft_finset h
-
-theorem inright_notinleftIff
-{S S' : Finset K}
-{A : K}
-{inst : DecidableEq K}
-(h : S ∩ S' = ∅ )
-(SorS' : A ∈ S ∨ A ∈ S')
-: A ∈ S' ↔  A ∉ S := by
-  constructor
-  · exact inright_notinleft_finset h
-  · exact notleft_right SorS'
-
-theorem notinright_inleftIff
-{S S' : Finset K}
-{A : K}
-{inst : DecidableEq K}
-(h : S ∩ S' = ∅ )
-(SorS' : A ∈ S ∨ A ∈ S')
- : A ∉ S' ↔  A ∈ S := by
-  constructor
-  · exact notinright_inleft SorS'
-  · exact inleft_notinright_finset h

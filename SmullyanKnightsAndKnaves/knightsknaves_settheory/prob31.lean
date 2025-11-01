@@ -27,7 +27,7 @@ example
   have notallknave := stAn.mp AKnave
   have BKnight : B ∈ Knight
   set_knight_to_knave
-  intro BKnave 
+  intro BKnave
   have notoneKnight := stBn.mp BKnave
   unfold allKnave at notallknave
   simp [AKnave,BKnave] at notallknave
@@ -53,6 +53,8 @@ example
 {stAn : A ∈ Knave ↔ Knave ≠ {A,B,C}}
 {stB : B ∈ Knight ↔ Knight = {A} ∨ Knight = {B} ∨ Knight = {C} }
 {stBn : B ∈ Knave ↔ ¬(Knight = {A} ∨ Knight = {B} ∨ Knight = {C}) }
+{all2:  ∀ (x : Inhabitant), x = A or x = B or x = C
+}
 : A ∈ Knave ∧ B ∈ Knight ∧ C ∈ Knave := by
   have AKnave : A ∈ Knave
   set_knave_to_knight
@@ -72,22 +74,26 @@ example
   --rw [Finset.eq_singleton_iff_unique_mem] 
   have KnighteqC : Knight = {C}
   apply Finset.Subset.antisymm
-  have : Knight ⊆ {A,B,C} := by by_universe
+  have : Knight ⊆ {A,B,C} := by 
+   by_universe
+   assumption
+
   set_knave_to_knight at AKnave
   remove_top at this
   set_knave_to_knight at BKnave
   remove_top at this
 
   intro a h
-  mem_set at h
+  mem_finset at h
   rw [h]
   set_knight_to_knave
   intro CKnave
   have allknave : Knave = {A,B,C}
   apply Finset.Subset.antisymm
   by_universe
+  assumption
   intro a h
-  mem_set at h
+  mem_finset at h
   rcases h with h|h|h
   rw [h] ; assumption
   rw [h] ; assumption
@@ -109,26 +115,98 @@ example
   set_knave_to_knight
   intro CKnight
   rw [singleton] at CKnight
-  mem_set at CKnight
+  mem_finset at CKnight
   symm at CKnight ; contradiction
   constructor ; assumption
   constructor ; assumption ; assumption
 
   rw [singleton] at BKnight
-  mem_set at BKnight ; contradiction
+  mem_finset at BKnight ; contradiction
 
 #check Finset.singleton_subset_iff
 #check Finset.singleton_subset_singleton
 #check Finset.singleton_subset_set_iff
 
+
+theorem mem_of_eq_singleton 
+{K : Type}
+{S : Finset K} {A : K} (h : S={A}) : A ∈ S := by 
+  rw [h]
+  is_mem
+
+
+theorem everyone_in_set_eq 
+{K : Type}
+{inst : DecidableEq K} {S : Finset K} {A B C : K} (all3 : ∀ (x : K), x = A ∨ x = B ∨ x = C) : (A ∈ S ∧ B ∈ S ∧ C ∈ S) ↔ (S = ({A,B,C} : Finset K) ) := by 
+  constructor
+  · intro allS
+    #check Finset.ext_iff
+    apply Finset.ext
+    intro a
+    constructor
+    · intro aKn
+      rcases all3 a with h|h|h
+<;> rw [h] ; is_mem
+
+    · intro aIn
+      rcases all3 a with h|h|h
+<;> rw [h]
+      · exact allS.left
+      · exact allS.right.left
+      · exact allS.right.right
+
+  · intro SEveryone
+    rw [SEveryone]
+    constructor <;> try constructor
+    is_mem
+
+
+#check Finset.eq_empty_iff_forall_not_mem
+theorem two_in_one_other_nonemp 
+{K : Type}
+{inst : DecidableEq K} {A B C : K} {S S' : Finset K}
+(all : ∀ (x : K), x = A ∨ x = B ∨ x = C)
+(hA : A ∈ S)
+(hB : B ∈ S)
+(Or : ∀(x:K), x ∈ S ∨ x ∈ S')
+(notall : S ≠ ({A,B,C} : Finset K) ) : S' ≠ ∅ := by 
+  -- union axiom is interesting here where S ∪ S' = {A,B,C}
+  intro S'emp
+  have hnC : C ∉ S := by 
+    intro hC
+    exact notall ((everyone_in_set_eq all).mp ⟨hA,⟨hB,hC⟩ ⟩  )
+  have : C ∈ S' := by exact notinleft_inright (Or C) hnC
+  rw [S'emp] at this
+  contradiction
+
+theorem not_eq_singleton_of_not_mem
+{K : Type}
+{A : K} {S : Finset K} (h : A ∉ S) : S ≠ {A} := by 
+  intro eq
+  have := mem_of_eq_singleton eq
+  contradiction
+
+
+theorem already_full 
+{K : Type}
+{A B : K}
+{S : Finset K}
+(hA : A ∈ S)
+(either_single : S={A} ∨ S={B})
+(AneB : A ≠ B)
+: S={A} := by
+  rcases either_single with h|h
+  assumption
+
+  rw [h] at hA 
+  rw [Finset.mem_singleton] at hA
+  exfalso 
+  contradiction
+
 example
   {inst : DecidableEq Inhabitant}
+  {inst2 : Fintype Inhabitant}
   {all : ∀(x : Inhabitant), x = A ∨ x = B ∨ x = C}
-{h : Knight ∩ Knave = ∅ }
-  {Or : ∀(x:Inhabitant), x ∈ Knave ∨ x ∈ Knight}
-{h1 : A ∈ Knight ∨ A ∈ Knave }
-{h2: B ∈ Knight ∨ B ∈ Knave }
-{h3: C ∈ Knight ∨ C ∈ Knave }
 {stA : A ∈ Knight  ↔ (Knave={A,B,C}) }
 {stAn : A ∈ Knave ↔ ¬ (Knave={A,B,C}) }
 {stB: B ∈ Knight ↔ (Knight = {A} ∨ Knight = {B} ∨ Knight = {C}) }
@@ -142,7 +220,7 @@ example
     set_knave_to_knight
     intro AKnight
     have everyoneknave := stA.mp AKnight  
-    have AKnave: A ∈ Knave := by rw [everyoneknave] ; apply Finset.mem_insert_self
+    have AKnave: A ∈ Knave := by rw [everyoneknave] ; is_mem
     contradiction
   have notallknave := stAn.mp AKnave
   have AnKnight: Knight ≠ {A} := by 
@@ -154,13 +232,29 @@ example
     set_knight_to_knave
     intro BKnave
     have CnKnave : C ∉ Knave := by 
-      intro CKnave 
+      intro CKnave
       have : Knave = {A,B,C} := by 
         #check everyone_in_set_eq
         exact (everyone_in_set_eq all).mp ⟨AKnave,BKnave ,CKnave⟩
       contradiction 
     -- so Knight = {C} so B knight, contradiction 
-    sorry
+    have : Knight = {C} := by
+      apply Finset.Subset.antisymm
+      · have : Finset.univ = {A,B,C} := by exact univ_iff_all.mpr all
+        have : Knight ⊆ {A,B,C} := by  
+          by_universe
+          exact inst2
+        set_knave_to_knight at AKnave
+        set_knave_to_knight at BKnave
+        remove_top at this
+        remove_top at this
+      · intro a h
+        mem_finset at h
+        rw [h]
+        set_knight_to_knave
+        assumption
+    simp [this] at stB
+    contradiction
   have BKnight : B ∈ Knight := by 
     set_knight_to_knave
     intro BKnave
@@ -168,14 +262,13 @@ example
     push_neg at notoneknight
     -- by stAn, C is a knight because otherwise Knave={A,B,C}. then knight={C} contradiction
     -- since ¬Knave={A,B,C} then Knight is not empty. If C knave, then knight empty or then Knave={A,B,C} contradition. So C not knave, i.e C Knight but if C Knight then Knight ={C} contradiction
-    #check Finset.univ
-    #check all2_in_one_other_empty
-    #check all3_in_one_other_empty
-    #check all3_in_one_other_eq_all
-    #check two_in_one_other_nonemp 
-    --rw [or_comm] at Or
-    have S'nonemp := two_in_one_other_nonemp all Or AKnave BKnave notallknave
-    #check set_subset_univ
+    --#check all3_in_one_other_empty
+    --#check all3_in_one_other_eq_all
+    --#check two_in_one_other_nonemp 
+    have Or := KorKn
+    simp [or_comm] at Or
+    -- instead of other nonemp , instead have other is singleton
+    have S'nonemp := two_in_one_other_nonemp all  AKnave BKnave (Or) notallknave
     have : Knight ={C} := by 
       rw [Finset.eq_singleton_iff_nonempty_unique_mem] 
       constructor
@@ -204,7 +297,7 @@ example
   #check not_eq_singleton_of_not_mem
   set_knave_to_knight at AKnave
   have KneA := not_eq_singleton_of_not_mem AKnave 
-   
+
   #check already_full
   have := already_full BKnight Knightsingle BneC
   have : C ∉ Knight := by 
@@ -241,13 +334,8 @@ example
     intro a
     constructor
     · intro ainS
-      apply (mem_iff_or_finset).mpr
-      exact all a
-
-      --cases all a
-      ---- make thm first_mem, second_mem third_mem, this is a repeated pattern of reasoning
-      --· rw [h]
-      --  apply Finset.mem_insert_self
-      --· sorry
+      rcases all a with h|h|h <;> rw[h] ; is_mem
+      --apply (mem_iff_or_finset).mpr
+      --exact all a
     · exact fun _ => this a
   contradiction

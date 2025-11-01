@@ -47,8 +47,6 @@ example
   have CKnight :=  stC.mpr this
   constructor ; assumption ; assumption
 
-
-
 example
 {inst2 : Fintype Inhabitant}
 (stB : (B ∈ Knight) ↔ (A ∈ Knight ↔Knight.card = 1))
@@ -82,16 +80,13 @@ example
   sorry
   sorry
 
-
-
-
-
-
 example
 {inst2 : Fintype Inhabitant}
 (stB : (B ∈ Knight) ↔ (A ∈ Knight ↔ Knight = {A} ∨ Knight = {B} ∨ Knight = {C}))
 (stC : ( C ∈ Knight ↔ B ∈ Knave) )
 (stCn : ( C ∈ Knave ↔ B ∈ Knight) )
+
+{all2 : ∀ (x : Inhabitant), x = A ∨ x = B ∨ x = C}
 
   : B ∈ Knave ∧ C ∈ Knight := by 
   have BKnave : B ∈ Knave
@@ -104,20 +99,21 @@ example
   rcases oneKnight with singleton|singleton|singleton
   · 
     rw [singleton] at BKnight
-    mem_set at BKnight
+    mem_finset at BKnight
     contradiction
   
   · rw [singleton] at AKnight
-    mem_set at AKnight
+    mem_finset at AKnight
     contradiction
   · rw [singleton] at AKnight
-    mem_set at AKnight
+    mem_finset at AKnight
     contradiction
 
   have : Knight = {B} := by
     apply Finset.Subset.antisymm
-    · have : Knight ⊆ {A,B,C}
+    · have : Knight ⊆ ({A,B,C} : Finset Inhabitant)
       by_universe
+      assumption
       set_knave_to_knight at CKnave
       set_knave_to_knight at AKnave
       remove_top at this
@@ -125,7 +121,7 @@ example
       remove_top at this
 
     · intro a h 
-      mem_set at h ; rw [h] 
+      mem_finset at h ; rw [h] 
       assumption
   have AKnight : A ∈ Knight
   rw [stA]
@@ -149,7 +145,7 @@ by
     rw [stC]
     rw [stCn]
     simp
-    exact KorKn
+    exact KorKn B
 
   -- we know that there is at least one knight, if A were a knight then they are two but this woudl contradict A's statement
   set_knight_or_knave A with AKnight AKnave
@@ -160,9 +156,9 @@ by
         rw [Finset.card_eq_one] at OneKnight
         have ⟨x,xK⟩ := OneKnight 
         rw [xK] at AKnight
-        mem_set at AKnight
+        mem_finset at AKnight
         rw [xK] at BKnight
-        mem_set at BKnight
+        mem_finset at BKnight
         rw [←AKnight] at BKnight
         contradiction
 
@@ -170,9 +166,9 @@ by
         rw [Finset.card_eq_one] at OneKnight
         have ⟨x,xK⟩ := OneKnight 
         rw [xK] at AKnight
-        mem_set at AKnight
+        mem_finset at AKnight
         rw [xK] at CKnight
-        mem_set at CKnight
+        mem_finset at CKnight
         rw [←CKnight] at AKnight
         contradiction
 

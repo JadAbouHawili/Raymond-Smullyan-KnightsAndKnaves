@@ -54,7 +54,7 @@ example
   have allKnave := stA.mp AKnight
   have AKnave : A ∈ Knave 
   rw [allKnave]
-  is_mem
+  mem_finset
   contradiction
 
   have notallKnave := stAn.mp AKnave

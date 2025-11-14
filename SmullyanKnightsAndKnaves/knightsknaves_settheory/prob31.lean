@@ -62,7 +62,7 @@ example
   have allknave := stA.mp AKnight
   have AKnave : A ∈ Knave
   rw [allknave]
-  is_mem
+  mem_finset
   contradiction
 
   have notallknave := stAn.mp AKnave
@@ -79,6 +79,7 @@ example
    assumption
 
   set_knave_to_knight at AKnave
+  #check Finset.subset_insert_iff_of_not_mem
   remove_top at this
   set_knave_to_knight at BKnave
   remove_top at this
@@ -108,7 +109,7 @@ example
   have oneKnight := stB.mp BKnight
   rcases oneKnight with singleton|singleton|singleton
   have AKnight : A ∈ Knight
-  rw [singleton] ; is_mem
+  rw [singleton] ; mem_finset
   contradiction
 
   have CKnave : C ∈ Knave
@@ -130,9 +131,9 @@ example
 
 theorem mem_of_eq_singleton 
 {K : Type}
-{S : Finset K} {A : K} (h : S={A}) : A ∈ S := by 
+{S : Finset K} {A : K} (h : S={A}) : A ∈ S := by
   rw [h]
-  is_mem
+  mem_finset
 
 
 theorem everyone_in_set_eq 
@@ -146,7 +147,7 @@ theorem everyone_in_set_eq
     constructor
     · intro aKn
       rcases all3 a with h|h|h
-<;> rw [h] ; is_mem
+<;> rw [h] ; mem_finset
 
     · intro aIn
       rcases all3 a with h|h|h
@@ -158,7 +159,7 @@ theorem everyone_in_set_eq
   · intro SEveryone
     rw [SEveryone]
     constructor <;> try constructor
-    is_mem
+    mem_finset
 
 
 #check Finset.eq_empty_iff_forall_not_mem
@@ -220,7 +221,7 @@ example
     set_knave_to_knight
     intro AKnight
     have everyoneknave := stA.mp AKnight  
-    have AKnave: A ∈ Knave := by rw [everyoneknave] ; is_mem
+    have AKnave: A ∈ Knave := by rw [everyoneknave] ; mem_finset
     contradiction
   have notallknave := stAn.mp AKnave
   have AnKnight: Knight ≠ {A} := by 
@@ -283,8 +284,7 @@ example
           contradiction
         · rcases h_2 with h_3|h_4
           · rw [h_3] at xKnight
-            exfalso
-            exact disjoint xKnight BKnave
+            contradiction
           · assumption
     have := notoneknight.right.right 
     contradiction
@@ -334,8 +334,7 @@ example
     intro a
     constructor
     · intro ainS
-      rcases all a with h|h|h <;> rw[h] ; is_mem
-      --apply (mem_iff_or_finset).mpr
-      --exact all a
+      mem_finset
+      exact all a
     · exact fun _ => this a
   contradiction

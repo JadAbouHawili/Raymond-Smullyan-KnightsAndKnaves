@@ -32,9 +32,9 @@ theorem univ_iff_all2
     intro hx
     rcases all x with h|h
     · rw [h]
-      is_mem
+      mem_finset
     · rw [h]
-      is_mem
+      mem_finset
     apply Finset.card_le_card
     apply Finset.subset_univ
 

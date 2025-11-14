@@ -8,19 +8,16 @@ infixr:35 " and " => And
 infixr:30 " or  "  => Or
 
 macro "mem_finset": tactic =>
-  do`(tactic| repeat simp only [Finset.mem_insert,Finset.mem_singleton] )
+  do`(tactic| repeat simp only [Finset.mem_insert,Finset.mem_singleton,true_or,or_true] )
 
 macro "mem_finset" "at" t1:Lean.Parser.Tactic.locationHyp : tactic =>
   do`(tactic| repeat simp only [Finset.mem_insert,Finset.mem_singleton] at $t1)
+
 
 macro "mem_set": tactic =>
   do`(tactic| repeat simp only [Set.mem_insert,Set.mem_singleton] )
 macro "mem_set" "at" t1:Lean.Parser.Tactic.locationHyp : tactic =>
   do`(tactic| repeat simp only [Set.mem_insert,Set.mem_singleton] at $t1)
-
-
-macro "is_mem2" : tactic =>
-  do`(tactic| first |(apply Finset.mem_singleton_self) | (apply Finset.mem_insert_self) | apply Finset.mem_insert_of_mem)
 
 --  a ∈ {a}
 #check Finset.mem_singleton_self
@@ -28,10 +25,6 @@ macro "is_mem2" : tactic =>
 #check Finset.mem_insert_self
 -- a ∈ s → a ∈ insert b s
 #check Finset.mem_insert_of_mem
-
-macro "is_mem" : tactic =>
-  do`(tactic | repeat is_mem2)
-
 
 #check Finset.mem_inter.mpr
 theorem disjoint_finset
@@ -201,8 +194,7 @@ theorem univ_iff_all {K : Type} {inst : Fintype K} {inst2 : DecidableEq K} {A B 
 
     · exact fun a_1 => Finset.mem_univ a
 
-
-theorem set_subset_univ  
+theorem set_subset_univ
 {Inhabitant : Type}
 {inst : DecidableEq Inhabitant}
 {A B C : Inhabitant}

@@ -1,7 +1,6 @@
 import SmullyanKnightsAndKnaves.knightsknaves
 open settheory_approach
-#check 2=2
-#check Finset.card_eq_one
+
 example
 {inst : DecidableEq Inhabitant}
 
@@ -41,8 +40,7 @@ example
 
   rw [not_iff_not.symm] at stx
 
-  rw [notinleft_inrightIff] at stx
-  rw [notinleft_inrightIff] at stx
+  set_knight_to_knave at stx
   rw [stx]
   simp
 
@@ -52,15 +50,12 @@ example
   rw [sty] at h_1
   rw [stx] at h_1
   nth_rw 1 [stx.symm] at h_1
-  rw [inright_notinleftIff]  at h_1
-  rw [inright_notinleftIff]  at h_1
+  set_knave_to_knight at h_1
   rcases h_1 with ⟨a,b⟩|⟨a',b'⟩
   contradiction
   contradiction
 
   assumption
-
-
 
 --You have met a group of 3 islanders. Their names are Oberon, Tracy, and Wendy.
 --
@@ -83,14 +78,16 @@ example
   : Tracy ∈ Knave ∧ Oberon ∈ Knave ∧ Wendy ∈ Knight := by
   {
     have OberonKnave : Oberon ∈ Knave := by {
-      by_contra OberonKnight
-      rw [notinright_inleftIff] at OberonKnight
-      have := stO.mp OberonKnight
-      exact disjoint OberonKnight this.right
+      set_knave_to_knight
+      intro OberonKnight
+      have ⟨_,_⟩  := stO.mp OberonKnight
+      apply disjoint
+      exact OberonKnight
+      assumption
     }
     have WendyKnight := stW.mpr OberonKnave
     have TracyKnave : Tracy ∈ Knave := by {
-      rw [inleft_notinrightIff] at WendyKnight
+      set_knight_to_knave at WendyKnight
       exact stTn.mpr WendyKnight
     }
 

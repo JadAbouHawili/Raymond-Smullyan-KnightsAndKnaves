@@ -5,6 +5,7 @@ open settheory_approach
 set_option push_neg.use_distrib true
 
 variable [DecidableEq Inhabitant]
+variable [Fintype Inhabitant]
 
 -- A : all of us are knaves
 -- B : exactly one of us is a knight
@@ -47,8 +48,92 @@ example
   simp [AKnave,BKnight] at OneKnight
   assumption
 
+
 example
-{inst2 : Fintype Inhabitant}
+{stA : A ∈ Knight ↔ Knave = {A,B,C}}
+{stAn : A ∈ Knave ↔ Knave ≠ {A,B,C}}
+{stB : B ∈ Knight ↔ Knight = {A} ∨ Knight = {B} ∨ Knight = {C} }
+{stBn : B ∈ Knave ↔ ¬(Knight = {A} ∨ Knight = {B} ∨ Knight = {C}) }
+{all2:  Knight ∪ Knave = {A,B,C}}
+: A ∈ Knave ∧ B ∈ Knight ∧ C ∈ Knave := by
+  have AKnave : A ∈ Knave
+  set_knave_to_knight
+  intro AKnight
+  have notallKnave := stA.mp AKnight
+  have : A ∈ Knave 
+  rw [notallKnave] ; mem_finset
+  contradiction
+
+  have notallKnave := stAn.mp AKnave
+  have : Knight ≠ ∅ := by
+    rw [←all2] at notallKnave
+    intro h
+    rw [h] at notallKnave
+    simp at notallKnave
+  #check Finset.nonempty_iff_eq_singleton_default 
+  #check Finset.ne_empty_of_mem
+  #check Finset.nonempty_iff_ne_empty
+  rw [Finset.nonempty_iff_ne_empty.symm] at this
+  have : ∃a, a ∈ Knight := by exact this
+  #check Finset.nonempty_iff_eq_singleton_default
+  have BKnight : B ∈ Knight
+  set_knight_to_knave
+  intro BKnave
+  have knight_not_eq_singleton := stBn.mp BKnave
+  have : C ∈ Knight := by
+    have ⟨a,ha⟩ := this
+
+    have all2:= all a
+    rcases all a with h|h|h
+    simp_all [h,ha]
+    simp_all [h,ha]
+    simp_all [h,ha]
+    --rw [h] at ha; assumption
+    --rw [h] at ha; contradiction
+
+  -- can also use this
+  -- primitive , proving two sets are equal and there are two ways , either subset.antisymm or unique_mem(all is needed so that would be introduced as a primitive as well)
+  have KnighteqC : Knight = {C}
+  rw [Finset.eq_singleton_iff_unique_mem]
+  constructor
+  assumption
+  intro x h
+  -- similar reasoning
+  rcases all x with h|h|h
+  simp_all [h]
+  simp_all [h]
+  simp_all [h]
+  simp_all
+
+/-
+  have knight_singleton := stB.mp BKnight
+  rw [Finset.eq_singleton_iff_unique_mem] at knight_singleton
+  simp [AKnave,knight_notknaveIff] at knight_singleton
+  -/
+  have knight_not_A: Knight ≠ {A}
+  intro h
+  rw [h] at BKnight
+  mem_finset at BKnight
+  contradiction
+
+  have knight_not_C: Knight ≠ {C}
+  intro h
+  rw [h] at BKnight
+  mem_finset at BKnight
+  contradiction
+
+  have : Knight = {B}
+  simp [knight_not_A,knight_not_C,BKnight] at stB
+  assumption
+
+  conv at stA => simp
+  --simp_rw [] at stA
+  -- after simp , hypothesis goes to bottom
+
+/-
+
+
+example
 {stA : A ∈ Knight ↔ Knave = {A,B,C}}
 {stAn : A ∈ Knave ↔ Knave ≠ {A,B,C}}
 {stB : B ∈ Knight ↔ Knight = {A} ∨ Knight = {B} ∨ Knight = {C} }
@@ -62,21 +147,25 @@ example
   have allknave := stA.mp AKnight
   have AKnave : A ∈ Knave
   rw [allknave]
+  -- primitive of proving A ∈ {A,B,C}... , introduce Finset.mem_insert
   mem_finset
   contradiction
 
+  -- replcae all2 with knight ∪ knave = {A,B,C}
   have notallknave := stAn.mp AKnave
   have BKnight : B ∈ Knight
   set_knight_to_knave
   intro BKnave
 
   -- can also use this
-  --rw [Finset.eq_singleton_iff_unique_mem] 
+  -- primitive , proving two sets are equal and there are two ways , either subset.antisymm or unique_mem(all is needed so that would be introduced as a primitive as well)
   have KnighteqC : Knight = {C}
+  --rw [Finset.eq_singleton_iff_unique_mem]
+
+  rw [Finset.ext_iff]
   apply Finset.Subset.antisymm
   have : Knight ⊆ {A,B,C} := by 
-   by_universe
-   assumption
+    by_universe
 
   set_knave_to_knight at AKnave
   #check Finset.subset_insert_iff_of_not_mem
@@ -90,16 +179,23 @@ example
   set_knight_to_knave
   intro CKnave
   have allknave : Knave = {A,B,C}
+  rw[Finset.ext_iff]
+  mem_finset
+  intro x
+  simp [all2]
+  sorry
+
+/-
   apply Finset.Subset.antisymm
   by_universe
-  assumption
-  intro a h
-  mem_finset at h
-  rcases h with h|h|h
+  intro a' h'
+  mem_finset at h'
+  rcases h' with h|h|h
   rw [h] ; assumption
   rw [h] ; assumption
   rw [h] ; assumption
   contradiction
+  -/
 
   have BKnight : B ∈ Knight
   rw [stB]
@@ -108,21 +204,25 @@ example
 
   have oneKnight := stB.mp BKnight
   rcases oneKnight with singleton|singleton|singleton
-  have AKnight : A ∈ Knight
-  rw [singleton] ; mem_finset
-  contradiction
+  -- use theorem here
+  · 
+    have AKnight : A ∈ Knight
+    rw [singleton] ; mem_finset
+    contradiction
 
-  have CKnave : C ∈ Knave
-  set_knave_to_knight
-  intro CKnight
-  rw [singleton] at CKnight
-  mem_finset at CKnight
-  symm at CKnight ; contradiction
-  constructor ; assumption
-  constructor ; assumption ; assumption
+  · 
+    have CKnave : C ∈ Knave
+    set_knave_to_knight
+    intro CKnight
+    rw [singleton] at CKnight
+    mem_finset at CKnight
+    contradiction
+    constructor ; assumption
+    constructor ; assumption ; assumption
 
-  rw [singleton] at BKnight
-  mem_finset at BKnight ; contradiction
+  · 
+    rw [singleton] at BKnight
+    mem_finset at BKnight ; contradiction
 
 #check Finset.singleton_subset_iff
 #check Finset.singleton_subset_singleton
@@ -141,9 +241,7 @@ theorem everyone_in_set_eq
 {inst : DecidableEq K} {S : Finset K} {A B C : K} (all3 : ∀ (x : K), x = A ∨ x = B ∨ x = C) : (A ∈ S ∧ B ∈ S ∧ C ∈ S) ↔ (S = ({A,B,C} : Finset K) ) := by 
   constructor
   · intro allS
-    #check Finset.ext_iff
-    apply Finset.ext
-    intro a
+    ext a
     constructor
     · intro aKn
       rcases all3 a with h|h|h
@@ -330,11 +428,21 @@ example
     have nS' := S'emp x 
     exact  notright_left (Or x) nS'
   have SeqAll : S = {A,B,C} := by 
-    apply Finset.ext
-    intro a
+    ext a
     constructor
     · intro ainS
       mem_finset
       exact all a
     · exact fun _ => this a
   contradiction
+
+#check Set.Subset.antisymm
+#check Set.ext_iff.mpr
+example {A:Type}
+: {A,A} = ({A} : Set Type) := by
+  {
+  ext x
+  mem_set
+  simp
+  }
+  -/

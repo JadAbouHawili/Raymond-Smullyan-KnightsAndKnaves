@@ -80,6 +80,7 @@ theorem notknave_knight
 
 
 -------------------
+--@[simp]
 theorem knight_notknaveIff
 {A : Inhabitant}
 : A ∈ Knight ↔  ¬(A ∈ Knave) := by

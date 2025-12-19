@@ -9,7 +9,6 @@ B: Exactly one of us is a knave
 "
 -/
 
-#check mem_of_eq_singleton
 #check Set.eq_singleton_iff_unique_mem
 #check Finset.eq_singleton_iff_unique_mem
 open settheory_approach
@@ -29,12 +28,15 @@ example
   : A ∈ Knave := by
 
   {
-    rcases KorKn with BKnight|BKnave
+    rcases KorKn B with BKnight|BKnave
     · have oneknave := stB.mp BKnight
       rcases oneknave with KA|KB
-      · exact mem_of_eq_singleton KA
-      · #check mem_of_eq_singleton
-        have BKnave := mem_of_eq_singleton KB
+      · rw [KA]
+        mem_finset
+      · 
+        have BKnave : B ∈ Knave 
+        rw [KB]
+        mem_finset
         exfalso
         contradiction
     · by_contra AKnight
@@ -49,15 +51,11 @@ example
       have : Knight={A,B} → B ∈ Knight := by
         intro h'
         rw [h']
-        exact mem2_iff_or_finset.mpr (all2 B)
-
-      #check Finset.insert_eq_of_mem
+        mem_finset
       have BKnight := this KAB
       contradiction
-  }
-
--- given a proof of p, goal is changed to ¬p
---absurd
+}
+#check Finset.insert_eq_of_mem
 
 /-
 A says B is a knight
@@ -73,7 +71,7 @@ example
 {stBn : B ∈ Knave ↔ ¬ (A ∈ Knight ∧ B ∈ Knight ∧ C ∈ Knight)}
 {stC : C ∈ Knight ↔ A ∈ Knight ∨ B ∈ Knight}
 {stCn : C ∈ Knave ↔ ¬ (A ∈ Knight ∨ B ∈ Knight)}
-: A ∈ Knight ∧ B ∈ Knight ∧ C ∈ Knight ∨ A ∈ Knave ∧ B ∈ Knave ∧ C ∈ Knave:= by 
+: A ∈ Knight ∧ B ∈ Knight ∧ C ∈ Knight ∨ A ∈ Knave ∧ B ∈ Knave ∧ C ∈ Knave:= by
   have stB2 := stB
   nth_rw 1 [stA.symm] at stB2 
 
@@ -88,3 +86,43 @@ example
     right
     set_knight_to_knave at BnKnight
     exact And.intro AKnave (And.intro BnKnight CKnave)
+
+
+variable [DecidableEq Inhabitant]
+variable [Fintype Inhabitant]
+
+/-
+A says B is a knight
+B says all of us are knights
+C says A  is a kngiht or B is a knight
+-/
+example
+{stA : A ∈ Knight ↔ (B ∈ Knight) }
+{stAn : A ∈ Knave ↔ ¬ (B ∈ Knight) }
+{stB : B ∈ Knight ↔Knight={A,B,C}}
+{stBn : B ∈ Knave ↔ ¬Knight={A,B,C}
+}
+{stC : C ∈ Knight ↔ A ∈ Knight ∨ B ∈ Knight}
+{stCn : C ∈ Knave ↔ ¬ (A ∈ Knight ∨ B ∈ Knight)}
+: Knight={A,B,C} ∨ Knave={A,B,C}:= by
+  set_knight_or_knave A with AKnight AKnave 
+  have BKnight := stA.mp AKnight
+  simp [AKnight] at stC
+  left
+  apply Finset.Subset.antisymm
+  by_universe
+  intro x h
+  mem_finset at h
+  rcases h with h|h|h <;>  (rw [h]; assumption)
+
+  have BKnave := stAn.mp AKnave
+  set_knave_to_knight at AKnave
+  simp [AKnave,BKnave] at stCn
+  right
+  apply Finset.Subset.antisymm
+  by_universe
+  intro x h
+  mem_finset at h
+  set_knight_to_knave at AKnave
+  set_knight_to_knave at BKnave
+  rcases h with h|h|h <;>  (rw [h]; assumption)

@@ -249,18 +249,18 @@ theorem organized
 { 
 --show_goals
 cases h1 with
-| inl h_1 => 
+| inl h_1 =>
   obtain ⟨xKnight, xnKnave⟩ := h_1 
   have xTruth := stx xKnight
   cases xTruth with 
   | inl h_1 => exact h_1
   | inr h_1 => cases h_1 with 
                | inl h_1 =>
-               obtain ⟨xKnave,yKnight⟩ := h_1 
+               obtain ⟨xKnave,yKnight⟩ := h_1
                contradiction
 
                | inr h_1 => 
-               obtain ⟨xKnave,yKnave⟩ := h_1 
+               obtain ⟨xKnave,yKnave⟩ := h_1
                contradiction
 
 | inr h_1 =>

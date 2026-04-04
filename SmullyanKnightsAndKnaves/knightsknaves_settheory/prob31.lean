@@ -6,7 +6,6 @@ set_option push_neg.use_distrib true
 
 variable [DecidableEq Inhabitant]
 variable [Fintype Inhabitant]
-
 -- A : all of us are knaves
 -- B : exactly one of us is a knight
 example
@@ -102,7 +101,7 @@ example
   rcases all x with h|h|h
   simp_all [h]
   simp_all [h]
-  simp_all [h]
+  --simp_all [h]
   simp_all
 
 /-
@@ -127,21 +126,55 @@ example
   assumption
 
   conv at stA => simp
+  sorry
+   
   --simp_rw [] at stA
   -- after simp , hypothesis goes to bottom
 
-/-
+variable {α : Type*} {β : Type*} {γ : Type*}
 
 
+variable [DecidableEq α] {s s₁ s₂ t t₁ t₂ u v : Finset α} {a b : α}
+
+theorem insert_erase_subset (a : α) (s : Finset α) : s = insert a (s.erase a) := by
+  apply Finset.Subset.antisymm
+  exact Finset.insert_erase_subset a s
+  #check Finset.erase
+  intro x h  
+  #check Finset.mem_insert 
+  simp only [Finset.mem_insert] at h
+example (a : α) (s : Finset α) (h : a ∉ s) :  (s.erase a) = s := by
+  exact Finset.erase_eq_of_notMem h
+
+-- candidate for mathlib PR?
+example (a : α) (s : Finset α) (h : a ∉ s) :  (s.erase a) = {x | x ∈ s ∧ x ≠ a} := by
+  simp_all only [not_false_eq_true, Finset.erase_eq_of_notMem, ne_eq]
+  ext x : 1
+  simp_all only [SetLike.mem_coe, Set.mem_setOf_eq, iff_self_and]
+  intro a_2
+  apply Aesop.BuiltinRules.not_intro
+  intro a_3
+  subst a_3
+  simp_all only
+
+#check Finset.mem_erase
+example (a : α) (s : Finset α) :  (s.erase a) = {x //  x ≠ a ∧ x ∈ s} := by
+  simp?
+
+
+-- A : all of us are knaves
+-- B : exactly one of us is a knight
 example
 {stA : A ∈ Knight ↔ Knave = {A,B,C}}
-{stAn : A ∈ Knave ↔ Knave ≠ {A,B,C}}
+--{stAn : A ∈ Knave ↔ Knave ≠ {A,B,C}}
 {stB : B ∈ Knight ↔ Knight = {A} ∨ Knight = {B} ∨ Knight = {C} }
-{stBn : B ∈ Knave ↔ ¬(Knight = {A} ∨ Knight = {B} ∨ Knight = {C}) }
-{all2:  ∀ (x : Inhabitant), x = A or x = B or x = C
-}
+--{stBn : B ∈ Knave ↔ ¬(Knight = {A} ∨ Knight = {B} ∨ Knight = {C}) }
+--{all2:  ∀ (x : Inhabitant), x = A or x = B or x = C
+--}
 : A ∈ Knave ∧ B ∈ Knight ∧ C ∈ Knave := by
-  have AKnave : A ∈ Knave
+  #check knave_notknightIff
+  --knave_interp at stA
+  have AKnave : A ∈ Knave -- proof for this like a primitive (repeated pattern)
   set_knave_to_knight
   intro AKnight
   have allknave := stA.mp AKnight
@@ -152,7 +185,48 @@ example
   contradiction
 
   -- replcae all2 with knight ∪ knave = {A,B,C}
-  have notallknave := stAn.mp AKnave
+  #check all
+/-
+
+-- hypothesis
+macro "knight_interp" "at" t1:Lean.Parser.Tactic.locationHyp : tactic =>
+do`(tactic| (rw [not_iff_not.symm] at $t1 ; simp only[knave_notknightIff,not_not] at $t1)
+)
+
+axiom either (A : Inhabitant): A ∈ Knight ∨ A ∈ Knave
+
+-- redundant
+-- *
+macro "set_knight_to_knave" "at"  t1:Lean.Parser.Tactic.locationWildcard : tactic =>
+  do`(tactic| simp only [knight_notknaveIff,not_not] at $t1)
+-- goal
+macro "set_knight_to_knave" : tactic =>
+  do`(tactic| simp only [knight_notknaveIff,not_not])
+-- hypothesis
+macro "set_knight_to_knave" "at" t1:Lean.Parser.Tactic.locationHyp : tactic =>
+do`(tactic|
+  simp only [knight_notknaveIff,not_not] at $t1)
+
+
+macro "knave_interp" "at" t1:Lean.Parser.Tactic.locationHyp : tactic =>
+do`(tactic| (rw [not_iff_not.symm] at $t1 ; simp only[knight_notknaveIff,not_not] at $t1)
+)
+
+-/
+  -- semantics is change interpretation to knaves
+
+  knave_interp at stA
+  /-
+
+stA : A ∈ Knave ↔ ¬Knave = {A, B, C}
+
+  knave_interp at *
+  -/
+  --
+  -- set_knight_to_knave 
+  -- rw [not_iff_not.symm] at stA 
+  -- simp only[knight_notknaveIff,not_not] at stA
+  have notallknave := stA.mp AKnave
   have BKnight : B ∈ Knight
   set_knight_to_knave
   intro BKnave
@@ -162,17 +236,24 @@ example
   have KnighteqC : Knight = {C}
   --rw [Finset.eq_singleton_iff_unique_mem]
 
-  rw [Finset.ext_iff]
+  
+  --rw [Finset.ext_iff]
   apply Finset.Subset.antisymm
+  --intro x hx
+  --rcases all x with h|h|h
+  --rw [h] at hx ; contradiction
+  --rw [h] at hx ; contradiction
+  --rw [h] ; mem_finset
   have : Knight ⊆ {A,B,C} := by 
     by_universe
 
   set_knave_to_knight at AKnave
-  #check Finset.subset_insert_iff_of_not_mem
+  -- primitive
+  have : Knight ⊆ {B,C} := by
+    exact (Finset.subset_insert_iff_of_notMem AKnave).mp this
   remove_top at this
   set_knave_to_knight at BKnave
   remove_top at this
-
   intro a h
   mem_finset at h
   rw [h]
@@ -229,6 +310,47 @@ example
 #check Finset.singleton_subset_set_iff
 
 
+
+example
+{stA : A ∈ Knight ↔ Knave.card = 3}
+{stB : B ∈ Knight ↔ Knight.card = 1}
+: A ∈ Knave ∧ B ∈ Knight ∧ C ∈ Knave := by
+  have AKnave : A ∈ Knave
+  set_knave_to_knight
+  intro AKnight
+  have allKnave := stA.mp AKnight
+  have Knavesubset: Knave ⊆ {A,B,C}
+  by_universe
+  have KnaveAll: Knave = {A,B,C}
+  apply eq_of_subset_card_eq Knavesubset
+  simp
+  assumption
+
+  have AKnave : A ∈ Knave
+  rw [KnaveAll] ; mem_finset
+  contradiction
+
+  have BKnight : B ∈ Knight
+  set_knight_to_knave
+  intro BKnave
+  knave_interp at stB
+  have notoneKnave := stB.mp BKnave
+  set_knight_or_knave C with CKnight CKnave
+  have : Knight.card=1
+  rw [Finset.card_eq_one]
+  use C
+
+  rw [Finset.eq_singleton_iff_unique_mem]
+  constructor ; assumption
+  intro x h
+  
+  
+
+
+  sorry
+
+
+/-
 theorem mem_of_eq_singleton 
 {K : Type}
 {S : Finset K} {A : K} (h : S={A}) : A ∈ S := by

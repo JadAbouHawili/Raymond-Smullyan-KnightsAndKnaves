@@ -63,7 +63,7 @@ example
 {stB : B ∈ Knight ↔ Knave.card = 1}
 {stBn : B ∈ Knave ↔ Knave.card ≠ 1}
 : A ∈ Knave ∧ C ∈ Knight := by
-  -- create a custom tactic that would transform stA into stAn and vice versa 
+  -- create a custom tactic that would transform stA into stAn and vice versa
   have AKnave : A ∈ Knave
   set_knave_to_knight
   intro AKnight
@@ -72,7 +72,8 @@ example
   by_universe
   have KnaveAll: Knave = {A,B,C}
   apply eq_of_subset_card_eq Knavesubset
-  simp [allKnave]
+  -- doing simp would just work
+  simp only [allKnave]
   symm
   rw [Finset.card_eq_three] 
   use A
@@ -91,6 +92,15 @@ example
   intro CKnave
   set_knight_or_knave B with BKnight BKnave
   have oneKnave := stB.mp BKnight
+  rw [Finset.card_eq_one] at oneKnave 
+  have ⟨a,ha⟩ := oneKnave 
+  rw [ha] at AKnave
+  rw [ha] at CKnave
+  mem_finset at AKnave
+  mem_finset at CKnave
+  rw [←CKnave] at AKnave
+  contradiction
+  /-
   have knaveSub : {A,C} ⊆ Knave
   intro x h
   mem_finset at h
@@ -111,19 +121,20 @@ example
   rw [←this] ; assumption
   
   rw[oneKnave] at this ; contradiction
+  -/
 
   have : Knave.card=3
   rw [Finset.card_eq_three]
   use A,B,C
-  simp [AneB,AneC,BneC]
+  simp
   #check eq_of_subset_card_eq
   apply Finset.Subset.antisymm
   by_universe
   intro x h
   mem_finset at h
-  -- rcases etc... automate this somehow. i can automate the rcases part but then what?
-  simp [h,AKnave,BKnave,CKnave]
-  apply?
+  rcases h with h|h|h <;> simp only [h, AKnave, BKnave, CKnave]
+  have := stAn.mp AKnave
+  contradiction
 
 example
 {stA : A ∈ Knight  ↔ (Knave= ({A,B,C} : Finset Inhabitant)) }
@@ -171,14 +182,9 @@ example
     apply Finset.Subset.antisymm
     · by_universe
 
-    · -- trivial
+    ·
       intro a
       intro h
       mem_finset at h
-      -- custom tactic all true
       -- take cases and done
-
-      -- special angle bracket notation would rewrite, why is that
-      --rcases h with h1|h2|h3
-
-      sorry
+      rcases h with h|h|h <;> (rw [h] ; assumption) --simp only [h, AKnave, BKnave, CKnave]

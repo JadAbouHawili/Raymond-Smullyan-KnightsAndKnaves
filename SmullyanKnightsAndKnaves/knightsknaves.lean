@@ -1,141 +1,110 @@
-import SmullyanKnightsAndKnaves.settheory
+import SmullyanKnightsAndKnaves.knightsknaves_foundation
 
-namespace settheory_approach
+--namespace settheory_approach
 
-open Lean Elab Tactic
-axiom Inhabitant : Type
+--open Lean Elab Tactic
+--axiom Inhabitant : Type
+--axiom Knight : Finset Inhabitant
+--axiom Knave : Finset Inhabitant
+--variable [DecidableEq Inhabitant]
+--axiom A : Inhabitant
+--axiom B : Inhabitant
+--@[simp]
+--axiom AneB : A ≠ B
+--axiom dis : Knight ∩ Knave = ∅
+--axiom KorKn : ∀(x : Inhabitant), x ∈ Knight ∨ x ∈ Knave
+--axiom all: ∀ (x : Inhabitant), x = A ∨ x = B
+
+
+--end settheory_approach
+
+
+
+
+
+
+
+inductive Inhabitant
+| A
+| B
+deriving DecidableEq , Fintype
+
+-- call these Knight internal then do local notation
+namespace hidden
 axiom Knight : Finset Inhabitant
 axiom Knave : Finset Inhabitant
-axiom inst : DecidableEq Inhabitant
-axiom A : Inhabitant
-axiom B : Inhabitant
-axiom AneB : A ≠ B
 
-variable [DecidableEq Inhabitant]
+axiom  KorKn : ∀ x : Inhabitant, x ∈ Knight ∨ x ∈ Knave
 axiom dis : Knight ∩ Knave = ∅
-axiom KorKn : ∀(x : Inhabitant), x ∈ Knight ∨ x ∈ Knave
+end hidden
+@[pp_nodot]
+noncomputable instance world : World Inhabitant :=  by
+  exact ⟨hidden.Knight,
+  hidden.Knave,
+  hidden.dis,
+  hidden.KorKn⟩
 
-theorem disjoint
-{A : Inhabitant}
-(AKnight : A ∈ Knight)
-(AKnave : A ∈ Knave)  : False := by
-  exact disjoint_finset dis AKnight AKnave
 
+#check disjoint
+open Inhabitant
+--
+--theorem disjoint_finset2 {K : Type} {A : K}  [DecidableEq K] 
+--[W : World K]
+--(h : W.Knight ∩ W.Knave = ∅) (hk : A ∈ W.Knight)
+--  (hkn : A ∈ W.Knave) : False := by
+--  have := Finset.mem_inter_of_mem hk hkn
+--  rw [h] at this
+--  contradiction
+--
+--
+--theorem disjoint22
+--[World Inhabitant]
+--{A : Inhabitant}
+--(AKnight : A ∈ Knight)
+--(AKnave : A ∈ Knave)  : False := by
+--  exact disjoint_finset dis AKnight AKnave
+
+#check disjoint
+--macro_rules
+--| `(tactic| contradiction) =>
+--  do `(tactic |solve  | ( exfalso ; apply disjoint22  ; repeat assumption) )
+--
+#synth World Inhabitant
 
 macro_rules
 | `(tactic| contradiction) =>
-  do `(tactic |solve  | ( exfalso ; apply disjoint  ; repeat assumption) )
+  do `(tactic |solve  | ( exfalso ; apply @disjoint Inhabitant  ; repeat assumption) )
 
-macro_rules
-| `(tactic| contradiction) =>
-  do `(tactic |solve  | ( apply AneB ; assumption ))
+example (h: A ∈ world.Knight) (h': A ∈ world.Knave ) : False := by 
+  contradiction
 
-macro_rules
-| `(tactic| contradiction) =>
-  do `(tactic |solve  | ( apply AneB.symm ; assumption ))
+theorem all : ∀x : Inhabitant , x = .A ∨ x = .B := by
+  intro x
+  cases x <;> aesop
 
-theorem IamKnave
-{A : Inhabitant}
-(stA : A ∈ Knight  ↔ (A ∈ Knave) )
-  : False := by
+theorem KorKnInternal : ∀x : Inhabitant , x ∈ Knight ∨ x ∈ Knave := by
+  apply KorKn
 
-  {
-    rcases @KorKn A with AKnight|AKnave
-    · have := stA.mp AKnight
-      contradiction
-
-    · have := stA.mpr AKnave
-      contradiction
-  }
-
-theorem IamKnaveIffFalse
-: False ↔  (A ∈ Knight  ↔ (A ∈ Knave))
-   := by
-    constructor
-    exact fun a => a.elim
-    exact IamKnave
-
-
--- generalize to set theory using disjoint axiom , use here without disjoint axiom
-theorem knight_notknave
-{A : Inhabitant}
-(h' : A ∈ Knight) : A ∉ Knave := by
-  exact inleft_notinright_finset dis h'
-
-theorem notknight_knave
-{A : Inhabitant}
-(h' : A ∉ Knight) : A ∈ Knave := by
-  exact notleft_right (KorKn A) h'
-
-theorem knave_notknight
-{A : Inhabitant}
-(h' : A ∈ Knave) : A ∉ Knight := by
-  exact inright_notinleft_finset dis h'
-
-omit [DecidableEq Inhabitant] in
-theorem notknave_knight
-{A : Inhabitant}
-(h' : A ∉ Knave) : A ∈ Knight := by
-  exact notright_left (KorKn A) h'
-
-
--------------------
---@[simp]
-theorem knight_notknaveIff
-{A : Inhabitant}
-: A ∈ Knight ↔  ¬(A ∈ Knave) := by
-  constructor
-  · exact knight_notknave
-  · exact notknave_knight
-
-theorem notknight_knaveIff
-{A : Inhabitant}
-: A ∉ Knight ↔  A ∈ Knave := by
-  constructor
-  · exact notknight_knave
-  · exact knave_notknight
-
-theorem knave_notknightIff
-  {A : Inhabitant}
-: A ∈ Knave ↔  A ∉ Knight := by
-  constructor
-  · exact knave_notknight
-  · exact notknight_knave
-
-theorem notknave_knightIff
-  {A : Inhabitant}
- : A ∉ Knave ↔  A ∈ Knight := by
-  constructor
-  · exact notknave_knight
-  · exact knight_notknave
-
-axiom either (A : Inhabitant): A ∈ Knight ∨ A ∈ Knave
-
--- *
-macro "set_knight_to_knave" "at"  t1:Lean.Parser.Tactic.locationWildcard : tactic =>
-  do`(tactic| simp only [knight_notknaveIff,not_not] at $t1)
--- goal
-macro "set_knight_to_knave" : tactic =>
-  do`(tactic| simp only [knight_notknaveIff,not_not])
--- hypothesis
-macro "set_knight_to_knave" "at" t1:Lean.Parser.Tactic.locationHyp : tactic =>
-do`(tactic|
-  simp only [knight_notknaveIff,not_not] at $t1)
-
--- *
-macro "set_knave_to_knight" "at"  t1:Lean.Parser.Tactic.locationWildcard : tactic =>
-  do`(tactic| simp only [knave_notknightIff,not_not] at $t1)
--- goal
-macro "set_knave_to_knight" : tactic =>
-  do`(tactic| simp only [knave_notknightIff,not_not])
--- hypothesis
-macro "set_knave_to_knight" "at" t1:Lean.Parser.Tactic.locationHyp : tactic =>
-do`(tactic|
-  simp only[knave_notknightIff,not_not] at $t1)
-
-macro "set_knight_or_knave" t1:term  : tactic =>
-do`(tactic| cases (either $t1)  )
-
-macro "set_knight_or_knave" t1:term "with" t2:rcasesPat t3:rcasesPat  : tactic =>
-do`(tactic| obtain $t2|$t3 := (either $t1)  )
-end settheory_approach
+--example {A : Inhabitant}: A ∈ Knight ∨ A ∈ Knave := by
+--
+--  -- locally bind the projections
+--  #check world
+--
+--  -- now do cases
+--  cases KorKnInternal A
+--  cases KorKn A
+--   
+--  cases KorKn A with
+--  | inl hK => 
+--      -- hK : A ∈ Knight   ← now prints nicely
+--      sorry
+--  | inr hN =>
+--      -- hN : A ∈ Knave   ← prints nicely
+--      sorry
+--  cases KorKn A with
+--  | inl h => sorry-- h : A ∈ Knight
+--  | inr h => sorry-- h : A ∈ Knave
+--  --cases KorKn A
+--  --left
+--  --assumption
+--  --right ; assumption

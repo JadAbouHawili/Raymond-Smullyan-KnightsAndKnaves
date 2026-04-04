@@ -1,15 +1,19 @@
-import SmullyanKnightsAndKnaves.knightsknaves
+--import SmullyanKnightsAndKnaves.knightsknaves
 import SmullyanKnightsAndKnaves.knightsknaves_3
 
-open settheory_approach
+--open settheory_approach
 
-variable [DecidableEq Inhabitant]
+--variable [DecidableEq Inhabitant]
+open Inhabitant
+
+
 example
 {hB : B ∈ Knight ↔ (C ∈ Knight ↔ C ∈ Knave)}
 {hC : C ∈ Knight ↔ B ∈ Knave}
 : B ∈ Knave ∧ C ∈ Knight := by
   have BKnave : B ∈ Knave
-  set_knave_to_knight
+  knight_interp
+  --set_knave_to_knight
   intro BKnight
   have hA := hB.mp BKnight
   exact IamKnave hA

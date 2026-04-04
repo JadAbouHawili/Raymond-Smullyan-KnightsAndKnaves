@@ -6,9 +6,9 @@ import Lean
 
 set_option push_neg.use_distrib true
 
-   #check Finset.subset_of_eq
-  #check Finset.ssubset_iff_subset_ne
-  #check Finset.subset_iff
+#check Finset.subset_of_eq
+#check Finset.ssubset_iff_subset_ne
+#check Finset.subset_iff
 
 open settheory_approach
 
@@ -19,8 +19,7 @@ theorem univ_iff_all2
 {inst : Fintype K} {inst2 : DecidableEq K} {A B : K}   : Finset.univ = ({A,B} : Finset K) ↔  ∀ (x : K), x = A ∨ x = B := by
   constructor
   ·
-    intro U
-    intro x
+    intro U x
     have xinU := Finset.mem_univ x
     rw [U] at xinU
     mem_finset at xinU
@@ -50,7 +49,7 @@ example
   rw [Finset.card_eq_zero] at stAn
 
   have AKnight : A ∈ Knight :=by
-    set_knight_to_knave
+    knave_interp
     intro AKnave
     have := stAn.mp AKnave
     rw [this] at AKnave
@@ -58,7 +57,7 @@ example
   have cardGEOne := stA.mp AKnight
   constructor
   assumption
-  set_knave_to_knight
+  knight_interp
   intro BKnight
 
 
@@ -69,8 +68,8 @@ example
   set_knight_to_knave at BKnight
   set_knight_to_knave at AKnight
   -- make this into a custom tactic
-  have : Knave ⊆ {B} := by exact (Finset.subset_insert_iff_of_not_mem AKnight).mp subsetUniv
-  have : Knave ⊆ ∅ := by exact (Finset.subset_insert_iff_of_not_mem BKnight).mp this
+  have : Knave ⊆ {B} := by exact (Finset.subset_insert_iff_of_notMem AKnight).mp subsetUniv
+  have : Knave ⊆ ∅ := by exact (Finset.subset_insert_iff_of_notMem BKnight).mp this
   simp at this
   rw [this] at cardGEOne
   contradiction
@@ -95,13 +94,13 @@ example
   have cardGEOne := stA.mp AKnight
 
   -- assuming B not knave gives contradiction
-  #check Finset.subset_insert_iff_of_not_mem
+  #check Finset.subset_insert_iff_of_notMem
   #check Finset.subset_singleton_iff
   have ⟨w,winKnave⟩  :  ∃ w : Inhabitant, w ∈ Knave := by 
     by_contra h' 
     push_neg at h'
-    #check Set.eq_empty_iff_forall_not_mem
-    have Knaveemp := Finset.eq_empty_of_forall_not_mem h'
+    #check Set.eq_empty_iff_forall_notMem
+    have Knaveemp := Finset.eq_empty_of_forall_notMem h'
     rw [Knaveemp] at cardGEOne
     contradiction
 
@@ -170,11 +169,11 @@ example
 
   First, change `isKnave A` in `{orexp}` to `¬isKnight A` then use `simp` and the fact that `A` is a knight to simplify `{orexp}`
   -/
-  set_knave_to_knight at orexp
+  knight_interp at orexp
   simp [AKnight] at orexp
 
 -- Now close the goal
-  set_knight_to_knave at orexp
+  knave_interp at orexp
   constructor
   assumption ; assumption
 
@@ -197,33 +196,33 @@ example
       have conc := stx2.mp h_1
       -- notice that the negation of the right hand side of stx2 is true
       simp[h_1,h_3] at conc
-      set_knight_to_knave at h_1
+      knave_interp at h_1
       simp [h_1] at conc
       assumption
     · constructor
       assumption ; assumption
   · set_knight_or_knave B with h_1 h_1
     · have := not_iff_not.mpr stx
-      set_knave_to_knight at h_2
+      knight_interp at h_2
       have this2:= this.mp h_2
       contrapose this2
-      push_neg
+      --push_neg
       right
       left
       constructor
-      set_knight_to_knave at h_2
+      knave_interp at h_2
       assumption;assumption
     · constructor
       · have := not_iff_not.mpr stx 
         rw [not_or] at this
         push_neg at this
-        set_knave_to_knight at h_2
+        knight_interp at h_2
         have this2 := this.mp (h_2)
         contrapose this2
         push_neg
         right
         right
-        set_knight_to_knave at this2
+        knave_interp at this2
         constructor
         assumption ;assumption
       · assumption

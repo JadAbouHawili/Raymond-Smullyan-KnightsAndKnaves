@@ -1,11 +1,86 @@
 -- exclusive setup for levels with three inhabitants
-import SmullyanKnightsAndKnaves.knightsknaves
+import SmullyanKnightsAndKnaves.knightsknaves_foundation
+
+inductive Inhabitant
+| A
+| B
+| C
+deriving DecidableEq , Fintype
+
+-- call these Knight internal then do local notation
+namespace hidden
+axiom Knight : Finset Inhabitant
+axiom Knave : Finset Inhabitant
+
+axiom  KorKn : ∀ x : Inhabitant, x ∈ Knight ∨ x ∈ Knave
+axiom dis : Knight ∩ Knave = ∅
+end hidden
+@[pp_nodot]
+noncomputable instance world : World Inhabitant :=  by
+  exact ⟨hidden.Knight,
+  hidden.Knave,
+  hidden.dis,
+  hidden.KorKn⟩
+
+
+#check disjoint
+open Inhabitant
+--
+--theorem disjoint_finset2 {K : Type} {A : K}  [DecidableEq K] 
+--[W : World K]
+--(h : W.Knight ∩ W.Knave = ∅) (hk : A ∈ W.Knight)
+--  (hkn : A ∈ W.Knave) : False := by
+--  have := Finset.mem_inter_of_mem hk hkn
+--  rw [h] at this
+--  contradiction
+--
+--
+--theorem disjoint22
+--[World Inhabitant]
+--{A : Inhabitant}
+--(AKnight : A ∈ Knight)
+--(AKnave : A ∈ Knave)  : False := by
+--  exact disjoint_finset dis AKnight AKnave
+
+#check disjoint
+--macro_rules
+--| `(tactic| contradiction) =>
+--  do `(tactic |solve  | ( exfalso ; apply disjoint22  ; repeat assumption) )
+--
+#synth World Inhabitant
+
+macro_rules
+| `(tactic| contradiction) =>
+  do `(tactic |solve  | ( exfalso ; apply @disjoint Inhabitant  ; repeat assumption) )
+
+example (h: A ∈ world.Knight) (h': A ∈ world.Knave ) : False := by 
+  contradiction
+
+
+
+
+theorem all : ∀x : Inhabitant , x = .A ∨ x = .B ∨ x = .C := by
+  intro x
+  cases x <;> aesop
+
+
+
+
+
+
+
+
+/-
 namespace settheory_approach
+
 variable [DecidableEq Inhabitant]
 variable [Fintype Inhabitant]
-axiom C : Inhabitant
-axiom AneC : A ≠ C 
 
+axiom C : Inhabitant
+
+@[simp]
+axiom AneC : A ≠ C 
+@[simp]
 axiom BneC : B ≠ C
 
 def oneKnight  : Prop:=   (A ∈ Knight ∧ B ∈ Knave ∧ C ∈ Knave) ∨ (A ∈ Knave ∧ B ∈ Knight ∧ C ∈ Knave) ∨ (A ∈ Knave ∧ B ∈ Knave ∧ C ∈ Knight)
@@ -32,16 +107,18 @@ macro_rules
   do `(tactic |solve  | (exfalso ; apply BneC.symm ; assumption ))
 
 
-axiom all : ∀ (x : Inhabitant), x = A ∨ x = B ∨ x = C
+axiom all3 : ∀ (x : Inhabitant), x = A ∨ x = B ∨ x = C
+
+noncomputable instance (priority:=100) : Fintype Inhabitant := {elems := {A,B} , complete := by  { mem_finset ; exact all }}
 
 
-#check Finset.subset_insert_iff_of_not_mem
+--#check Finset.subset_insert_iff_of_not_mem
 --hypothesis
 macro "remove_top" "at" t1:Lean.Parser.Tactic.locationHyp : tactic =>
-do`(tactic |  rw[ Finset.subset_insert_iff_of_not_mem] at $t1 <;> try assumption)
+do`(tactic |  rw[ Finset.subset_insert_iff_of_notMem] at $t1 <;> try assumption)
 --goal
 macro "remove_top" : tactic =>
-do`(tactic |  rw[ Finset.subset_insert_iff_of_not_mem] <;> try assumption)
+do`(tactic |  rw[ Finset.subset_insert_iff_of_notMem] <;> try assumption)
 
 
 theorem univ2_iff_all {K : Type} {inst : Fintype K} {inst2 : DecidableEq K} {A B C : K}   : Finset.univ = ({A,B,C} : Finset K) ↔  ∀ (x : K), x = A ∨ x = B ∨ x = C:= by
@@ -118,7 +195,7 @@ theorem set_subset_univ
   intro x
   intro h
   mem_finset
-  exact all x
+  exact all3 x
   /-
   have := univ_iff_all.mpr all
   rw [←this]
@@ -128,3 +205,4 @@ theorem set_subset_univ
 macro "by_universe" : tactic =>
   `(tactic| (apply set_subset_univ))
 end settheory_approach
+-/

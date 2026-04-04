@@ -1,3 +1,5 @@
+In its current state , this repo is not supposed to be built by `lake build` but to browse individual files
+
 # Smullyan-KnightsAndKnaves
 Problems from raymond smullyans book 'What is the name of this book', the knights and knaves chapter.
 

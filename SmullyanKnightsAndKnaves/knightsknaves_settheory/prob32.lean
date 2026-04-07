@@ -1,12 +1,9 @@
-import SmullyanKnightsAndKnaves.knightsknaves
 import SmullyanKnightsAndKnaves.knightsknaves_3
 
 set_option push_neg.use_distrib true
 
-open settheory_approach
+open Inhabitant
 
-variable [Fintype Inhabitant]
-variable [DecidableEq Inhabitant]
 --A:All of us are knaves.
 --B: Exactly one of us is a knave.
 example
@@ -28,10 +25,10 @@ example
   assumption
   set_knight_or_knave B with BKnight BKnave
   ·
-    have oneKn := stB.mp BKnight 
+    have oneKn := stB.mp BKnight
     unfold oneKnave at oneKn
     simp [AKnave,BKnight,knight_notknaveIff] at oneKn
-    set_knight_to_knave 
+    set_knight_to_knave
     assumption
   ·
     unfold allKnave at notallknaves
@@ -45,41 +42,40 @@ example (A B : Finset Inhabitant) (h : A ⊆ B) : A.card ≤ B.card := by
   exact Finset.card_le_card h
 
 
--- two sets of the same cardinality are subsets which means they are equal
-theorem eq_of_subset_card_eq {A B : Finset Inhabitant} (h1 : A ⊆ B) (h2 : A.card = B.card) : A = B := by
-  #check Finset.eq_iff_card_ge_of_superset
-  #check Finset.eq_iff_card_le_of_subset
-  #check Finset.subset_iff_eq_of_card_le
-  have := Finset.eq_iff_card_ge_of_superset h1
-  simp [h2] at this
-  symm at this
-  assumption
-
 --A:All of us are knaves.
 --B: Exactly one of us is a knave.
-example 
-{stA : A ∈ Knight ↔ Knave.card =3}
-{stAn : A ∈ Knave ↔ Knave.card ≠ 3}
-{stB : B ∈ Knight ↔ Knave.card = 1}
-{stBn : B ∈ Knave ↔ Knave.card ≠ 1}
+
+
+open Lean Elab Tactic
+example {α : Type} {x a b c : α} {p : α → Prop}
+(ha : p a) (hb : p b) (hc : p c)
+(h : x = a ∨ x = b ∨ x = c) : p x := by 
+  all_cases_satisfy_goal3 h
+
+example
+{stA : A ∈ Knight ↔ (Knave : Finset Inhabitant).card =3}
+{stAn : A ∈ Knave ↔ (Knave : Finset Inhabitant).card ≠ 3}
+{stB : B ∈ Knight ↔ (Knave : Finset Inhabitant).card = 1}
+{stBn : B ∈ Knave ↔ (Knave : Finset Inhabitant).card ≠ 1}
 : A ∈ Knave ∧ C ∈ Knight := by
   -- create a custom tactic that would transform stA into stAn and vice versa
   have AKnave : A ∈ Knave
-  set_knave_to_knight
+  knight_interp
   intro AKnight
   have allKnave := stA.mp AKnight
   have Knavesubset: Knave ⊆ {A,B,C}
-  by_universe
+  intro x h ; simp ; exact all x
+  --by_universe
   have KnaveAll: Knave = {A,B,C}
   apply eq_of_subset_card_eq Knavesubset
   -- doing simp would just work
   simp only [allKnave]
   symm
-  rw [Finset.card_eq_three] 
+  rw [Finset.card_eq_three]
   use A
   use B
   use C
-  simp [AneB,AneC,BneC]
+  simp only [ne_eq, reduceCtorEq, not_false_eq_true, and_self]
 
   have AKnave : A ∈ Knave
   rw [KnaveAll] ; mem_finset
@@ -92,8 +88,8 @@ example
   intro CKnave
   set_knight_or_knave B with BKnight BKnave
   have oneKnave := stB.mp BKnight
-  rw [Finset.card_eq_one] at oneKnave 
-  have ⟨a,ha⟩ := oneKnave 
+  rw [Finset.card_eq_one] at oneKnave
+  have ⟨a,ha⟩ := oneKnave
   rw [ha] at AKnave
   rw [ha] at CKnave
   mem_finset at AKnave
@@ -108,7 +104,7 @@ example
   rw [h] ; assumption
   rw [h] ; assumption
 
-  have : 2 ≤ Knave.card 
+  have : 2 ≤ Knave.card
   #check Finset.card_le_card
   have := Finset.card_le_card knaveSub
   have : ({A,C} : Finset Inhabitant).card = 2
@@ -119,20 +115,22 @@ example
   exact AneC
   trivial
   rw [←this] ; assumption
-  
+
   rw[oneKnave] at this ; contradiction
   -/
 
-  have : Knave.card=3
+  have : (Knave : Finset Inhabitant).card=3
   rw [Finset.card_eq_three]
   use A,B,C
   simp
   #check eq_of_subset_card_eq
   apply Finset.Subset.antisymm
+  #check set_subset_univ
   by_universe
   intro x h
-  mem_finset at h
-  rcases h with h|h|h <;> simp only [h, AKnave, BKnave, CKnave]
+  simp at h
+  all_cases_satisfy_goal3 h
+
   have := stAn.mp AKnave
   contradiction
 
@@ -162,7 +160,7 @@ example
     intro CKnave
     #check Finset.eq_iff_card_ge_of_superset
     #check Finset.eq_of_subset_of_card_le
-    rcases oneKnave with s|s|s 
+    rcases oneKnave with s|s|s
     rw [s] at CKnave
     mem_finset at CKnave
     contradiction

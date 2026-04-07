@@ -20,6 +20,7 @@ import Mathlib.Data.Fintype.Basic
 #check Prop
 open Finset
 
+#check eq_univ_iff_forall
 
 
 section
@@ -372,62 +373,34 @@ https://leanprover.zulipchat.com/#narrow/channel/287929-mathlib4/topic/Unused.20
 
 -/
 
+#check A
+example
+{K : Type}
+[ DecidableEq K]
+ [ inst: Fintype K]
+: Finset.univ = inst.elems := by
+  rfl
 
 
 
 #check instDecidableEqBool
 #check Finset.mem_insert_of_mem
 #check Finset.mem_insert
-theorem univ_iff_all
-{K : Type} {inst : Fintype K}
-{inst2 : DecidableEq K} {A B C : K}   : Finset.univ = ({A,B,C} : Finset K) ↔  ∀ (x : K), x = A ∨ x = B ∨ x = C:= by
-/-shortest solution
-  rw [Finset.ext_iff]
-  simp
--/
-  constructor
-  · intro U
-/-
-    rw[ Finset.ext_iff] at U
-    mem_finset at U
-    simp at U
-    assumption
--/
-    intro x
-    have : x ∈ Finset.univ := by mem_finset
-    rw [U] at this
-    mem_finset at this
-    assumption
-  · intro U
-    rw [Finset.ext_iff]
-    mem_finset
-    simp
-    assumption
-    /-taking cases , not desirable,do not remove
-    ext a
-    constructor
-    · intro aU
-      rcases U a with h|h
-      · rw [h]
-        mem_finset
-      · rcases h with h_1|h_1
-        · rw [h_1]
-          mem_finset
-        · rw [h_1]
-          mem_finset
-
-    · exact fun a_1 => Finset.mem_univ a
-    -/
 
 #check Finset.univ
+
+theorem univ_iff_all
+{K : Type}
+[ DecidableEq K]
+ [ inst: Fintype K]
+{A B C : K}
+: Finset.univ = ({A,B,C} : Finset K) ↔  ∀ (x : K), x = A ∨ x = B ∨ x = C:= by
+  rw [eq_comm]
+  exact Iff.trans Finset.eq_univ_iff_forall (by simp)
+
 theorem set_subset_univ
 {A B C : K}
  {S : Finset K}
-{ all : ∀ (x : K), x = A ∨ x = B ∨ x = C}
-[Fintype K]
+(all : ∀ (x : K), x = A ∨ x = B ∨ x = C)
 : S ⊆ ({A,B,C} : Finset K) := by
-  have all2 := all
-  rw [(univ_iff_all).symm] at all2
-  rw [←all2]
-
-  exact Finset.subset_univ S
+  intro x h ; simp ;  exact all x

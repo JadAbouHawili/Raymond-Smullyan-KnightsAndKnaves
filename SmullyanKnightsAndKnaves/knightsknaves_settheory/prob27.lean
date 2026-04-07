@@ -1,10 +1,8 @@
-import SmullyanKnightsAndKnaves.knightsknaves
 import SmullyanKnightsAndKnaves.knightsknaves_3
 -- problem 27
 
 -- newformalization
-open settheory_approach
-variable [DecidableEq Inhabitant]
+open Inhabitant
 /-
 Suppose the stranger, instead of asking A what he is,
 asked A, "How many knights are among you?" Again A
@@ -47,7 +45,6 @@ example
   constructor ; assumption ; assumption
 
 example
-{inst2 : Fintype Inhabitant}
 (stB : (B ∈ Knight) ↔ (A ∈ Knight ↔Knight.card = 1))
 (stC : ( C ∈ Knight ↔ B ∈ Knave) )
 (stCn : ( C ∈ Knave ↔ B ∈ Knight) )
@@ -246,11 +243,6 @@ by
     assumption
     assumption
 
-macro "all_cases_satisfy_goal3" t1:Lean.Parser.Tactic.elimTarget
-: tactic =>
-  do`(tactic|
-  (rcases $t1 with h|h|h <;> (rw [h] ; assumption))
-  )
 
 macro "all_2_cases_satisfy_goal" t1:Lean.Parser.Tactic.elimTarget
 : tactic =>

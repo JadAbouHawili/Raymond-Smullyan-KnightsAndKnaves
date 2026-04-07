@@ -19,7 +19,7 @@ variable {Inhabitant : Type}
 --local notation "KorKn" => W.KorKn
 --local notation "dis" => W.dis
 
-noncomputable def Knight := W.Knight
+noncomputable def Knight : Finset Inhabitant := W.Knight
 noncomputable def Knave := W.Knave
 noncomputable def  dis := W.dis
 noncomputable def  KorKn : ∀ x : Inhabitant, x ∈ Knight ∨ x ∈ Knave := W.KorKn
@@ -103,7 +103,7 @@ theorem notknave_knight
 --@[simp]
 theorem knight_notknaveIff
 {A : Inhabitant}
-: A ∈ W.Knight ↔  ¬(A ∈ W.Knave) := by
+: A ∈ Knight ↔  ¬(A ∈ Knave) := by
   constructor
   · exact knight_notknave
   · exact notknave_knight
@@ -132,23 +132,20 @@ theorem notknave_knightIff
 
 -- hypothesis
 /--
-doc string for knave_interp
-interpret things in terms of knaves
+Interpret statements in terms of knaves
 -/
 macro "knave_interp" "at" t1:Lean.Parser.Tactic.locationHyp : tactic =>
 do`(tactic| ( (try rw [not_iff_not.symm] at $t1) ; simp only[knight_notknaveIff,not_not] at $t1)
 )
 /--
-doc string for knave_interp
-interpret things in terms of knaves
+Interpret statements in terms of knaves
 -/
 -- goal , usually goal doesn't have Iff
 macro "knave_interp" : tactic =>
 do`(tactic| ((try rw [not_iff_not.symm]) ; simp only[knight_notknaveIff,not_not] )
 )
 /--
-doc string for knave_interp
-interpret things in terms of knaves
+Interpret statements in terms of knaves
 -/
 -- *
 macro "knave_interp" "at"  t1:Lean.Parser.Tactic.locationWildcard : tactic =>
@@ -158,14 +155,23 @@ do`(tactic| ( (try rw [not_iff_not.symm] at $t1) ; simp only[knight_notknaveIff,
 
 #check knave_notknightIff
 -- hypothesis
+/--
+Interpret statements in terms of knights
+-/
 macro "knight_interp" "at" t1:Lean.Parser.Tactic.locationHyp : tactic =>
 do`(tactic| ((try rw [not_iff_not.symm] at $t1 ); simp only[knave_notknightIff,not_not] at $t1)
 )
 -- goal , usually goal doesn't have Iff
+/--
+Interpret statements in terms of knights
+-/
 macro "knight_interp" : tactic =>
 do`(tactic| ((try rw [not_iff_not.symm]) ; simp only[knave_notknightIff,not_not] )
 )
 -- *
+/--
+Interpret statements in terms of knights
+-/
 macro "knight_interp" "at"  t1:Lean.Parser.Tactic.locationWildcard : tactic =>
 do`(tactic| ( (try rw [not_iff_not.symm] at $t1) ; simp only[knave_notknightIff,not_not] at $t1))
 

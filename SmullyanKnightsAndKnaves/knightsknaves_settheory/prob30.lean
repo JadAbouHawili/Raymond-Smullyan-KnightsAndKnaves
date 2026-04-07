@@ -1,5 +1,4 @@
 import SmullyanKnightsAndKnaves.knightsknaves
-import SmullyanKnightsAndKnaves.dsl_knights_knaves
 
 /-
 Problem 30:
@@ -7,9 +6,9 @@ Suppose A says, "Either I am a knave or else two plus two
 equals five." What would you conclude?
 -/
 -- included in dsl_2plus2
-open settheory_approach
+
+open Inhabitant
 example
-{inst : DecidableEq Inhabitant}
 {stA : A ∈ Knight  ↔ (A ∈ Knave ∨ (2+2=5) ) }
 {stAn : A ∈ Knave ↔ ¬ (A ∈ Knave ∨ (2+2=5) ) }
   :False  := by
@@ -22,7 +21,6 @@ example
   }
 
 example
-{inst : DecidableEq Inhabitant}
 {stA : A ∈ Knight  ↔ (A ∈ Knave ∨ (2+2=5) ) }
 {stAn : A ∈ Knave ↔ ¬ (A ∈ Knave ∨ (2+2=5) ) }
   :False  := by
@@ -40,7 +38,6 @@ doing the manipulations instead of letting simp do all the work
 }
 
 example
-{inst : DecidableEq Inhabitant}
 {stA : A ∈ Knight  ↔ (A ∈ Knave ∨ (2+2=5) ) }
 {stAn : A ∈ Knave ↔ ¬ (A ∈ Knave ∨ (2+2=5) ) }
   :False  := by

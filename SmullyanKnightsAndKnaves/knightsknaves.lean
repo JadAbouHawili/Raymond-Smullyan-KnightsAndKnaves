@@ -1,33 +1,51 @@
 import SmullyanKnightsAndKnaves.knightsknaves_foundation
 
---namespace settheory_approach
-
---open Lean Elab Tactic
---axiom Inhabitant : Type
---axiom Knight : Finset Inhabitant
---axiom Knave : Finset Inhabitant
---variable [DecidableEq Inhabitant]
---axiom A : Inhabitant
---axiom B : Inhabitant
---@[simp]
---axiom AneB : A ≠ B
---axiom dis : Knight ∩ Knave = ∅
---axiom KorKn : ∀(x : Inhabitant), x ∈ Knight ∨ x ∈ Knave
---axiom all: ∀ (x : Inhabitant), x = A ∨ x = B
-
-
---end settheory_approach
-
-
-
-
-
-
-
 inductive Inhabitant
 | A
 | B
 deriving DecidableEq , Fintype
+
+-- redundant/not needed , keep
+theorem all : ∀x : Inhabitant , x = .A ∨ x = .B := by
+  intro x
+  cases x <;> aesop
+
+macro "by_universe" : tactic =>
+  `(tactic| (apply set_subset_univ ; intro x ; exact all x))
+
+open Inhabitant
+#check Finset.eq_univ_iff_forall
+#check Finset.eq_univ_of_forall
+
+-- might be useful...
+example
+: ({A,B} : Finset Inhabitant) = Finset.univ   ↔  ∀ (x : Inhabitant), x = A ∨ x = B := by
+  exact Iff.trans Finset.eq_univ_iff_forall (by simp)
+
+-- might be useful , more general
+-- but generality doesn't matter in this context because i have inhabitant with 2 elms and 3 elems
+example 
+{K : Type}
+{inst : Fintype K} {inst2 : DecidableEq K} {A B : K}   : Finset.univ = ({A,B} : Finset K) ↔  ∀ (x : K), x = A ∨ x = B := by
+    rw [eq_comm]
+    simp [Finset.eq_univ_iff_forall]
+
+
+#check Finset.eq_univ_iff_forall
+-- generalization , could then be used for knightsknaves and knightsknaves_3 ... if need be
+example
+{K : Type}
+{inst : Fintype K} {inst2 : DecidableEq K} {A: K} {S : Finset K}  : Finset.univ = (insert A S: Finset K) ↔  ∀ (x : K), x = A ∨ x ∈ S := by
+  simp [Finset.ext_iff,Finset.mem_univ]
+
+
+
+#check Finset.eq_univ_iff_forall
+#check Finset.eq_of_subset_of_card_le
+
+variable {α : Type}
+variable [Fintype α] {s t : Finset α}
+
 
 -- call these Knight internal then do local notation
 namespace hidden
@@ -37,74 +55,13 @@ axiom Knave : Finset Inhabitant
 axiom  KorKn : ∀ x : Inhabitant, x ∈ Knight ∨ x ∈ Knave
 axiom dis : Knight ∩ Knave = ∅
 end hidden
-@[pp_nodot]
+
 noncomputable instance world : World Inhabitant :=  by
   exact ⟨hidden.Knight,
   hidden.Knave,
   hidden.dis,
   hidden.KorKn⟩
 
-
-#check disjoint
-open Inhabitant
---
---theorem disjoint_finset2 {K : Type} {A : K}  [DecidableEq K] 
---[W : World K]
---(h : W.Knight ∩ W.Knave = ∅) (hk : A ∈ W.Knight)
---  (hkn : A ∈ W.Knave) : False := by
---  have := Finset.mem_inter_of_mem hk hkn
---  rw [h] at this
---  contradiction
---
---
---theorem disjoint22
---[World Inhabitant]
---{A : Inhabitant}
---(AKnight : A ∈ Knight)
---(AKnave : A ∈ Knave)  : False := by
---  exact disjoint_finset dis AKnight AKnave
-
-#check disjoint
---macro_rules
---| `(tactic| contradiction) =>
---  do `(tactic |solve  | ( exfalso ; apply disjoint22  ; repeat assumption) )
---
-#synth World Inhabitant
-
 macro_rules
 | `(tactic| contradiction) =>
   do `(tactic |solve  | ( exfalso ; apply @disjoint Inhabitant  ; repeat assumption) )
-
-example (h: A ∈ world.Knight) (h': A ∈ world.Knave ) : False := by 
-  contradiction
-
-theorem all : ∀x : Inhabitant , x = .A ∨ x = .B := by
-  intro x
-  cases x <;> aesop
-
-theorem KorKnInternal : ∀x : Inhabitant , x ∈ Knight ∨ x ∈ Knave := by
-  apply KorKn
-
---example {A : Inhabitant}: A ∈ Knight ∨ A ∈ Knave := by
---
---  -- locally bind the projections
---  #check world
---
---  -- now do cases
---  cases KorKnInternal A
---  cases KorKn A
---   
---  cases KorKn A with
---  | inl hK => 
---      -- hK : A ∈ Knight   ← now prints nicely
---      sorry
---  | inr hN =>
---      -- hN : A ∈ Knave   ← prints nicely
---      sorry
---  cases KorKn A with
---  | inl h => sorry-- h : A ∈ Knight
---  | inr h => sorry-- h : A ∈ Knave
---  --cases KorKn A
---  --left
---  --assumption
---  --right ; assumption

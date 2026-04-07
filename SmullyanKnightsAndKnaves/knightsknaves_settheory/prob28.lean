@@ -10,40 +10,13 @@ set_option push_neg.use_distrib true
 #check Finset.ssubset_iff_subset_ne
 #check Finset.subset_iff
 
-open settheory_approach
+open Inhabitant
 
 
-
-theorem univ_iff_all2
-{K : Type}
-{inst : Fintype K} {inst2 : DecidableEq K} {A B : K}   : Finset.univ = ({A,B} : Finset K) ↔  ∀ (x : K), x = A ∨ x = B := by
-  constructor
-  ·
-    intro U x
-    have xinU := Finset.mem_univ x
-    rw [U] at xinU
-    mem_finset at xinU
-    assumption
-
-  · intro all
-    apply Finset.eq_of_subset_of_card_le
-    intro x
-    intro hx
-    rcases all x with h|h
-    · rw [h]
-      mem_finset
-    · rw [h]
-      mem_finset
-    apply Finset.card_le_card
-    apply Finset.subset_univ
-
-
+section
 example
-  {inst : DecidableEq Inhabitant}
-  {inst2 : Fintype Inhabitant}
-(all : ∀ (x : Inhabitant), x = A ∨ x = B)
-  (stA : A ∈ Knight ↔ Knave.card ≥ 1)
-  (stAn : A ∈ Knave ↔ Knave.card < 1)
+  (stA : A ∈ Knight ↔ (Knave:Finset Inhabitant).card ≥ 1)
+  (stAn : A ∈ Knave ↔ (Knave : Finset Inhabitant).card < 1)
   : A ∈ Knight ∧ B ∈ Knave:= by
   rw [Nat.lt_one_iff] at stAn
   rw [Finset.card_eq_zero] at stAn
@@ -60,8 +33,9 @@ example
   knight_interp
   intro BKnight
 
-
-  have U : Finset.univ = ({A,B} : Finset Inhabitant):= univ_iff_all2.mpr all
+  #check Finset.eq_univ_iff_forall
+  have U : Finset.univ = ({A,B} : Finset Inhabitant):= by
+    rfl 
   have subsetUniv: Knave ⊆ {A,B} := by 
     rw [←U]
     exact Finset.subset_univ Knave
@@ -69,17 +43,16 @@ example
   set_knight_to_knave at AKnight
   -- make this into a custom tactic
   have : Knave ⊆ {B} := by exact (Finset.subset_insert_iff_of_notMem AKnight).mp subsetUniv
-  have : Knave ⊆ ∅ := by exact (Finset.subset_insert_iff_of_notMem BKnight).mp this
+  have : (Knave :Finset Inhabitant) ⊆ ∅ := by 
+   exact (Finset.subset_insert_iff_of_notMem BKnight).mp this
   simp at this
   rw [this] at cardGEOne
   contradiction
 
 example
-  {inst : DecidableEq Inhabitant}
-  {inst2 : Fintype Inhabitant}
 (all : ∀ (x : Inhabitant), x = A ∨ x = B)
-  (stA : A ∈ Knight ↔ Knave.card ≥ 1)
-  (stAn : A ∈ Knave ↔ Knave.card < 1)
+  (stA : A ∈ Knight ↔ (@Knave Inhabitant).card ≥ 1)
+  (stAn : A ∈ Knave ↔ (Knave : Finset Inhabitant).card < 1)
   : A ∈ Knight ∧ B ∈ Knave:= by
   rw [Nat.lt_one_iff] at stAn
   rw [Finset.card_eq_zero] at stAn
@@ -141,7 +114,6 @@ elab "show_goals " tacs:tacticSeq : tactic => do
 
 
 example 
-  {inst : DecidableEq Inhabitant}
 {stA : A ∈ Knight ↔ (A ∈ Knave ∨ B ∈ Knave)}
 : A ∈ Knight ∧ B ∈ Knave := by 
 --Let's start with proving that `A` is a knight. (use `have`)
@@ -180,7 +152,6 @@ example
 --Raymond Smullyan, what is the name of this book, problem 28
 -- statement of `A` formalized with more complicated expression
 example
-  {inst : DecidableEq Inhabitant}
   (stx : (A ∈ Knight) ↔ (A ∈ Knight ∧  B ∈ Knave)
                     ∨ (A ∈ Knave ∧ B ∈ Knight)
                     ∨ (A ∈ Knave ∧ B ∈ Knave)  )
@@ -233,7 +204,6 @@ example
 theorem organized 
   --sets
   { x y : Inhabitant}
-  {inst : DecidableEq Inhabitant}
   (h1 : Xor' (x ∈ Knight) (x ∈ Knave) ) 
   (h2: Xor' (y ∈ Knight)  (y ∈ Knave) )
   -- theres x and y, x says at least one of us is a knave
@@ -277,3 +247,4 @@ cases h1 with
       obtain ⟨yKnave,_⟩:= h_1 
       contradiction
 }
+end

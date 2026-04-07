@@ -4,7 +4,6 @@ import SmullyanKnightsAndKnaves.knightsknaves_3
 This can be done in other provers more 'naturally'
 https://www.youtube.com/watch?v=oEAa2pQKqQU
 https://summerofgodel.blogspot.com/2019/04/table-of-contents-for-series-of-posts.html?
-
 -/
 open Inhabitant
 example
@@ -51,7 +50,6 @@ example
                     ∨ (x ∈ Knave ∧ y ∈ Knave) ) )
   : x ∈ Knight ∧ y ∈ Knave:= by
   {
-   show_goals
    rcases h1 with h_1|h_1 
 
    · rcases h2 with h_2|h_2
@@ -60,11 +58,11 @@ example
        tauto
      · tauto
 
-   · cases h2 
+   · cases h2
      · have statement := stnx h_1.left 
        tauto
 
-     · 
+     ·
        have statement := stnx h_1.left 
        tauto
   }

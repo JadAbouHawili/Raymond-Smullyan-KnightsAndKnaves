@@ -50,7 +50,7 @@ open Lean Elab Tactic
 example {α : Type} {x a b c : α} {p : α → Prop}
 (ha : p a) (hb : p b) (hc : p c)
 (h : x = a ∨ x = b ∨ x = c) : p x := by 
-  all_cases_satisfy_goal3 h
+  all_cases_satisfy_goal h
 
 example
 {stA : A ∈ Knight ↔ (Knave : Finset Inhabitant).card =3}
@@ -128,7 +128,7 @@ example
   by_universe
   intro x h
   simp at h
-  all_cases_satisfy_goal3 h
+  all_cases_satisfy_goal h
 
   have := stAn.mp AKnave
   contradiction

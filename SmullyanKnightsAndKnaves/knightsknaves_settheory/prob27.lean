@@ -27,7 +27,7 @@ example
   have oneK := oneK.mp AKnight
   unfold oneKnight at oneK
   simp [AKnight, CKnave, BKnight] at oneK
-  set_knave_to_knight  at oneK 
+  knight_interp  at oneK 
   simp [ CKnave, BKnight] at oneK
   contradiction
 
@@ -45,7 +45,7 @@ example
   constructor ; assumption ; assumption
 
 example
-(stB : (B ∈ Knight) ↔ (A ∈ Knight ↔Knight.card = 1))
+(stB : (B ∈ Knight) ↔ (A ∈ Knight ↔(Knight : Finset Inhabitant).card = 1))
 (stC : ( C ∈ Knight ↔ B ∈ Knave) )
 (stCn : ( C ∈ Knave ↔ B ∈ Knight) )
 
@@ -96,14 +96,10 @@ example
   · 
     rw [singleton] at BKnight
     simp at BKnight
-    contradiction
-  
   · rw [singleton] at AKnight
     simp at AKnight
-    contradiction
   · rw [singleton] at AKnight
     simp at AKnight
-    contradiction
 
   have : Knight = {B} := by
     apply Finset.Subset.antisymm
@@ -188,7 +184,7 @@ by
     assumption
     assumption
 
-  · set_knave_to_knight at AKnave
+  · knight_interp at AKnave
     #check Finset.eq_singleton_iff_unique_mem
     simp [AKnave] at stB
     have : Knight.Nonempty := by {
@@ -242,40 +238,6 @@ by
     constructor
     assumption
     assumption
-
-
-macro "all_2_cases_satisfy_goal" t1:Lean.Parser.Tactic.elimTarget
-: tactic =>
-  do`(tactic|
-  (rcases $t1 with h|h <;> (rw [h] ; assumption))
-  )
-
-
-syntax "all_cases_satisfy_goal_works" term : tactic
-  macro_rules
-    | `(tactic| all_cases_satisfy_goal_works $t1:term) =>
-      `(tactic| first
-        | (rw [($t1)]; assumption)  -- base case
-        | (rcases ($t1) with h | h <;>
-            first
-            | (rw [h]; assumption)
-            | all_cases_satisfy_goal_works h))
-
-
---syntax "all_cases_satisfy_goal_works" term : tactic
--- why does this not work, why do i have to do syntax ... then macro_rules , is a recursive macro not possible?
-  macro "all_cases" t1:term : tactic
-  =>    `(tactic| first
-        | (rw [($t1)]; assumption)  -- base case
-        | (rcases ($t1) with h | h <;>
-            first
-            | (rw [h]; assumption)
-            | all_cases h))
-
-
-  macro "all_cases_satisfy_goal" t1:Lean.Parser.Tactic.elimTarget : tactic =>
-    `(tactic| cases $t1 <;> next h => rw [h]; assumption)
-
 
 example
 (stB : B ∈ Knight ↔ ( A ∈ Knight ↔ Knight.card =1))

@@ -58,7 +58,7 @@ theorem simp_eq {S : Finset Inhabitant} : S = ({A,B,C} : Finset Inhabitant) ↔ 
     · intro x h'
       simp at h'
       have ⟨h1,h2,h3⟩ := h 
-      all_cases_satisfy_goal3 h'
+      all_cases_satisfy_goal h'
 
 #check Finset.nonempty_iff_eq_singleton_default
   #check Finset.ne_empty_of_mem

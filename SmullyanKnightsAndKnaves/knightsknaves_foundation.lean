@@ -220,3 +220,14 @@ do`(tactic |  rw[ Finset.subset_insert_iff_of_notMem] at $t1 <;> try assumption)
 --goal
 macro "remove_top" : tactic =>
 do`(tactic |  rw[ Finset.subset_insert_iff_of_notMem] <;> try assumption)
+
+
+syntax "all_cases_satisfy_goal" term : tactic
+macro_rules
+    | `(tactic| all_cases_satisfy_goal $t1:term) =>
+      `(tactic| first
+        | (rw [($t1)]; assumption)  -- base case
+        | (rcases ($t1) with h | h <;>
+            first
+            | (rw [h]; assumption)
+            | all_cases_satisfy_goal h))

@@ -77,8 +77,3 @@ example
 
 macro "by_universe" : tactic =>
   `(tactic| (apply set_subset_univ3 ; intro x ; exact all x))
-
-macro "all_cases_satisfy_goal3" t1:Lean.Parser.Tactic.elimTarget : tactic =>
-  `(tactic|
-  rcases $t1 with h|h|h <;> (rw[h] ; assumption)
-    )

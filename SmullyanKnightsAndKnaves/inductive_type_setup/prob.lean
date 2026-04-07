@@ -209,7 +209,7 @@ theorem univ2_iff_all {K : Type} [Fintype K] {inst2 : DecidableEq K} {A B C : K}
 
   -- solution , no need for coercions and so on. nonetheless look into and understand coercions then remove them from here...
   --rw [Finset.ext_iff]
-  --mem_finset
+  --simp
   --simp
 
   #check Finset.instSetLike

@@ -32,11 +32,11 @@ example
     · have oneknave := stB.mp BKnight
       rcases oneknave with KA|KB
       · rw [KA]
-        mem_finset
+        simp
       · 
         have BKnave : B ∈ Knave 
         rw [KB]
-        mem_finset
+        simp
         exfalso
         contradiction
     · by_contra AKnight
@@ -51,7 +51,7 @@ example
       have : Knight={A,B} → B ∈ Knight := by
         intro h'
         rw [h']
-        mem_finset
+        simp
       have BKnight := this KAB
       contradiction
 }
@@ -112,7 +112,7 @@ example
   apply Finset.Subset.antisymm
   by_universe
   intro x h
-  mem_finset at h
+  simp at h
   rcases h with h|h|h <;>  (rw [h]; assumption)
 
   have BKnave := stAn.mp AKnave
@@ -122,7 +122,7 @@ example
   apply Finset.Subset.antisymm
   by_universe
   intro x h
-  mem_finset at h
+  simp at h
   set_knight_to_knave at AKnave
   set_knight_to_knave at BKnave
   rcases h with h|h|h <;>  (rw [h]; assumption)

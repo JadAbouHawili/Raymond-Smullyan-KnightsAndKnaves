@@ -60,7 +60,7 @@ example
   intro AKnight
   have notallKnave := stA.mp AKnight
   have : A ∈ Knave 
-  rw [notallKnave] ; mem_finset
+  rw [notallKnave] ; simp
   contradiction
 
   have notallKnave := stAn.mp AKnave
@@ -112,13 +112,13 @@ example
   have knight_not_A: Knight ≠ {A}
   intro h
   rw [h] at BKnight
-  mem_finset at BKnight
+  simp at BKnight
   contradiction
 
   have knight_not_C: Knight ≠ {C}
   intro h
   rw [h] at BKnight
-  mem_finset at BKnight
+  simp at BKnight
   contradiction
 
   have : Knight = {B}
@@ -181,7 +181,7 @@ example
   have AKnave : A ∈ Knave
   rw [allknave]
   -- primitive of proving A ∈ {A,B,C}... , introduce Finset.mem_insert
-  mem_finset
+  simp
   contradiction
 
   -- replcae all2 with knight ∪ knave = {A,B,C}
@@ -243,7 +243,7 @@ stA : A ∈ Knave ↔ ¬Knave = {A, B, C}
   --rcases all x with h|h|h
   --rw [h] at hx ; contradiction
   --rw [h] at hx ; contradiction
-  --rw [h] ; mem_finset
+  --rw [h] ; simp
   have : Knight ⊆ {A,B,C} := by 
     by_universe
 
@@ -255,13 +255,13 @@ stA : A ∈ Knave ↔ ¬Knave = {A, B, C}
   set_knave_to_knight at BKnave
   remove_top at this
   intro a h
-  mem_finset at h
+  simp at h
   rw [h]
   set_knight_to_knave
   intro CKnave
   have allknave : Knave = {A,B,C}
   rw[Finset.ext_iff]
-  mem_finset
+  simp
   intro x
   simp [all2]
   sorry
@@ -270,7 +270,7 @@ stA : A ∈ Knave ↔ ¬Knave = {A, B, C}
   apply Finset.Subset.antisymm
   by_universe
   intro a' h'
-  mem_finset at h'
+  simp at h'
   rcases h' with h|h|h
   rw [h] ; assumption
   rw [h] ; assumption
@@ -288,7 +288,7 @@ stA : A ∈ Knave ↔ ¬Knave = {A, B, C}
   -- use theorem here
   · 
     have AKnight : A ∈ Knight
-    rw [singleton] ; mem_finset
+    rw [singleton] ; simp
     contradiction
 
   · 
@@ -296,14 +296,14 @@ stA : A ∈ Knave ↔ ¬Knave = {A, B, C}
     set_knave_to_knight
     intro CKnight
     rw [singleton] at CKnight
-    mem_finset at CKnight
+    simp at CKnight
     contradiction
     constructor ; assumption
     constructor ; assumption ; assumption
 
   · 
     rw [singleton] at BKnight
-    mem_finset at BKnight ; contradiction
+    simp at BKnight ; contradiction
 
 #check Finset.singleton_subset_iff
 #check Finset.singleton_subset_singleton
@@ -327,7 +327,7 @@ example
   assumption
 
   have AKnave : A ∈ Knave
-  rw [KnaveAll] ; mem_finset
+  rw [KnaveAll] ; simp
   contradiction
 
   have BKnight : B ∈ Knight
@@ -355,7 +355,7 @@ theorem mem_of_eq_singleton
 {K : Type}
 {S : Finset K} {A : K} (h : S={A}) : A ∈ S := by
   rw [h]
-  mem_finset
+  simp
 
 
 theorem everyone_in_set_eq 
@@ -367,7 +367,7 @@ theorem everyone_in_set_eq
     constructor
     · intro aKn
       rcases all3 a with h|h|h
-<;> rw [h] ; mem_finset
+<;> rw [h] ; simp
 
     · intro aIn
       rcases all3 a with h|h|h
@@ -379,7 +379,7 @@ theorem everyone_in_set_eq
   · intro SEveryone
     rw [SEveryone]
     constructor <;> try constructor
-    mem_finset
+    simp
 
 
 #check Finset.eq_empty_iff_forall_not_mem
@@ -441,7 +441,7 @@ example
     set_knave_to_knight
     intro AKnight
     have everyoneknave := stA.mp AKnight  
-    have AKnave: A ∈ Knave := by rw [everyoneknave] ; mem_finset
+    have AKnave: A ∈ Knave := by rw [everyoneknave] ; simp
     contradiction
   have notallknave := stAn.mp AKnave
   have AnKnight: Knight ≠ {A} := by 
@@ -470,7 +470,7 @@ example
         remove_top at this
         remove_top at this
       · intro a h
-        mem_finset at h
+        simp at h
         rw [h]
         set_knight_to_knave
         assumption
@@ -553,7 +553,7 @@ example
     ext a
     constructor
     · intro ainS
-      mem_finset
+      simp
       exact all a
     · exact fun _ => this a
   contradiction

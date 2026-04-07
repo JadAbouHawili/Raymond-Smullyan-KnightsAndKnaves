@@ -107,13 +107,6 @@ end
 infixr:35 " and " => And
 infixr:30 " or  "  => Or
 
-macro "mem_finset": tactic =>
-  do`(tactic| repeat simp only [Finset.mem_insert,Finset.mem_singleton,true_or,or_true,Finset.mem_univ] )
-
-macro "mem_finset" "at" t1:Lean.Parser.Tactic.locationHyp : tactic =>
-  do`(tactic| repeat simp only [Finset.mem_insert,Finset.mem_singleton,Finset.mem_univ] at $t1)
-
-
 macro "mem_set": tactic =>
   do`(tactic| repeat simp only [Set.mem_insert_iff,Set.mem_singleton] )
 macro "mem_set" "at" t1:Lean.Parser.Tactic.locationHyp : tactic =>

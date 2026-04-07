@@ -63,8 +63,8 @@ example
   have ⟨a,ha⟩ := KnightCard 
   rw [ha] at AKnight
   rw [ha] at BKnight
-  mem_finset at AKnight
-  mem_finset at BKnight
+  simp at AKnight
+  simp at BKnight
   rw [←AKnight] at BKnight
   contradiction
   set_knave_to_knight at AKnave
@@ -95,14 +95,14 @@ example
   rcases oneKnight with singleton|singleton|singleton
   · 
     rw [singleton] at BKnight
-    mem_finset at BKnight
+    simp at BKnight
     contradiction
   
   · rw [singleton] at AKnight
-    mem_finset at AKnight
+    simp at AKnight
     contradiction
   · rw [singleton] at AKnight
-    mem_finset at AKnight
+    simp at AKnight
     contradiction
 
   have : Knight = {B} := by
@@ -116,7 +116,7 @@ example
       remove_top at this
 
     · intro a h
-      mem_finset at h ; rw [h] 
+      simp at h ; rw [h] 
       assumption
   have AKnight : A ∈ Knight
   rw [stA]
@@ -161,9 +161,9 @@ by
         rw [Finset.card_eq_one] at OneKnight
         have ⟨x,xK⟩ := OneKnight 
         rw [xK] at AKnight
-        mem_finset at AKnight
+        simp at AKnight
         rw [xK] at BKnight
-        mem_finset at BKnight
+        simp at BKnight
         rw [←AKnight] at BKnight
         contradiction
 
@@ -171,9 +171,9 @@ by
         rw [Finset.card_eq_one] at OneKnight
         have ⟨x,xK⟩ := OneKnight 
         rw [xK] at AKnight
-        mem_finset at AKnight
+        simp at AKnight
         rw [xK] at CKnight
-        mem_finset at CKnight
+        simp at CKnight
         rw [←CKnight] at AKnight
         contradiction
 
@@ -286,11 +286,11 @@ by
   · set_knight_or_knave B with BKnight BKnave
     · left
       intro x h 
-      mem_finset at h ; rw[h] ; assumption
+      simp at h ; rw[h] ; assumption
     · have CKnight := stC.mpr BKnave
       right
       intro x h
-      mem_finset at h ; rw[h] ; assumption
+      simp at h ; rw[h] ; assumption
   
   set_knight_or_knave A with AKnight AKnave
   · simp [AKnight] at stB
@@ -298,12 +298,12 @@ by
     rcases subsetKnight with h|h
     · left
       intro x h'
-      mem_finset at h'
+      simp at h'
       have : B ∈ Knight := by exact Finset.singleton_subset_iff.mp h
       all_cases_satisfy_goal h'
     · right
       intro x h'
-      mem_finset at h'
+      simp at h'
       have : C ∈ Knight := by exact Finset.singleton_subset_iff.mp h
       cases h'
       all_cases_satisfy_goal h'
@@ -344,7 +344,7 @@ by
     apply Finset.Subset.antisymm
     · sorry
     · intro x h
-      mem_finset at h
+      simp at h
       rw [h] ; assumption
     -/
       rw [Finset.eq_singleton_iff_unique_mem]

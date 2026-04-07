@@ -78,7 +78,7 @@ example
   simp only [ne_eq, reduceCtorEq, not_false_eq_true, and_self]
 
   have AKnave : A ∈ Knave
-  rw [KnaveAll] ; mem_finset
+  rw [KnaveAll] ; simp
   contradiction
 
   constructor
@@ -92,14 +92,14 @@ example
   have ⟨a,ha⟩ := oneKnave
   rw [ha] at AKnave
   rw [ha] at CKnave
-  mem_finset at AKnave
-  mem_finset at CKnave
+  simp at AKnave
+  simp at CKnave
   rw [←CKnave] at AKnave
   contradiction
   /-
   have knaveSub : {A,C} ⊆ Knave
   intro x h
-  mem_finset at h
+  simp at h
   rcases h with h|h
   rw [h] ; assumption
   rw [h] ; assumption
@@ -134,6 +134,9 @@ example
   have := stAn.mp AKnave
   contradiction
 
+#check Finset.mem_insert
+  #check Finset.mem_singleton
+  #check Finset.mem_univ
 example
 {stA : A ∈ Knight  ↔ (Knave= ({A,B,C} : Finset Inhabitant)) }
 {stAn : A ∈ Knave ↔ ¬ (Knave = {A,B,C}) }
@@ -146,7 +149,7 @@ example
   have allKnave := stA.mp AKnight
   have AKnave : A ∈ Knave
   rw [allKnave]
-  mem_finset
+  simp
   contradiction
 
   have notallKnave := stAn.mp AKnave
@@ -162,15 +165,15 @@ example
     #check Finset.eq_of_subset_of_card_le
     rcases oneKnave with s|s|s
     rw [s] at CKnave
-    mem_finset at CKnave
+    simp at CKnave
     contradiction
 
     rw [s] at CKnave
-    mem_finset at CKnave
+    simp at CKnave
     contradiction
 
     rw [s] at AKnave
-    mem_finset at AKnave
+    simp at AKnave
     contradiction
 
   ·
@@ -183,6 +186,6 @@ example
     ·
       intro a
       intro h
-      mem_finset at h
+      simp at h
       -- take cases and done
       rcases h with h|h|h <;> (rw [h] ; assumption) --simp only [h, AKnave, BKnave, CKnave]

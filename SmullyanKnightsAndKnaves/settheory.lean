@@ -234,13 +234,7 @@ theorem notinright_inleftIff
   · exact notinright_inleft SorS'
   · exact inleft_notinright_finset h
 
-
---theorem univ2_iff_all {K : Type} {inst : Fintype K} {inst2 : DecidableEq K} {A B C : K}   : Finset.univ = ({A,B,C} : Finset K) ↔  ∀ (x : K), x = A ∨ x = B ∨ x = C:= by
-
-
 open Finset
-
-
 
 
 --↥ coercing a finset into a type(where is this symbol even defined...)
@@ -364,16 +358,6 @@ https://leanprover.zulipchat.com/#narrow/channel/287929-mathlib4/topic/Absence.2
 https://leanprover.zulipchat.com/#narrow/channel/287929-mathlib4/topic/Unused.20Decidable.20Instances.20linter/with/580273784
 
 -/
-
-#check A
-example
-{K : Type}
-[ DecidableEq K]
- [ inst: Fintype K]
-: Finset.univ = inst.elems := by
-  rfl
-
-
 
 #check instDecidableEqBool
 #check Finset.mem_insert_of_mem

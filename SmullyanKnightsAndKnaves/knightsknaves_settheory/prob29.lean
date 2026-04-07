@@ -31,7 +31,6 @@ open Inhabitant
    -- elabTactic tacSyntax
 
 example
---  {inst : DecidableEq Inhabitant}
 {stA : A ∈ Knight  ↔ (A ∈ Knave ∨ B ∈ Knight) }
 {stAn : A ∈ Knave ↔ ¬ (A ∈ Knave ∨ B ∈ Knight) }
   : A ∈ Knight ∧ B ∈ Knight := by
@@ -42,7 +41,7 @@ example
     rw [imp_not_self] at forward
 
     have := KorKn A
-    set_knight_or_knave A with h_1 h_2
+    knight_or_knave A with h_1 h_2
     · simp[h_1] at forward
       constructor
       assumption

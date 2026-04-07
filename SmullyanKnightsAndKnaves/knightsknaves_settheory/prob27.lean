@@ -18,8 +18,7 @@ example
   : B ∈ Knave ∧ C ∈ Knight := by
   have : ¬B ∈ Knight
   intro BKnight
-  rw [not_iff_not.symm] at stC
-  set_knave_to_knight at stC
+  knight_interp at stC
   have CKnave := stC.mpr BKnight
 
   have oneK := stB.mp BKnight
@@ -31,12 +30,12 @@ example
   simp [ CKnave, BKnight] at oneK
   contradiction
 
-  set_knave_to_knight at AKnave
+  knight_interp at AKnave
   rw [not_iff_not.symm] at oneK
   have notone := oneK.mp AKnave 
   unfold oneKnight at notone
   simp [AKnave, CKnave, BKnight] at notone
-  set_knave_to_knight  at notone
+  knight_interp  at notone
   simp [AKnave] at notone
   contradiction
 
@@ -44,19 +43,29 @@ example
   have CKnight :=  stC.mpr this
   constructor ; assumption ; assumption
 
+/-
+Suppose the stranger, instead of asking A what he is,
+asked A, "How many knights are among you?" Again A
+answers indistinctly. So the stranger asks B, "What did A
+say?B replies, "A said that there is one knight among us."
+Then C says, "Don't believe B; he is lying!"
+Now what are B and C?
+-/
+
+
 example
 (stB : (B ∈ Knight) ↔ (A ∈ Knight ↔(Knight : Finset Inhabitant).card = 1))
 (stC : ( C ∈ Knight ↔ B ∈ Knave) )
-(stCn : ( C ∈ Knave ↔ B ∈ Knight) )
 
   : B ∈ Knave ∧ C ∈ Knight := by 
   have BKnave : B ∈ Knave
-  set_knave_to_knight
+  knight_interp
   intro BKnight
-  have CKnave := stCn.mpr BKnight
+  knight_interp at stC
+  have CKnave := stC.mpr BKnight
   have stA := stB.mp BKnight
   have AKnave : A ∈ Knave
-  set_knave_to_knight
+  knight_interp
   intro AKnight
   have KnightCard := stA.mp AKnight
   rw [Finset.card_eq_one] at KnightCard
@@ -67,30 +76,36 @@ example
   simp at BKnight
   rw [←AKnight] at BKnight
   contradiction
-  set_knave_to_knight at AKnave
+  knight_interp at AKnave
   simp [AKnave] at stA
-  apply stA
+  have : (Knight : Finset Inhabitant).card = 1
+   
   rw [Finset.card_eq_one]
   use B
-  -- back to the same point
-  sorry
-  sorry
+  apply Finset.Subset.antisymm 
+   
+  -- some tactic...
+  have : Knight ⊆ {A,B,C} := by
+    by_universe
+  remove_top at this
+  rw [Finset.pair_comm B C] at this
+  remove_top at this
+  intro x h ; simp at h ; rw [h] ; assumption
+  contradiction
+  have := stC.mpr BKnave
+  constructor ; assumption ; assumption
 
 example
-{inst2 : Fintype Inhabitant}
 (stB : (B ∈ Knight) ↔ (A ∈ Knight ↔ Knight = {A} ∨ Knight = {B} ∨ Knight = {C}))
 (stC : ( C ∈ Knight ↔ B ∈ Knave) )
 (stCn : ( C ∈ Knave ↔ B ∈ Knight) )
-
-{all2 : ∀ (x : Inhabitant), x = A ∨ x = B ∨ x = C}
-
   : B ∈ Knave ∧ C ∈ Knight := by 
   have BKnave : B ∈ Knave
-  set_knave_to_knight
+  knight_interp
   intro BKnight
   have CKnave := stCn.mpr BKnight
   have stA := stB.mp BKnight
-  set_knight_or_knave A with AKnight AKnave
+  knight_or_knave A with AKnight AKnave
   have oneKnight := stA.mp AKnight
   rcases oneKnight with singleton|singleton|singleton
   · 
@@ -105,8 +120,8 @@ example
     apply Finset.Subset.antisymm
     · have : Knight ⊆ ({A,B,C} : Finset Inhabitant)
       by_universe
-      set_knave_to_knight at CKnave
-      set_knave_to_knight at AKnave
+      knight_interp at CKnave
+      knight_interp at AKnave
       remove_top at this
       rw [Finset.pair_comm] at this
       remove_top at this
@@ -133,29 +148,23 @@ say?B replies, "A said that there is one knight among us."
 Then C says, "Don't believe B; he is lying!"
 Now what are B and C?
 -/
+-- knowing B would reveal C , so that shouldbe our focus , but to know B we need to deal with A
 example
-(stB : B ∈ Knight ↔ ( A ∈ Knight ↔ Knight.card =1))
+(stB : B ∈ Knight ↔ ( A ∈ Knight ↔ (Knight : Finset Inhabitant).card =1))
 (stC : C ∈ Knight ↔ B ∈ Knave)
 : B ∈ Knave ∧ C ∈ Knight := 
 by 
 
   have BCdiff : B ∈ Knight ∧ C ∈ Knave ∨ B ∈ Knave ∧ C ∈ Knight := by 
     sorry
- /-
-    rw [stC]
-    rw [stCn]
-    simp
-    exact KorKn B
- -/
-
-  -- we know that there is at least one knight, if A were a knight then they are two but this woudl contradict A's statement
-  set_knight_or_knave A with AKnight AKnave
+  -- we know that there is at least one knight, if A were a knight then they are two but this would contradict A's statement
+  knight_or_knave A with AKnight AKnave
   · have : Knight.card ≠ 1 := by {
       rcases BCdiff with ⟨BKnight,CKnave⟩ |⟨BKnave, CKnight⟩ 
       ·
         intro OneKnight
         rw [Finset.card_eq_one] at OneKnight
-        have ⟨x,xK⟩ := OneKnight 
+        obtain ⟨x : Inhabitant ,xK⟩ := OneKnight 
         rw [xK] at AKnight
         simp at AKnight
         rw [xK] at BKnight
@@ -175,10 +184,9 @@ by
 
     }
     simp [this] at stB
-    rw [not_iff_not.symm] at stB
-    simp at stB
+    knight_interp at stB
     have BKnave := stB.mpr AKnight
-    set_knight_to_knave at BKnave
+    knave_interp at BKnave
     have BKnight := stC.mpr BKnave
     constructor
     assumption
@@ -187,65 +195,39 @@ by
   · knight_interp at AKnave
     #check Finset.eq_singleton_iff_unique_mem
     simp [AKnave] at stB
-    have : Knight.Nonempty := by {
-      rcases BCdiff with h_1|h_1
-      · have := h_1.left
-        use B
-      · use C
-        exact h_1.right
-      }
-    have BorC: Knight = {B} ∨ Knight = {C} := by
-      rcases BCdiff with h_1|h_1
-      · left
-        rw [Finset.eq_singleton_iff_nonempty_unique_mem]
-        constructor
-        assumption
-        intro x
-        intro xK
-        rcases all x with h_2|h_2|h_2
-        · rw [h_2] at xK
-          contradiction
-        · assumption
-        · rw [h_2] at xK
-          have := h_1.right
-          contradiction
+    have : (Knight : Finset Inhabitant).card = 1 := by
+      rw [Finset.card_eq_one]  
+      rcases BCdiff with h|h
+      use B 
+      apply Finset.Subset.antisymm
+      knight_interp at h
+      have : Knight ⊆ {A,B,C} := by
+        by_universe
+      grind
+      grind
 
-      · right
-        rw [Finset.eq_singleton_iff_nonempty_unique_mem]
-        constructor
-        assumption
-        intro x
-        intro xK
-        rcases all x with h_2|h_2|h_2
-        · rw [h_2] at xK
-          contradiction
-
-        · rw [h_2] at xK
-          have := h_1.left
-          contradiction
-        assumption
-    have OneKnight : Knight.card =1 := by 
-      rcases BorC with h_1|h_1
-      · rw [h_1]
-        rfl
-      · rw [h_1]
-        rfl
+      use C
+      apply Finset.Subset.antisymm
+      knight_interp at h
+      have : Knight ⊆ {A,B,C} := by
+        by_universe
+      grind
+      grind
 
     knave_interp at stB
-    simp [AKnave] at stB
-    have BKnave : B ∈ Knave := by exact stBn.mpr OneKnight
+    have BKnave : B ∈ Knave := by exact stB.mpr this
     have CKnight : C ∈ Knight:= by exact stC.mpr BKnave 
     constructor
     assumption
     assumption
 
 example
-(stB : B ∈ Knight ↔ ( A ∈ Knight ↔ Knight.card =1))
+(stB : B ∈ Knight ↔ ( A ∈ Knight ↔ (Knight : Finset Inhabitant).card =1))
 (stC : C ∈ Knight ↔ B ∈ Knave)
 : B ∈ Knave ∧ C ∈ Knight := 
 by 
   have subsetKnight : {B} ⊆ Knight ∨ {C} ⊆ Knight 
-  · set_knight_or_knave B with BKnight BKnave
+  · knight_or_knave B with BKnight BKnave
     · left
       intro x h 
       simp at h ; rw[h] ; assumption
@@ -254,7 +236,7 @@ by
       intro x h
       simp at h ; rw[h] ; assumption
   
-  set_knight_or_knave A with AKnight AKnave
+  knight_or_knave A with AKnight AKnave
   · simp [AKnight] at stB
     have twosetSubsetKnight : {A,B} ⊆ Knight ∨ {A,C} ⊆ Knight
     rcases subsetKnight with h|h
@@ -267,7 +249,6 @@ by
       intro x h'
       simp at h'
       have : C ∈ Knight := by exact Finset.singleton_subset_iff.mp h
-      cases h'
       all_cases_satisfy_goal h'
     have KnightCardGeTwo : Knight.card ≥ 2
     rcases twosetSubsetKnight with h|h

@@ -3,7 +3,6 @@ import SmullyanKnightsAndKnaves.settheory
 
 universe u
 
-@[pp_nodot]
 class World (Inhabitant : Type u) [DecidableEq Inhabitant] where
   Knight : Finset Inhabitant
   Knave : Finset Inhabitant
@@ -100,7 +99,6 @@ theorem notknave_knight
 
 
 -------------------
---@[simp]
 theorem knight_notknaveIff
 {A : Inhabitant}
 : A ∈ Knight ↔  ¬(A ∈ Knave) := by
@@ -206,10 +204,10 @@ macro "set_knave_to_knight" "at" t1:Lean.Parser.Tactic.locationHyp : tactic =>
 do`(tactic|
   simp only[knave_notknightIff,not_not] at $t1)
 
-macro "set_knight_or_knave" t1:term  : tactic =>
+macro "knight_or_knave" t1:term  : tactic =>
 do`(tactic| cases (KorKn $t1)  )
 
-macro "set_knight_or_knave" t1:term "with" t2:rcasesPat t3:rcasesPat  : tactic =>
+macro "knight_or_knave" t1:term "with" t2:rcasesPat t3:rcasesPat  : tactic =>
 do`(tactic| obtain $t2|$t3 := (KorKn $t1)  )
 
 

@@ -1,11 +1,8 @@
-import SmullyanKnightsAndKnaves.knightsknaves
 import SmullyanKnightsAndKnaves.knightsknaves_3
 
-open settheory_approach
 set_option push_neg.use_distrib true
 
-variable [DecidableEq Inhabitant]
-variable [Fintype Inhabitant]
+open Inhabitant
 -- A : all of us are knaves
 -- B : exactly one of us is a knight
 example
@@ -15,7 +12,7 @@ example
 {stBn : B ∈ Knave ↔ ¬oneKnight}
 : A ∈ Knave ∧ B ∈ Knight ∧ C ∈ Knave := by
   have AKnave : A ∈ Knave
-  set_knave_to_knight
+  knight_interp
   intro AKnight
   have allKnaves := stA.mp AKnight
   unfold allKnave at allKnaves
@@ -42,125 +39,93 @@ example
   have OneKnight := stB.mp BKnight
   unfold oneKnight at OneKnight
   simp [AKnave,BKnight] at OneKnight
-  set_knave_to_knight at AKnave
-  set_knight_to_knave at BKnight
+  knight_interp at AKnave
+  knave_interp at BKnight
   simp [AKnave,BKnight] at OneKnight
   assumption
 
 
+-- turn a statement of S = {A,B,C} into A ∈ S ∧ ...
+
+#check Finset.eq_univ_iff_forall
+
+theorem simp_eq {S : Finset Inhabitant} : S = ({A,B,C} : Finset Inhabitant) ↔ A ∈ S ∧ B ∈ S ∧ C ∈ S := by
+  constructor
+  · intro h ; rw [h] ;simp
+  · intro h 
+    apply Finset.Subset.antisymm
+    · by_universe 
+    · intro x h'
+      simp at h'
+      have ⟨h1,h2,h3⟩ := h 
+      all_cases_satisfy_goal3 h'
+
+#check Finset.nonempty_iff_eq_singleton_default
+  #check Finset.ne_empty_of_mem
+  #check Finset.nonempty_iff_ne_empty
+  #check Finset.nonempty_iff_eq_singleton_default
+
 example
 {stA : A ∈ Knight ↔ Knave = {A,B,C}}
-{stAn : A ∈ Knave ↔ Knave ≠ {A,B,C}}
 {stB : B ∈ Knight ↔ Knight = {A} ∨ Knight = {B} ∨ Knight = {C} }
-{stBn : B ∈ Knave ↔ ¬(Knight = {A} ∨ Knight = {B} ∨ Knight = {C}) }
 {all2:  Knight ∪ Knave = {A,B,C}}
 : A ∈ Knave ∧ B ∈ Knight ∧ C ∈ Knave := by
   have AKnave : A ∈ Knave
-  set_knave_to_knight
+  knight_interp
   intro AKnight
-  have notallKnave := stA.mp AKnight
-  have : A ∈ Knave 
-  rw [notallKnave] ; simp
-  contradiction
+  have allKnave := stA.mp AKnight
+  simp at allKnave
+  sorry
 
-  have notallKnave := stAn.mp AKnave
-  have : Knight ≠ ∅ := by
-    rw [←all2] at notallKnave
-    intro h
-    rw [h] at notallKnave
-    simp at notallKnave
-  #check Finset.nonempty_iff_eq_singleton_default 
-  #check Finset.ne_empty_of_mem
-  #check Finset.nonempty_iff_ne_empty
-  rw [Finset.nonempty_iff_ne_empty.symm] at this
-  have : ∃a, a ∈ Knight := by exact this
-  #check Finset.nonempty_iff_eq_singleton_default
+  knave_interp at stA
+  have notallKnave := stA.mp AKnave
+  have KnightNonempty: (Knight : Finset Inhabitant).Nonempty := by
+    by_contra h
+    simp at h
+    rw [h] at all2
+    simp at all2
+    contradiction
+  have : ∃a, a ∈ (Knight : Finset Inhabitant) := by exact Finset.nonempty_def.mp KnightNonempty
+  have ⟨a,ha⟩ := this
+  clear this
   have BKnight : B ∈ Knight
-  set_knight_to_knave
+  knave_interp
   intro BKnave
-  have knight_not_eq_singleton := stBn.mp BKnave
+  knave_interp at stB
+  have knight_not_eq_singleton := stB.mp BKnave
   have : C ∈ Knight := by
-    have ⟨a,ha⟩ := this
-
-    have all2:= all a
     rcases all a with h|h|h
-    simp_all [h,ha]
-    simp_all [h,ha]
-    simp_all [h,ha]
-    --rw [h] at ha; assumption
-    --rw [h] at ha; contradiction
+    · rw [h] at ha
+      contradiction
+    · rw [h] at ha ; contradiction 
+    · rw [h] at ha ; assumption
+  
 
-  -- can also use this
-  -- primitive , proving two sets are equal and there are two ways , either subset.antisymm or unique_mem(all is needed so that would be introduced as a primitive as well)
+  -- the following or remove_top
   have KnighteqC : Knight = {C}
   rw [Finset.eq_singleton_iff_unique_mem]
   constructor
   assumption
-  intro x h
-  -- similar reasoning
+  intro x h'
+
   rcases all x with h|h|h
-  simp_all [h]
-  simp_all [h]
-  --simp_all [h]
-  simp_all
-
-/-
-  have knight_singleton := stB.mp BKnight
-  rw [Finset.eq_singleton_iff_unique_mem] at knight_singleton
-  simp [AKnave,knight_notknaveIff] at knight_singleton
-  -/
-  have knight_not_A: Knight ≠ {A}
-  intro h
-  rw [h] at BKnight
-  simp at BKnight
-  contradiction
-
-  have knight_not_C: Knight ≠ {C}
-  intro h
-  rw [h] at BKnight
-  simp at BKnight
-  contradiction
-
-  have : Knight = {B}
-  simp [knight_not_A,knight_not_C,BKnight] at stB
+  rw [h] at h' ; contradiction
+  rw [h] at h' ; contradiction
   assumption
 
-  conv at stA => simp
-  sorry
-   
-  --simp_rw [] at stA
-  -- after simp , hypothesis goes to bottom
+  simp [KnighteqC] at knight_not_eq_singleton
 
-variable {α : Type*} {β : Type*} {γ : Type*}
-
-
-variable [DecidableEq α] {s s₁ s₂ t t₁ t₂ u v : Finset α} {a b : α}
-
-theorem insert_erase_subset (a : α) (s : Finset α) : s = insert a (s.erase a) := by
-  apply Finset.Subset.antisymm
-  exact Finset.insert_erase_subset a s
-  #check Finset.erase
-  intro x h  
-  #check Finset.mem_insert 
-  simp only [Finset.mem_insert] at h
-example (a : α) (s : Finset α) (h : a ∉ s) :  (s.erase a) = s := by
-  exact Finset.erase_eq_of_notMem h
-
--- candidate for mathlib PR?
-example (a : α) (s : Finset α) (h : a ∉ s) :  (s.erase a) = {x | x ∈ s ∧ x ≠ a} := by
-  simp_all only [not_false_eq_true, Finset.erase_eq_of_notMem, ne_eq]
-  ext x : 1
-  simp_all only [SetLike.mem_coe, Set.mem_setOf_eq, iff_self_and]
-  intro a_2
-  apply Aesop.BuiltinRules.not_intro
-  intro a_3
-  subst a_3
-  simp_all only
-
-#check Finset.mem_erase
-example (a : α) (s : Finset α) :  (s.erase a) = {x //  x ≠ a ∧ x ∈ s} := by
-  simp?
-
+  have oneKnight := stB.mp BKnight
+  rcases oneKnight with h|h|h
+  grind
+  have : C ∈ Knave
+  knight_interp
+  intro h'
+  rw [h] at h'
+  contradiction
+  grind 
+  rw [h] at BKnight 
+  contradiction
 
 -- A : all of us are knaves
 -- B : exactly one of us is a knight
@@ -192,8 +157,6 @@ example
 macro "knight_interp" "at" t1:Lean.Parser.Tactic.locationHyp : tactic =>
 do`(tactic| (rw [not_iff_not.symm] at $t1 ; simp only[knave_notknightIff,not_not] at $t1)
 )
-
-axiom either (A : Inhabitant): A ∈ Knight ∨ A ∈ Knave
 
 -- redundant
 -- *

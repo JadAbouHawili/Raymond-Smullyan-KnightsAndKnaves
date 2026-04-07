@@ -211,3 +211,12 @@ do`(tactic| cases (KorKn $t1)  )
 
 macro "set_knight_or_knave" t1:term "with" t2:rcasesPat t3:rcasesPat  : tactic =>
 do`(tactic| obtain $t2|$t3 := (KorKn $t1)  )
+
+
+--#check Finset.subset_insert_iff_of_not_mem
+--hypothesis
+macro "remove_top" "at" t1:Lean.Parser.Tactic.locationHyp : tactic =>
+do`(tactic |  rw[ Finset.subset_insert_iff_of_notMem] at $t1 <;> try assumption)
+--goal
+macro "remove_top" : tactic =>
+do`(tactic |  rw[ Finset.subset_insert_iff_of_notMem] <;> try assumption)

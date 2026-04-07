@@ -390,9 +390,17 @@ theorem univ_iff_all
   rw [eq_comm]
   exact Iff.trans Finset.eq_univ_iff_forall (by simp)
 
-theorem set_subset_univ
+theorem set_subset_univ3
 {A B C : K}
  {S : Finset K}
 (all : ∀ (x : K), x = A ∨ x = B ∨ x = C)
 : S ⊆ ({A,B,C} : Finset K) := by
+  intro x h ; simp ;  exact all x
+
+
+theorem set_subset_univ2
+{A B : K}
+ {S : Finset K}
+(all : ∀ (x : K), x = A ∨ x = B )
+: S ⊆ ({A,B} : Finset K) := by
   intro x h ; simp ;  exact all x

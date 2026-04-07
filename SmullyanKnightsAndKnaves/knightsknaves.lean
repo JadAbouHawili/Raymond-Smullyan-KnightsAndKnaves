@@ -11,7 +11,7 @@ theorem all : ∀x : Inhabitant , x = .A ∨ x = .B := by
   cases x <;> aesop
 
 macro "by_universe" : tactic =>
-  `(tactic| (apply set_subset_univ ; intro x ; exact all x))
+  `(tactic| (apply set_subset_univ2 ; intro x ; exact all x))
 
 open Inhabitant
 #check Finset.eq_univ_iff_forall
@@ -54,6 +54,14 @@ axiom Knave : Finset Inhabitant
 
 axiom  KorKn : ∀ x : Inhabitant, x ∈ Knight ∨ x ∈ Knave
 axiom dis : Knight ∩ Knave = ∅
+
+theorem asdf : Knight ∪ Knave = (Finset.univ) := by 
+  apply Finset.Subset.antisymm 
+
+  simp
+
+  intro x _
+  simp ; exact KorKn x
 end hidden
 
 noncomputable instance world : World Inhabitant :=  by

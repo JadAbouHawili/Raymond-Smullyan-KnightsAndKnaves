@@ -7,13 +7,28 @@ import SmullyanKnightsAndKnaves.knightsknaves_3
 open Inhabitant
 
 
+#check Finset.mem_insert
+#check Finset.mem_insert_self
+#check Finset.mem_insert
+#check Finset.mem_insert_of_mem
+#check Finset.mem_erase
+
+macro "mem_mem" : tactic =>
+  `(tactic|
+  repeat
+  (
+   first
+   | apply Finset.mem_insert_self
+   | apply Finset.mem_insert_of_mem
+  )
+
+  )
 example
 {hB : B ∈ Knight ↔ (C ∈ Knight ↔ C ∈ Knave)}
 {hC : C ∈ Knight ↔ B ∈ Knave}
 : B ∈ Knave ∧ C ∈ Knight := by
   have BKnave : B ∈ Knave
   knight_interp
-  --set_knave_to_knight
   intro BKnight
   have hA := hB.mp BKnight
   exact IamKnave hA

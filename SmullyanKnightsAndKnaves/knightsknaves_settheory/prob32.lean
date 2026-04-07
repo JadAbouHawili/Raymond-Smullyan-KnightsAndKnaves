@@ -15,7 +15,7 @@ example
   {
   have AKnave : A ∈ Knave := by
     by_contra AKnight
-    set_knave_to_knight at AKnight
+    knight_interp at AKnight
     have knaves := stA.mp AKnight
     have AKnave := knaves.left
     contradiction
@@ -125,7 +125,6 @@ example
   simp
   #check eq_of_subset_card_eq
   apply Finset.Subset.antisymm
-  #check set_subset_univ
   by_universe
   intro x h
   simp at h
@@ -144,7 +143,7 @@ example
 {stBn : B ∈ Knave ↔ ¬ (Knave = {A} ∨ Knave = {B} ∨ Knave = {C})}
   : A ∈ Knave ∧ C ∈ Knight := by
   have AKnave : A ∈ Knave
-  set_knave_to_knight
+  knight_interp
   intro AKnight
   have allKnave := stA.mp AKnight
   have AKnave : A ∈ Knave

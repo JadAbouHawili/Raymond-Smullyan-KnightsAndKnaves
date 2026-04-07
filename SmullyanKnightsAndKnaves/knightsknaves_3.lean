@@ -40,16 +40,9 @@ def oneKnave  : Prop:=   (A ∈ Knave ∧ B ∈ Knight ∧ C ∈ Knight) ∨ (A 
 
 def allKnave : Prop := A ∈ Knave ∧ B ∈ Knave ∧ C ∈ Knave
 
-/-
---#check Finset.subset_insert_iff_of_not_mem
---hypothesis
-macro "remove_top" "at" t1:Lean.Parser.Tactic.locationHyp : tactic =>
-do`(tactic |  rw[ Finset.subset_insert_iff_of_notMem] at $t1 <;> try assumption)
---goal
-macro "remove_top" : tactic =>
-do`(tactic |  rw[ Finset.subset_insert_iff_of_notMem] <;> try assumption)
 
--/
+
+
 #check Set.toFinset_eq_univ 
 #check Multiset.bijective_iff_map_univ_eq_univ
 #check Finset
@@ -75,7 +68,6 @@ example {K : Type} [DecidableEq K] [Fintype K] :Finset.univ = {A,B,C} ↔ Set.un
   simp
   exact eq_comm
 
-#check set_subset_univ
 example
  {S : Finset Inhabitant}
 : S ⊆ ({A,B,C} : Finset Inhabitant) := by
@@ -84,7 +76,7 @@ example
   exact all x
 
 macro "by_universe" : tactic =>
-  `(tactic| (apply set_subset_univ ; intro x ; exact all x))
+  `(tactic| (apply set_subset_univ3 ; intro x ; exact all x))
 
 macro "all_cases_satisfy_goal3" t1:Lean.Parser.Tactic.elimTarget : tactic =>
   `(tactic|

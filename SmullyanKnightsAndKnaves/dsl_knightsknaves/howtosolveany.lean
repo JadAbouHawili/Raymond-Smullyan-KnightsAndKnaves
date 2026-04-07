@@ -1,5 +1,3 @@
-
-import SmullyanKnightsAndKnaves.knightsknaves
 import SmullyanKnightsAndKnaves.knightsknaves_3
 
 /-
@@ -8,9 +6,8 @@ https://www.youtube.com/watch?v=oEAa2pQKqQU
 https://summerofgodel.blogspot.com/2019/04/table-of-contents-for-series-of-posts.html?
 
 -/
-open settheory_approach
+open Inhabitant
 example
-  {inst : DecidableEq Inhabitant}
 (h1 : A ∈ Knight ∨ A ∈ Knave ) 
 (h2: B ∈ Knight ∨ B ∈ Knave )
 (h3: C ∈ Knight ∨ C ∈ Knave )
@@ -54,7 +51,7 @@ example
                     ∨ (x ∈ Knave ∧ y ∈ Knave) ) )
   : x ∈ Knight ∧ y ∈ Knave:= by
   {
- --  show_goals
+   show_goals
    rcases h1 with h_1|h_1 
 
    · rcases h2 with h_2|h_2

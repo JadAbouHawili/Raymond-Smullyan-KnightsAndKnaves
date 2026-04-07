@@ -85,31 +85,6 @@ example
   assumption
   assumption
 
-
-open Lean Parser Elab Tactic
-elab "show_goal" t:tactic : tactic => do
-  logInfoAt t m!"⊢ {(← Elab.Tactic.getMainTarget)}"
-  evalTactic t
-
-def getTacs (t1 : Syntax) : Array Syntax :=
-  match t1 with
-    | .node _ ``tacticSeq #[.node _ ``tacticSeq1Indented #[.node _ `null args]] =>
-      args.filter (! ·.isOfKind `null)
-    | _ => #[t1]
-
-elab "show_goals1 " tacs:tacticSeq : tactic => do
-  let tacs := getTacs tacs
-  for t in tacs do
-    evalTactic (← `(tactic| show_goal $(⟨t⟩)))
-
-elab "show_goals " tacs:tacticSeq : tactic => do
-  let tacs := getTacs tacs
-  let _ ← tacs.mapM fun t => do
-    match t with
-      | `(tactic| · $ts) => evalTactic (← `(tactic| · show_goals1 $(⟨ts.raw⟩)))
-      | _ => evalTactic (← `(tactic| show_goals1 $(⟨t⟩)))
-
-
 example
 {stA : A ∈ Knight ↔ (A ∈ Knave ∨ B ∈ Knave)}
 : A ∈ Knight ∧ B ∈ Knave := by 

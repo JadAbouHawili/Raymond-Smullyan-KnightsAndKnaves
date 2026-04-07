@@ -1,4 +1,3 @@
-import SmullyanKnightsAndKnaves.knightsknaves
 import SmullyanKnightsAndKnaves.knightsknaves_3
 
 /-
@@ -10,9 +9,7 @@ cardinality approach:(does not work...)
   - now we want to prove that A is a knave
     (but how?, would need to go through 3*3*3 = 27 cases)
 -/
-open settheory_approach
-variable [Fintype Inhabitant]
-variable [DecidableEq Inhabitant]
+open Inhabitant
 example
 {stA : A ∈ Knight  ↔ (Knave= {A,B,C}) }
 {stAn : A ∈ Knave ↔ ¬ (Knave = {A,B,C}) }
@@ -193,5 +190,4 @@ example
 
 #check Finset.ssubset_iff_subset_ne.mpr
 
-#check full2
 #check Finset.card_eq_two

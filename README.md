@@ -12,6 +12,12 @@ The setup for this approach is in `settheory.lean`.
 This approach has many custom theorems(some used to solve puzzles and some not) concerning sets.
 You can forgo these and only have the basic setup.
 
+### some insights
+
+When formalizing a statement 'we are all knaves' it is usually better to represent it as `Knave ={A,B,C}` instead of `Knave.card = 3`. 
+
+Since the universe `Finset.univ` is `{A,B,C}` then a theorem translating from each is possible. Therefore, using `Knave.card = 3` would just be an extra step to the user/player to translate from that to the more usuable `Knave = {A,B,C}`
+
 ## Domain Specific Language(DSL) Approach
 The setup for this approach is in `dsl_knights_knaves.lean`.
 You can read about this setup and solve problems [here](https://adam.math.hhu.de/#/g/jadabouhawili/knightsandknaves-lean4game/world/DSL_Knights_Knaves/level/0)

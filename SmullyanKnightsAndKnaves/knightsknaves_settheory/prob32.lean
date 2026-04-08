@@ -4,13 +4,15 @@ set_option push_neg.use_distrib true
 
 open Inhabitant
 
+/-
+
+-/
 --A:All of us are knaves.
 --B: Exactly one of us is a knave.
 example
 {stA : A ∈ Knight ↔ (allKnave) }
 {stAn : A ∈ Knave ↔ ¬ (allKnave) }
 {stB: B ∈ Knight ↔ oneKnave }
-{stBn: B ∈ Knave ↔ ¬ (oneKnave) }
   : A ∈ Knave ∧ C ∈ Knight := by
   {
   have AKnave : A ∈ Knave := by
@@ -23,7 +25,7 @@ example
   have notallknaves := stAn.mp AKnave
   constructor
   assumption
-  set_knight_or_knave B with BKnight BKnave
+  knight_or_knave B with BKnight BKnave
   ·
     have oneKn := stB.mp BKnight
     unfold oneKnave at oneKn
@@ -52,30 +54,48 @@ example {α : Type} {x a b c : α} {p : α → Prop}
 (h : x = a ∨ x = b ∨ x = c) : p x := by 
   all_cases_satisfy_goal h
 
+example {K : Type} {S : Finset K} [DecidableEq K] [Fintype K] (h' : S.card = Fintype.card K) : S = Finset.univ := by
+  exact (Finset.card_eq_iff_eq_univ S).mp h'
+
+example {K : Type}  [DecidableEq K] [Fintype K]  : (Finset.univ : Finset K).card = Fintype.card K := by
+  exact Finset.card_univ
+
+example {K : Type} {S : Finset K} [DecidableEq K] [Fintype K] (h' : S.card = (Finset.univ : Finset K).card) : S = Finset.univ := by
+  exact (Finset.card_eq_iff_eq_univ S).mp h'
+
+-- a worthy theorem
+example {n : Nat} {K : Type} {S : Finset K} [DecidableEq K] [Fintype K] (h : (Finset.univ : Finset K).card = n) (h' : S.card = n) : S = Finset.univ := by
+  exact (Finset.card_eq_iff_eq_univ S).mp ((h' ▸ h).symm)
+
+#check Finset.univ_subset_iff
+#check Finset.card_univ
 example
 {stA : A ∈ Knight ↔ (Knave : Finset Inhabitant).card =3}
 {stAn : A ∈ Knave ↔ (Knave : Finset Inhabitant).card ≠ 3}
 {stB : B ∈ Knight ↔ (Knave : Finset Inhabitant).card = 1}
-{stBn : B ∈ Knave ↔ (Knave : Finset Inhabitant).card ≠ 1}
 : A ∈ Knave ∧ C ∈ Knight := by
-  -- create a custom tactic that would transform stA into stAn and vice versa
   have AKnave : A ∈ Knave
   knight_interp
   intro AKnight
   have allKnave := stA.mp AKnight
+  grind -- have a super powerful grind that can do this...  think about making tactics more powerful in lean 4 games
+  -- abstracted into a theorem...
+  have : 3 = (Finset.univ : Finset Inhabitant).card := by exact Nat.eq_of_beq_eq_true rfl
+  rw [this] at allKnave
+  have : Knave = (Finset.univ: Finset Inhabitant) := by 
+    exact (Finset.card_eq_iff_eq_univ Knave).mp allKnave
+  -- consequence of the inductive type
+  #check exists₅_congr
+  have this2 : Finset.univ = {A,B,C} := by exact Finset.val_inj.mp rfl 
+  rw [this2] at this
+
+
   have Knavesubset: Knave ⊆ {A,B,C}
-  intro x h ; simp ; exact all x
-  --by_universe
+  by_universe
   have KnaveAll: Knave = {A,B,C}
-  apply eq_of_subset_card_eq Knavesubset
-  -- doing simp would just work
-  simp only [allKnave]
-  symm
-  rw [Finset.card_eq_three]
-  use A
-  use B
-  use C
-  simp only [ne_eq, reduceCtorEq, not_false_eq_true, and_self]
+  apply Finset.eq_of_subset_of_card_le Knavesubset
+  exact Nat.le_of_eq ((Eq.symm allKnave))
+
 
   have AKnave : A ∈ Knave
   rw [KnaveAll] ; simp
@@ -86,7 +106,7 @@ example
 
   set_knight_to_knave
   intro CKnave
-  set_knight_or_knave B with BKnight BKnave
+  knight_or_knave B with BKnight BKnave
   have oneKnave := stB.mp BKnight
   rw [Finset.card_eq_one] at oneKnave
   have ⟨a,ha⟩ := oneKnave
@@ -140,7 +160,6 @@ example
 {stA : A ∈ Knight  ↔ (Knave= ({A,B,C} : Finset Inhabitant)) }
 {stAn : A ∈ Knave ↔ ¬ (Knave = {A,B,C}) }
 {stB : B ∈ Knight ↔ Knave = {A} ∨ Knave = {B} ∨ Knave = {C}}
-{stBn : B ∈ Knave ↔ ¬ (Knave = {A} ∨ Knave = {B} ∨ Knave = {C})}
   : A ∈ Knave ∧ C ∈ Knight := by
   have AKnave : A ∈ Knave
   knight_interp
@@ -156,24 +175,21 @@ example
   constructor
   assumption
 
-  set_knight_or_knave B with BKnight BKnave
+  knight_or_knave B with BKnight BKnave
   · have oneKnave := stB.mp BKnight
-    set_knight_to_knave
+    knave_interp
     intro CKnave
     #check Finset.eq_iff_card_ge_of_superset
     #check Finset.eq_of_subset_of_card_le
     rcases oneKnave with s|s|s
     rw [s] at CKnave
     simp at CKnave
-    contradiction
 
     rw [s] at CKnave
     simp at CKnave
-    contradiction
 
     rw [s] at AKnave
     simp at AKnave
-    contradiction
 
   ·
     set_knight_to_knave
@@ -183,8 +199,6 @@ example
     · by_universe
 
     ·
-      intro a
-      intro h
+      intro a h
       simp at h
-      -- take cases and done
-      rcases h with h|h|h <;> (rw [h] ; assumption) --simp only [h, AKnave, BKnave, CKnave]
+      all_cases_satisfy_goal h

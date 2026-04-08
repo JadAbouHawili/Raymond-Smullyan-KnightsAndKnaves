@@ -15,20 +15,22 @@ open Inhabitant
 example
   (stA : A ∈ Knight ↔ (Knave:Finset Inhabitant).card ≥ 1)
   : A ∈ Knight ∧ B ∈ Knave:= by
-  knave_interp at stA
-  simp at stA
 
-  have AKnight : A ∈ Knight :=by
-    knave_interp
+  have AKnight : A ∈ Knight 
+  · knave_interp
     intro AKnave
+    knave_interp at stA
+    simp at stA
     have := stA.mp AKnave
     rw [this] at AKnave
     contradiction
-  knight_interp at stA 
   have knaveNotEmpty := stA.mp AKnight
-  simp [Finset.nonempty_iff_ne_empty.symm] at knaveNotEmpty
-  have ⟨a,ha⟩ := knaveNotEmpty 
-  rcases all a with h|h 
+  simp at knaveNotEmpty
+  --simp [Finset.nonempty_iff_ne_empty.symm] at knaveNotEmpty
+  cases knaveNotEmpty
+  expose_names
+  --all_cases_satisfy_goal (all w)
+  rcases all w with h|h 
   rw [h] at ha
   contradiction
   rw [h] at ha

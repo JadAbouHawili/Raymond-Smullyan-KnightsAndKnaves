@@ -1,4 +1,3 @@
-import SmullyanKnightsAndKnaves.knightsknaves
 import SmullyanKnightsAndKnaves.knightsknaves_3
 
 /-
@@ -10,9 +9,8 @@ A: B is a knave.
 B: A and C are of the same type.
 What is C?
 -/
-open settheory_approach
 
-variable [DecidableEq Inhabitant]
+open Inhabitant
 example
 {stA : A ∈ Knight  ↔ (B ∈ Knave) }
 {stAn : A ∈ Knave ↔ ¬ (B ∈ Knave) }
@@ -20,7 +18,7 @@ example
 {stBn: B ∈ Knave ↔ ¬ (A ∈ Knight ∧ C ∈ Knight ∨ A ∈ Knave ∧ C ∈ Knave) }
   : C ∈ Knave  := by
   {
-   set_knight_or_knave A with AKnight AKnave
+   knight_or_knave A with AKnight AKnave
    · have BKnave := stA.mp AKnight
      have BCnotsametype := stBn.mp BKnave
      rw [not_or] at BCnotsametype

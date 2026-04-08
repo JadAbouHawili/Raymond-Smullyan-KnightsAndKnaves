@@ -1,7 +1,7 @@
 import SmullyanKnightsAndKnaves.knightsknaves_3
 
 set_option push_neg.use_distrib true
-
+-- theorem using full3 is ideal
 open Inhabitant
 -- A : all of us are knaves
 -- B : exactly one of us is a knight
@@ -127,6 +127,68 @@ example
   rw [h] at BKnight 
   contradiction
 
+#check Finset.univ_subset_iff.mp
+theorem full3 {S : Finset Inhabitant} (hA : A ∈ S) (hB : B ∈ S) (hC : C ∈ S) : S = {A,B,C} := by
+    #check Finset.eq_univ_iff_forall
+    #check Finset.univ_subset_iff
+    have : Finset.univ = {A,B,C} := rfl
+    rw [←this]
+    rw [Finset.eq_univ_iff_forall]
+    intro x
+    all_cases_satisfy_goal all x
+
+example
+{stA : A ∈ Knight ↔ Knave = {A,B,C}}
+{stB : B ∈ Knight ↔ (Knight : Finset Inhabitant).card =1  }
+: A ∈ Knave ∧ B ∈ Knight ∧ C ∈ Knave := by
+   
+  have AKnave : A ∈ Knave -- proof for this like a primitive (repeated pattern)
+  knight_interp
+  intro AKnight
+  have allknave := stA.mp AKnight
+  have AKnave : A ∈ Knave
+  rw [allknave]
+  simp
+  contradiction
+
+  knave_interp at stA
+  have := stA.mp AKnave
+  have BKnight : B ∈ Knight 
+  knave_interp 
+  intro BKnave
+  knave_interp at stB 
+  have notoneKnight := stB.mp BKnave
+  apply notoneKnight  
+  rw [Finset.card_eq_one]
+  use C
+  have CKnight : C ∈ Knight
+  knave_interp
+  intro CKnave
+  have : Knave = {A,B,C} 
+  exact full3 AKnave BKnave CKnave
+  contradiction
+  rw [Finset.eq_singleton_iff_unique_mem]
+  constructor
+  assumption
+  intro x h 
+  rcases all x with h'|h'|h' 
+  rw [h'] at h ; contradiction 
+  rw [h'] at h ; contradiction 
+  assumption
+  have oneKnight := stB.mp BKnight
+  rw [Finset.card_eq_one] at oneKnight
+  obtain ⟨a,ha⟩ := oneKnight 
+  rw [ha] at BKnight
+  simp at BKnight
+  have CKnave: C ∈ Knave
+  knight_interp
+  intro knight
+  rw [ha] at knight
+  simp at knight
+  rw [←knight] at BKnight
+  contradiction
+  grind
+
 -- A : all of us are knaves
 -- B : exactly one of us is a knight
 example
@@ -134,7 +196,6 @@ example
 --{stAn : A ∈ Knave ↔ Knave ≠ {A,B,C}}
 {stB : B ∈ Knight ↔ Knight = {A} ∨ Knight = {B} ∨ Knight = {C} }
 --{stBn : B ∈ Knave ↔ ¬(Knight = {A} ∨ Knight = {B} ∨ Knight = {C}) }
---{all2:  ∀ (x : Inhabitant), x = A or x = B or x = C
 --}
 : A ∈ Knave ∧ B ∈ Knight ∧ C ∈ Knave := by
   #check knave_notknightIff
@@ -298,7 +359,7 @@ example
   intro BKnave
   knave_interp at stB
   have notoneKnave := stB.mp BKnave
-  set_knight_or_knave C with CKnight CKnave
+  knight_or_knave C with CKnight CKnave
   have : Knight.card=1
   rw [Finset.card_eq_one]
   use C
@@ -312,15 +373,54 @@ example
 
   sorry
 
+#check Finset.eq_singleton_iff_unique_mem
 
+variable {α : Type*} {β : Type*}
 /-
-theorem mem_of_eq_singleton 
+theorem Subsingleton.eq_singleton_of_mem (hs : s.Subsingleton) {x : α} (hx : x ∈ s) : s = {x} :=
+  ext fun _ => ⟨fun hy => hs hx hy ▸ mem_singleton _, fun hy => (eq_of_mem_singleton hy).symm ▸ hx⟩
+
+
+theorem eq_of_mem_singleton {x y : α} (h : x ∈ ({y} : Set α)) : x = y :=
+  h
+
+-/
+#check Set.eq_singleton_or_nontrivial
+#check Finset.mem_singleton
+example {K : Type} {A : K} : A ∈ ({A}:Finset K) := by
+  exact?
+
+theorem mem_of_eq_singleton2 {s : Finset α} {a : α} : s = {a} → a ∈ s  := by
+  grind
+
+theorem subset_of_mem_powerset22 {x s : Set α} (h : x ∈ 𝒫 s) : x ⊆ s := h
+  theorem powerset {s t: Set α} : s ⊆ t → ∃ p ∈ 𝒫 t , s = p  := by
+    #check Set.mem_powerset_iff
+    grind?
+    (expose_names; exact fun a ↦ (fun {a'} ↦ exists_eq_right'.mpr) a)
+
+
+theorem mem_of_eq_singleton
 {K : Type}
 {S : Finset K} {A : K} (h : S={A}) : A ∈ S := by
-  rw [h]
-  simp
+  grind
+
+#check Finset.eq_singleton_or_nontrivial
+example
+{K : Type}
+{A : K} {S : Set K} (h : A ∉ S) : S ≠ {A} := by 
+  exact Ne.symm (ne_of_mem_of_not_mem' rfl h)
+
+theorem not_eq_singleton_of_not_mem
+{K : Type}
+{A : K} {S : Set K} (h : A ∉ S) : S ≠ {A} := by 
+  exact Ne.symm (ne_of_mem_of_not_mem' rfl h)
+
+theorem mem_of_eq_singleton222 {s : Set α} {a : α} : s = {a} → a ∈ s  := by
+  grind
 
 
+/-
 theorem everyone_in_set_eq 
 {K : Type}
 {inst : DecidableEq K} {S : Finset K} {A B C : K} (all3 : ∀ (x : K), x = A ∨ x = B ∨ x = C) : (A ∈ S ∧ B ∈ S ∧ C ∈ S) ↔ (S = ({A,B,C} : Finset K) ) := by 
@@ -344,7 +444,6 @@ theorem everyone_in_set_eq
     constructor <;> try constructor
     simp
 
-
 #check Finset.eq_empty_iff_forall_not_mem
 theorem two_in_one_other_nonemp 
 {K : Type}
@@ -361,13 +460,6 @@ theorem two_in_one_other_nonemp
     exact notall ((everyone_in_set_eq all).mp ⟨hA,⟨hB,hC⟩ ⟩  )
   have : C ∈ S' := by exact notinleft_inright (Or C) hnC
   rw [S'emp] at this
-  contradiction
-
-theorem not_eq_singleton_of_not_mem
-{K : Type}
-{A : K} {S : Finset K} (h : A ∉ S) : S ≠ {A} := by 
-  intro eq
-  have := mem_of_eq_singleton eq
   contradiction
 
 
@@ -523,11 +615,11 @@ example
 
 #check Set.Subset.antisymm
 #check Set.ext_iff.mpr
+  -/
 example {A:Type}
 : {A,A} = ({A} : Set Type) := by
   {
   ext x
-  mem_set
-  simp
-  }
-  -/
+  simp?
+}
+#check Finset.insert_eq_of_mem

@@ -10,7 +10,6 @@ equals five." What would you conclude?
 open Inhabitant
 example
 {stA : A ∈ Knight  ↔ (A ∈ Knave ∨ (2+2=5) ) }
-{stAn : A ∈ Knave ↔ ¬ (A ∈ Knave ∨ (2+2=5) ) }
   :False  := by
 
   {
@@ -22,7 +21,6 @@ example
 
 example
 {stA : A ∈ Knight  ↔ (A ∈ Knave ∨ (2+2=5) ) }
-{stAn : A ∈ Knave ↔ ¬ (A ∈ Knave ∨ (2+2=5) ) }
   :False  := by
   {
   /-

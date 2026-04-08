@@ -22,5 +22,4 @@ theorem notright_left {P Q : Prop} (Or : P ∨ Q)(notright : ¬Q) : P := by
   #check Finset.eq_iff_card_le_of_subset
   #check Finset.subset_iff_eq_of_card_le
   #check Finset.eq_of_subset_of_card_le
-theorem eq_of_subset_card_eq {K : Type} {A B : Finset K} (h1 : A ⊆ B) (h2 : A.card = B.card) : A = B := by
-  exact Finset.eq_of_subset_of_card_le h1 (by grind)
+theorem eq_of_subset_of_card_eq {K : Type} {A B : Finset K} (h1 : A ⊆ B) (h2 : A.card = B.card) : A = B := Finset.eq_of_subset_of_card_le h1 (by grind)

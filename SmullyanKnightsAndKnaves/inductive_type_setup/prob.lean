@@ -57,6 +57,8 @@ axiom Knave : Finset K
 #check xor
 #check Xor'
 
+
+
 example : (∀ (x : K), Xor' (x ∈ Knight) (x ∈ Knave)) → Knight ∩ Knave = ∅ := by
   intro h
   grind

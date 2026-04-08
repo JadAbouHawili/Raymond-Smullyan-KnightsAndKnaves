@@ -22,7 +22,7 @@ example
   have CKnave := stC.mpr BKnight
 
   have oneK := stB.mp BKnight
-  set_knight_or_knave A with AKnight AKnave
+  knight_or_knave A with AKnight AKnave
   have oneK := oneK.mp AKnight
   unfold oneKnight at oneK
   simp [AKnight, CKnave, BKnight] at oneK
@@ -82,6 +82,13 @@ example
    
   rw [Finset.card_eq_one]
   use B
+  --this way or finset.subset.antiysymm
+  --rw [Finset.eq_singleton_iff_nonempty_unique_mem]
+  --constructor
+  --rw [Finset.nonempty_def]
+  --use B
+  --intro x h 
+  --cases all x
   apply Finset.Subset.antisymm 
    
   -- some tactic...
@@ -107,6 +114,11 @@ example
   have stA := stB.mp BKnight
   knight_or_knave A with AKnight AKnave
   have oneKnight := stA.mp AKnight
+  have : {A,B} ⊆ Knight := by
+    intro x h 
+    simp at h 
+    all_cases_satisfy_goal h
+  -- usage of grind and such to make reasoning easier for user , make all_cases_satisfy_goal even more powerful?
   rcases oneKnight with singleton|singleton|singleton
   · 
     rw [singleton] at BKnight
@@ -139,6 +151,20 @@ example
 
 #check Finset.card_insert_of_notMem
 #check Finset.card_le_one_iff
+
+
+
+
+
+
+
+
+
+
+
+
+-----------------------------------------------------------------------------------------------------------------------
+-- the below are long winded compared to the above
 
 /-
 Suppose the stranger, instead of asking A what he is,

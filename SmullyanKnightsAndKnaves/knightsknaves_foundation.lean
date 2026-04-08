@@ -71,11 +71,11 @@ theorem IamKnave
 
 theorem IamKnaveIffFalse
 {A : Inhabitant}
-: False ↔  (A ∈ W.Knight  ↔ (A ∈ W.Knave))
+: (A ∈ Knight  ↔ (A ∈ Knave)) ↔ False
    := by
     constructor
-    exact fun a => a.elim
     exact IamKnave
+    exact fun a => a.elim
 
 theorem knight_notknave
 {A : Inhabitant}

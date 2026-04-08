@@ -6,8 +6,7 @@ Suppose A says, "Either I am a knave or B is a knight."
 What are A and B?
 -/
 open Islander
-example {P : Prop} (h : P)(h' : ¬P) : 2=2 := by 
-  contradiction
+
 example
 {stA : A said (A.isKnave ∨ B.isKnight)}
 : A.isKnight ∧ B.isKnight := by 
@@ -24,4 +23,3 @@ example
   have BKnight := knight_said stA AKnight 
   constructor
   repeat assumption
-

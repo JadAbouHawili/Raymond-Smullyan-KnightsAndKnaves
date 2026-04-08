@@ -39,7 +39,7 @@ example
   simp [AKnave] at notone
   contradiction
 
-  set_knight_to_knave  at this
+  knave_interp  at this
   have CKnight :=  stC.mpr this
   constructor ; assumption ; assumption
 
@@ -242,7 +242,7 @@ by
 
     knave_interp at stB
     have BKnave : B ∈ Knave := by exact stB.mpr this
-    have CKnight : C ∈ Knight:= by exact stC.mpr BKnave 
+    have CKnight : C ∈ Knight:= by exact stC.mpr BKnave
     constructor
     assumption
     assumption

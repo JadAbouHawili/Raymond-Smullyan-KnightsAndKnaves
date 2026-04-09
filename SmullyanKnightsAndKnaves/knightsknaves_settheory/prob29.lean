@@ -9,7 +9,6 @@ example
     have AKnight : A ∈ Knight
     knave_interp
     intro AKnave
-    simp [AKnave] at stA
     have Or : A ∈ Knave ∨ B ∈ Knight
     left
     assumption
@@ -23,4 +22,3 @@ example
     knave_interp at AKnight
     simp [AKnight] at BKnight
     assumption
-  

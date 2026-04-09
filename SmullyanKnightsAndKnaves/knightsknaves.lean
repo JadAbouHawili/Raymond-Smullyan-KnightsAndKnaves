@@ -5,6 +5,16 @@ inductive Inhabitant
 | B
 deriving DecidableEq , Fintype
 
+noncomputable instance world : World Inhabitant :=  by exact W
+
+
+macro_rules
+| `(tactic| contradiction) =>
+  do `(tactic |solve  | ( exfalso ; apply @disjoint Inhabitant  ; repeat assumption) )
+
+
+
+
 -- redundant/not needed , keep
 theorem all : ∀x : Inhabitant , x = .A ∨ x = .B := by
   intro x
@@ -38,38 +48,6 @@ example
 {inst : Fintype K} {inst2 : DecidableEq K} {A: K} {S : Finset K}  : Finset.univ = (insert A S: Finset K) ↔  ∀ (x : K), x = A ∨ x ∈ S := by
   simp [Finset.ext_iff,Finset.mem_univ]
 
-
-
 #check Finset.eq_univ_iff_forall
 #check Finset.eq_of_subset_of_card_le
 
-variable {α : Type}
-variable [Fintype α] {s t : Finset α}
-
-
--- call these Knight internal then do local notation
-namespace hidden
-axiom Knight : Finset Inhabitant
-axiom Knave : Finset Inhabitant
-
-axiom  KorKn : ∀ x : Inhabitant, x ∈ Knight ∨ x ∈ Knave
-axiom dis : Knight ∩ Knave = ∅
-
-theorem asdf : Knight ∪ Knave = (Finset.univ) := by 
-  apply Finset.Subset.antisymm 
-
-  simp
-
-  intro x _
-  simp ; exact KorKn x
-end hidden
-
-noncomputable instance world : World Inhabitant :=  by
-  exact ⟨hidden.Knight,
-  hidden.Knave,
-  hidden.dis,
-  hidden.KorKn⟩
-
-macro_rules
-| `(tactic| contradiction) =>
-  do `(tactic |solve  | ( exfalso ; apply @disjoint Inhabitant  ; repeat assumption) )

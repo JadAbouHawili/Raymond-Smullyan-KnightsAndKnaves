@@ -1,4 +1,26 @@
 import SmullyanKnightsAndKnaves.knightsknaves_3
+#check Finset.card_bij
+#check Equiv.setCongr
+example {K : Type} [Fintype K] [DecidableEq K] {s t : Set K} (h: s = t) : ∀(x:K) , x ∈ s ↔ x ∈ t := by
+  #check congrFun
+  exact?
+
+example {K : Type} [Fintype K] [DecidableEq K] {s t : Finset K} : (s = t) ↔  (∀(x:K) , x ∈ s ↔ x ∈ t) := by
+
+  #check Finset.subtype_eq_univ
+  #check Finset.subtype
+  constructor
+  · sorry
+  · intro h
+    ext a
+    sorry
+  --exact Finset.ext_iff
+example {K : Type} [Fintype K] [DecidableEq K] {s t : Finset K} (h: s = t) : ∀(x:K) , x ∈ s ↔ x ∈ t := by
+  exact fun x ↦ Eq.to_iff (congrFun (congrArg Membership.mem h) x)
+example {K : Type} [Fintype K] [DecidableEq K] {s t : Finset K} (h: s = t) : s ≃ t := by
+  have : (s : Set K) ≃ (t : Set K) := by rw [h]
+  exact this
+--  exact Equiv.subtypeEquivProp (by rw [h])
 
 set_option push_neg.use_distrib true
 -- theorem using full3 is ideal
@@ -28,7 +50,7 @@ example
   have notoneKnight := stBn.mp BKnave
   unfold allKnave at notallknave
   simp [AKnave,BKnave] at notallknave
-  set_knave_to_knight at notallknave
+  knight_interp at notallknave
   have OneKnight : oneKnight
   unfold oneKnight
   simp [AKnave,BKnave,notallknave]
@@ -49,15 +71,19 @@ example
 
 #check Finset.eq_univ_iff_forall
 
+
+theorem simp_eq222 {K : Type} [DecidableEq K] [Fintype K] {S : Finset K} : S = (Finset.univ : Finset K) ↔ ∀(x:K), x ∈ S := by
+  exact Finset.eq_univ_iff_forall
+
 theorem simp_eq {S : Finset Inhabitant} : S = ({A,B,C} : Finset Inhabitant) ↔ A ∈ S ∧ B ∈ S ∧ C ∈ S := by
   constructor
   · intro h ; rw [h] ;simp
-  · intro h 
+  · intro h
     apply Finset.Subset.antisymm
-    · by_universe 
+    · by_universe
     · intro x h'
       simp at h'
-      have ⟨h1,h2,h3⟩ := h 
+      have ⟨h1,h2,h3⟩ := h
       all_cases_satisfy_goal h'
 
 #check Finset.nonempty_iff_eq_singleton_default
@@ -124,7 +150,7 @@ example
   rw [h] at h'
   contradiction
   grind 
-  rw [h] at BKnight 
+  rw [h] at BKnight
   contradiction
 
 #check Finset.univ_subset_iff.mp
@@ -178,13 +204,13 @@ example
   have oneKnight := stB.mp BKnight
   rw [Finset.card_eq_one] at oneKnight
   obtain ⟨a,ha⟩ := oneKnight 
-  rw [ha] at BKnight
-  simp at BKnight
   have CKnave: C ∈ Knave
   knight_interp
   intro knight
   rw [ha] at knight
   simp at knight
+  rw [ha] at BKnight
+  simp at BKnight
   rw [←knight] at BKnight
   contradiction
   grind
@@ -193,9 +219,7 @@ example
 -- B : exactly one of us is a knight
 example
 {stA : A ∈ Knight ↔ Knave = {A,B,C}}
---{stAn : A ∈ Knave ↔ Knave ≠ {A,B,C}}
 {stB : B ∈ Knight ↔ Knight = {A} ∨ Knight = {B} ∨ Knight = {C} }
---{stBn : B ∈ Knave ↔ ¬(Knight = {A} ∨ Knight = {B} ∨ Knight = {C}) }
 --}
 : A ∈ Knave ∧ B ∈ Knight ∧ C ∈ Knave := by
   #check knave_notknightIff
@@ -210,33 +234,8 @@ example
   simp
   contradiction
 
-  -- replcae all2 with knight ∪ knave = {A,B,C}
+  -- replace all2 with knight ∪ knave = {A,B,C}
   #check all
-/-
-
--- hypothesis
-macro "knight_interp" "at" t1:Lean.Parser.Tactic.locationHyp : tactic =>
-do`(tactic| (rw [not_iff_not.symm] at $t1 ; simp only[knave_notknightIff,not_not] at $t1)
-)
-
--- redundant
--- *
-macro "set_knight_to_knave" "at"  t1:Lean.Parser.Tactic.locationWildcard : tactic =>
-  do`(tactic| simp only [knight_notknaveIff,not_not] at $t1)
--- goal
-macro "set_knight_to_knave" : tactic =>
-  do`(tactic| simp only [knight_notknaveIff,not_not])
--- hypothesis
-macro "set_knight_to_knave" "at" t1:Lean.Parser.Tactic.locationHyp : tactic =>
-do`(tactic|
-  simp only [knight_notknaveIff,not_not] at $t1)
-
-
-macro "knave_interp" "at" t1:Lean.Parser.Tactic.locationHyp : tactic =>
-do`(tactic| (rw [not_iff_not.symm] at $t1 ; simp only[knight_notknaveIff,not_not] at $t1)
-)
-
--/
   -- semantics is change interpretation to knaves
 
   knave_interp at stA
@@ -420,7 +419,14 @@ theorem mem_of_eq_singleton222 {s : Set α} {a : α} : s = {a} → a ∈ s  := b
   grind
 
 
+example 
+{K : Type}
+{inst : DecidableEq K} [Fintype K] {S : Finset K} (all3 : ∀ (x : K), x ∈ S) : S = Finset.univ := by 
+  exact simp_eq222.mpr all3
+
 /-
+uniqueness of univ...
+uniqueness of a set , i.e there exists only one set that satisfies a certain property/proposition
 theorem everyone_in_set_eq 
 {K : Type}
 {inst : DecidableEq K} {S : Finset K} {A B C : K} (all3 : ∀ (x : K), x = A ∨ x = B ∨ x = C) : (A ∈ S ∧ B ∈ S ∧ C ∈ S) ↔ (S = ({A,B,C} : Finset K) ) := by 
@@ -616,9 +622,11 @@ example
 #check Set.Subset.antisymm
 #check Set.ext_iff.mpr
   -/
-example {A:Type}
-: {A,A} = ({A} : Set Type) := by
+example {A:Type} [DecidableEq Type]
+: {A,A} = ({A} : Finset Type) := by
   {
+  exact Finset.pair_eq_singleton A
+  exact Set.pair_eq_singleton A
   ext x
   simp?
 }

@@ -7,20 +7,7 @@ inductive Inhabitant
 | C
 deriving DecidableEq , Fintype
 
--- call these Knight internal then do local notation
-namespace hidden
-axiom Knight : Finset Inhabitant
-axiom Knave : Finset Inhabitant
-
-axiom  KorKn : ∀ x : Inhabitant, x ∈ Knight ∨ x ∈ Knave
-axiom dis : Knight ∩ Knave = ∅
-end hidden
-
-noncomputable instance world : World Inhabitant :=  by
-  exact ⟨hidden.Knight,
-  hidden.Knave,
-  hidden.dis,
-  hidden.KorKn⟩
+noncomputable instance world : World Inhabitant :=  by exact W
 
 open Inhabitant
 
@@ -41,8 +28,6 @@ def oneKnave  : Prop:=   (A ∈ Knave ∧ B ∈ Knight ∧ C ∈ Knight) ∨ (A 
 def allKnave : Prop := A ∈ Knave ∧ B ∈ Knave ∧ C ∈ Knave
 
 
-
-
 #check Set.toFinset_eq_univ 
 #check Multiset.bijective_iff_map_univ_eq_univ
 #check Finset
@@ -61,7 +46,7 @@ def allKnave : Prop := A ∈ Knave ∧ B ∈ Knave ∧ C ∈ Knave
 #check Set.toFinset_insert
 #check Set.toFinset_singleton
 #check Finset.val_inj
-example {K : Type} [DecidableEq K] [Fintype K] :Finset.univ = {A,B,C} ↔ Set.univ = {A,B,C} := by 
+example {K : Type} [DecidableEq K] [Fintype K] :Finset.univ = {A,B,C} ↔ Set.univ = {A,B,C} := by
   nth_rw 2 [eq_comm]
   #check Set.toFinset_eq_univ 
   rw [Set.toFinset_eq_univ.symm]

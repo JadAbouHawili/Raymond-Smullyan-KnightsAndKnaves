@@ -30,7 +30,7 @@ example
     have oneKn := stB.mp BKnight
     unfold oneKnave at oneKn
     simp [AKnave,BKnight,knight_notknaveIff] at oneKn
-    set_knight_to_knave
+    knave_interp
     assumption
   ·
     unfold allKnave at notallknaves
@@ -69,6 +69,38 @@ example {n : Nat} {K : Type} {S : Finset K} [DecidableEq K] [Fintype K] (h : (Fi
 
 #check Finset.univ_subset_iff
 #check Finset.card_univ
+
+
+
+
+example
+{stA : A ∈ Knight ↔ (Knave : Finset Inhabitant) = {A,B,C}}
+{stB : B ∈ Knight ↔ (Knave : Finset Inhabitant).card = 1}
+: A ∈ Knave ∧ C ∈ Knight := by
+  have AKnave: A ∈ Knave 
+  knight_interp 
+  intro AKnight
+  have allKnave := stA.mp AKnight
+  have : A ∈ Knave
+  rw [allKnave]
+  simp ; contradiction
+
+  knave_interp at stA
+  have notallKnave := stA.mp AKnave
+  knight_or_knave B with BKnight BKnave
+  have oneKnave := stB.mp BKnight
+  rw [Finset.card_eq_one] at oneKnave
+  obtain ⟨a,ha⟩ :=oneKnave 
+  have CKnight : C ∈ Knight
+  knave_interp
+  intro CKnave
+
+  grind
+  grind
+  sorry
+
+
+
 example
 {stA : A ∈ Knight ↔ (Knave : Finset Inhabitant).card =3}
 {stAn : A ∈ Knave ↔ (Knave : Finset Inhabitant).card ≠ 3}

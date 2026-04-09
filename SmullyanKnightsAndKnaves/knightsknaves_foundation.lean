@@ -1,4 +1,3 @@
-
 import SmullyanKnightsAndKnaves.settheory
 
 universe u
@@ -11,36 +10,45 @@ class World (Inhabitant : Type u) [DecidableEq Inhabitant] where
 
 variable {Inhabitant : Type}
 [DecidableEq Inhabitant]
-[W: World Inhabitant]
-#check W.Knight
+
+namespace hidden
+axiom  Knight : Finset Inhabitant
+axiom  Knave : Finset Inhabitant
+axiom  dis : (Knight : Finset Inhabitant) ∩ Knave = ∅
+axiom  KorKn : ∀ x : Inhabitant, x ∈ Knight ∨ x ∈ Knave
+end hidden
+
+noncomputable instance W : World Inhabitant where
+  Knight := hidden.Knight
+  Knave := hidden.Knave
+  dis := hidden.dis
+  KorKn := hidden.KorKn
+
+--[W: World Inhabitant]
 --local notation "Knight" => W.Knight
 --local notation "Knave" => W.Knave
 --local notation "KorKn" => W.KorKn
 --local notation "dis" => W.dis
 
 noncomputable def Knight : Finset Inhabitant := W.Knight
-noncomputable def Knave := W.Knave
-noncomputable def  dis := W.dis
+noncomputable def Knave : Finset Inhabitant := W.Knave
+noncomputable def  dis : Knight ∩ (Knave : Finset Inhabitant) = ∅ := W.dis
 noncomputable def  KorKn : ∀ x : Inhabitant, x ∈ Knight ∨ x ∈ Knave := W.KorKn
-
-#check dis
-#check Knight
-
 
 #check Finset.instUnion
 instance : OrOp Prop  :=
-  ⟨fun a b ↦ Or a b⟩ 
+  ⟨fun a b ↦ Or a b⟩
 #check xor_def
 
 example : (Xor' (2=2) (2=2)) ↔ (2=2 ↔ 2≠2) := by 
-  exact xor_iff_iff_not 
+  exact xor_iff_iff_not
 -- open World is no good
 
 theorem disjoint
 {A : Inhabitant}
 (AKnight : A ∈ Knight)
 (AKnave : A ∈ Knave)  : False := by
-  exact disjoint_finset W.dis AKnight AKnave
+  exact disjoint_finset dis AKnight AKnave
 
 -- needs to be repeated in every file...
 macro_rules
@@ -57,7 +65,7 @@ macro_rules
 
 theorem IamKnave
 {A : Inhabitant}
-(stA : A ∈ W.Knight  ↔ (A ∈ W.Knave) )
+(stA : A ∈ Knight  ↔ (A ∈ Knave) )
   : False := by
 
   {
@@ -79,18 +87,18 @@ theorem IamKnaveIffFalse
 
 theorem knight_notknave
 {A : Inhabitant}
-(h' : A ∈ W.Knight) : A ∉ W.Knave := by
-  exact inleft_notinright_finset W.dis h'
+(h' : A ∈ Knight) : A ∉ Knave := by
+  exact inleft_notinright_finset dis h'
 
 theorem notknight_knave
 {A : Inhabitant}
-(h' : A ∉ W.Knight) : A ∈ W.Knave := by
+(h' : A ∉ Knight) : A ∈ Knave := by
   exact notleft_right (KorKn A) h'
 
 theorem knave_notknight
 {A : Inhabitant}
 (h' : A ∈ Knave) : A ∉ Knight := by
-  exact inright_notinleft_finset W.dis h'
+  exact inright_notinleft_finset dis h'
 
 theorem notknave_knight
 {A : Inhabitant}
@@ -108,7 +116,7 @@ theorem knight_notknaveIff
 
 theorem notknight_knaveIff
 {A : Inhabitant}
-: A ∉ W.Knight ↔  A ∈ W.Knave := by
+: A ∉ Knight ↔  A ∈ Knave := by
   constructor
   · exact notknight_knave
   · exact knave_notknight
@@ -122,7 +130,7 @@ theorem knave_notknightIff
 
 theorem notknave_knightIff
   {A : Inhabitant}
- : A ∉ W.Knave ↔  A ∈ W.Knight := by
+ : A ∉ Knave ↔  A ∈ Knight := by
   constructor
   · exact notknave_knight
   · exact knight_notknave
@@ -159,6 +167,7 @@ Interpret statements in terms of knights
 macro "knight_interp" "at" t1:Lean.Parser.Tactic.locationHyp : tactic =>
 do`(tactic| ((try rw [not_iff_not.symm] at $t1 ); simp only[knave_notknightIff,not_not] at $t1)
 )
+
 -- goal , usually goal doesn't have Iff
 /--
 Interpret statements in terms of knights
@@ -174,11 +183,14 @@ macro "knight_interp" "at"  t1:Lean.Parser.Tactic.locationWildcard : tactic =>
 do`(tactic| ( (try rw [not_iff_not.symm] at $t1) ; simp only[knave_notknightIff,not_not] at $t1))
 
 
----- hypothesis
--- old , to be deleted
---macro "knight_interp" "at" t1:Lean.Parser.Tactic.locationHyp : tactic =>
---do`(tactic| (rw [not_iff_not.symm] at $t1 ; simp only[knave_notknightIff,not_not] at $t1)
---)
+
+/-
+
+macro "knave_interp" "at" t1:Lean.Parser.Tactic.locationHyp : tactic =>
+do`(tactic| (rw [not_iff_not.symm] at $t1 ; simp only[knight_notknaveIff,not_not] at $t1)
+)
+
+-/
 
 
 -- redundant

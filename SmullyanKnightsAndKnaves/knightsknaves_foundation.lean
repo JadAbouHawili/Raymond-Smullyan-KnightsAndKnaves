@@ -167,7 +167,6 @@ Interpret statements in terms of knights
 macro "knight_interp" "at" t1:Lean.Parser.Tactic.locationHyp : tactic =>
 do`(tactic| ((try rw [not_iff_not.symm] at $t1 ); simp only[knave_notknightIff,not_not] at $t1)
 )
-
 -- goal , usually goal doesn't have Iff
 /--
 Interpret statements in terms of knights
@@ -193,28 +192,6 @@ do`(tactic| (rw [not_iff_not.symm] at $t1 ; simp only[knight_notknaveIff,not_not
 -/
 
 
--- redundant
--- *
-macro "set_knight_to_knave" "at"  t1:Lean.Parser.Tactic.locationWildcard : tactic =>
-  do`(tactic| simp only [knight_notknaveIff,not_not] at $t1)
--- goal , replaced by knave_interp
-macro "set_knight_to_knave" : tactic =>
-  do`(tactic| simp only [knight_notknaveIff,not_not])
--- hypothesis
-macro "set_knight_to_knave" "at" t1:Lean.Parser.Tactic.locationHyp : tactic =>
-do`(tactic|
-  simp only [knight_notknaveIff,not_not] at $t1)
-#check KorKn
--- *
-macro "set_knave_to_knight" "at"  t1:Lean.Parser.Tactic.locationWildcard : tactic =>
-  do`(tactic| simp only [knave_notknightIff,not_not] at $t1)
--- goal
-macro "set_knave_to_knight" : tactic =>
-  do`(tactic| simp only [knave_notknightIff,not_not])
--- hypothesis
-macro "set_knave_to_knight" "at" t1:Lean.Parser.Tactic.locationHyp : tactic =>
-do`(tactic|
-  simp only[knave_notknightIff,not_not] at $t1)
 
 macro "knight_or_knave" t1:term  : tactic =>
 do`(tactic| cases (KorKn $t1)  )

@@ -35,43 +35,21 @@ example
   ·
     unfold allKnave at notallknaves
     simp [AKnave,BKnave] at notallknaves
-    set_knight_to_knave
+    knave_interp
     assumption
   }
 
--- if A subset B then card A <= card B
-example (A B : Finset Inhabitant) (h : A ⊆ B) : A.card ≤ B.card := by
-  exact Finset.card_le_card h
-
-
 --A:All of us are knaves.
 --B: Exactly one of us is a knave.
-
-
 open Lean Elab Tactic
 example {α : Type} {x a b c : α} {p : α → Prop}
 (ha : p a) (hb : p b) (hc : p c)
 (h : x = a ∨ x = b ∨ x = c) : p x := by 
   all_cases_satisfy_goal h
 
-example {K : Type} {S : Finset K} [DecidableEq K] [Fintype K] (h' : S.card = Fintype.card K) : S = Finset.univ := by
-  exact (Finset.card_eq_iff_eq_univ S).mp h'
-
-example {K : Type}  [DecidableEq K] [Fintype K]  : (Finset.univ : Finset K).card = Fintype.card K := by
-  exact Finset.card_univ
-
-example {K : Type} {S : Finset K} [DecidableEq K] [Fintype K] (h' : S.card = (Finset.univ : Finset K).card) : S = Finset.univ := by
-  exact (Finset.card_eq_iff_eq_univ S).mp h'
-
--- a worthy theorem
-example {n : Nat} {K : Type} {S : Finset K} [DecidableEq K] [Fintype K] (h : (Finset.univ : Finset K).card = n) (h' : S.card = n) : S = Finset.univ := by
-  exact (Finset.card_eq_iff_eq_univ S).mp ((h' ▸ h).symm)
-
-#check Finset.univ_subset_iff
+#check Finset.card_eq_iff_eq_univ 
 #check Finset.card_univ
-
-
-
+#check Finset.univ_subset_iff
 
 example
 {stA : A ∈ Knight ↔ (Knave : Finset Inhabitant) = {A,B,C}}
@@ -98,7 +76,6 @@ example
   grind
   grind
   sorry
-
 
 
 example
@@ -136,7 +113,7 @@ example
   constructor
   assumption
 
-  set_knight_to_knave
+  knave_interp
   intro CKnave
   knight_or_knave B with BKnight BKnave
   have oneKnave := stB.mp BKnight
@@ -224,7 +201,7 @@ example
     simp at AKnave
 
   ·
-    set_knight_to_knave
+    knave_interp
     intro CKnave
     apply notallKnave
     apply Finset.Subset.antisymm

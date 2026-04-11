@@ -276,7 +276,7 @@ by
       simp at h'
       have : C ∈ Knight := by exact Finset.singleton_subset_iff.mp h
       all_cases_satisfy_goal h'
-    have KnightCardGeTwo : Knight.card ≥ 2
+    have KnightCardGeTwo : (Knight : Finset Inhabitant).card ≥ 2
     rcases twosetSubsetKnight with h|h
     #check Finset.card_le_card
     · have := Finset.card_le_card h

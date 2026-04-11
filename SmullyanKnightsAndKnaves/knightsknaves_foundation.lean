@@ -42,7 +42,7 @@ instance : OrOp Prop  :=
 
 example : (Xor' (2=2) (2=2)) ↔ (2=2 ↔ 2≠2) := by 
   exact xor_iff_iff_not
--- open World is no good
+
 
 theorem disjoint
 {A : Inhabitant}
@@ -50,18 +50,9 @@ theorem disjoint
 (AKnave : A ∈ Knave)  : False := by
   exact disjoint_finset dis AKnight AKnave
 
--- needs to be repeated in every file...
 macro_rules
 | `(tactic| contradiction) =>
   do `(tactic |solve  | ( exfalso ; apply @disjoint Inhabitant  ; repeat assumption) )
-
-macro_rules
-| `(tactic| contradiction) =>
-  do `(tactic |solve  | ( apply AneB ; assumption ))
-
-macro_rules
-| `(tactic| contradiction) =>
-  do `(tactic |solve  | ( apply AneB.symm ; assumption ))
 
 theorem IamKnave
 {A : Inhabitant}
@@ -180,17 +171,6 @@ Interpret statements in terms of knights
 -/
 macro "knight_interp" "at"  t1:Lean.Parser.Tactic.locationWildcard : tactic =>
 do`(tactic| ( (try rw [not_iff_not.symm] at $t1) ; simp only[knave_notknightIff,not_not] at $t1))
-
-
-
-/-
-
-macro "knave_interp" "at" t1:Lean.Parser.Tactic.locationHyp : tactic =>
-do`(tactic| (rw [not_iff_not.symm] at $t1 ; simp only[knight_notknaveIff,not_not] at $t1)
-)
-
--/
-
 
 
 macro "knight_or_knave" t1:term  : tactic =>

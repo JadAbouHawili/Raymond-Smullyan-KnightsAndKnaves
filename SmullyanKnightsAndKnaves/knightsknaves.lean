@@ -8,6 +8,10 @@ deriving DecidableEq , Fintype
 noncomputable instance world : World Inhabitant :=  by exact W
 
 
+#check Finset.mem_insert
+#check Finset.mem_singleton
+#check Finset.mem_univ
+
 macro_rules
 | `(tactic| contradiction) =>
   do `(tactic |solve  | ( exfalso ; apply @disjoint Inhabitant  ; repeat assumption) )

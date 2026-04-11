@@ -1,5 +1,10 @@
 import SmullyanKnightsAndKnaves.knightsknaves_3
 
+--what does rintro rfl mean?
+theorem Finset.card_eq_iff_eq_univ2 {α : Type } [Fintype α] (s : Finset α) : s.card = Fintype.card α ↔ s = univ := 
+  ⟨s.eq_univ_of_card, by
+    rintro rfl
+    exact Finset.card_univ⟩
 /-
 We again have three inhabitants, A, B, and C, each of whom
 is a knight or a knave. Two people are said to be of the same

@@ -1,40 +1,55 @@
 import SmullyanKnightsAndKnaves.knightsknaves_3
 
 /-
-cardinality approach:(does not work...)
-(would tell the user to use a theorem that would rewrite Knave.card=3 to Knave = {A,B,C} which reduces to that style of representing the problem)
-- When proving that A is a kanve:
-  - Assume A is a knight
-  - Conclude A's statement that knave.card=3
-  - now we want to prove that A is a knave
-    (but how?, would need to go through 3*3*3 = 27 cases)
+(theorem that would rewrite Knave.card=3 to Knave = {A,B,C} which reduces to that style of representing the problem)
 -/
+/-
+    works , but knave.card = 3 has issues. i could just give a theorem as an exit
+-/
+
 open Inhabitant
+
+
+#check eq_or_ssubset_of_subset
+#check subset_iff_ssubset_or_eq
+
+
+example {S S' : Finset Inhabitant} (h : S ⊆ S') (h' : S ≠ S') : S ⊂ S' ∨ S = S' := by
+  exact subset_iff_ssubset_or_eq.mp h
+
+example {S S' : Finset Inhabitant} : S ⊆ S' ↔   S ⊂ S' ∨ S = S' := by
+  exact subset_iff_ssubset_or_eq
+
+   #check HasSubset.Subset.ssubset_of_ne 
+   #check Finset.card_eq_succ_iff_cons
+   #check Finset.ssubset_iff_subset_ne
+
 example
 {stA : A ∈ Knight  ↔ (Knave= {A,B,C}) }
 {stAn : A ∈ Knave ↔ ¬ (Knave = {A,B,C}) }
-{three : A ∈ Knight ↔ Knave.card=3 }
-{stB : B ∈ Knight ↔ Knave.card=1 }
-{stBn : B ∈ Knave ↔ Knave.card ≠ 1}
+{three : A ∈ Knight ↔ (Knave : Finset Inhabitant).card=3 }
+{stB : B ∈ Knight ↔ (Knave : Finset Inhabitant).card=1 }
 {AneC : A ≠ C}
 (all : ∀ (x : Inhabitant), x = A ∨ x = B ∨ x = C)
   : A ∈ Knave ∧ C ∈ Knight := by
+  #check Finset.card_eq_iff_eq_univ
+  have : ((Knave : Finset Inhabitant).card = 3) ↔ (Knave = ({A,B,C} : Finset Inhabitant) ) := by
+    #check eq_of_subset_of_card_eq 
+    --have : Finset.univ ={A,B,C} := by rfl
+    --have : Fintype.card Inhabitant = 3 := by exact Nat.eq_of_beq_eq_true rfl
+    --rw [←this]
+    --rw [Finset.card_eq_iff_eq_univ] 
+    --rfl
 
-  have : (Knave.card = 3) ↔ (Knave = ({A,B,C} : Finset Inhabitant) ) := by
     constructor
     intro card3
-    rw [Finset.card_eq_three] at card3
-    by_contra neq
-    have ⟨x,y,z,xney,xnez,ynez,eq⟩ := card3 
-    rw [eq] at neq
-    
-    sorry
-    intro eq 
-    rw [Finset.card_eq_three]
-    use A ; use B ; use C
-    exact ⟨AneB , AneC , BneC , eq⟩ 
+    #check Finset.eq_univ_of_card 
+    have : {A,B,C} = (Finset.univ : Finset Inhabitant) := rfl
+    rw [this]
+    exact (Finset.card_eq_iff_eq_univ Knave).mp card3
+
   have AKnave : A ∈ Knave
-  set_knave_to_knight
+  knight_interp
   intro AKnight
   have c := three.mp AKnight
   rw [Finset.card_eq_three] at c
@@ -45,87 +60,14 @@ example
   rw [Finset.mem_singleton]
   sorry
   have : Knave ={A,B,C}
- -- have : Knave ⊆ ({A,B,C} : Finset Inhabitant) := by
- --     exact set_subset_univ all
-  have : Knave ⊆ (Finset.univ) := by
-      exact Finset.subset_univ Knave
-
-  -- do case for every x,y,z. every combination which is 27 to get this..
-  rcases all x with xA|xB|xC
-  ·
-    rcases all y with yA|yB|yC
-    · rcases all z with zA|zB|zC
-      · rw [xA] at xney
-        rw [yA] at xney 
-        contradiction
-      · rw [xA] at xney
-        rw [yA] at xney 
-        contradiction
-      · rw [xA] at xney
-        rw [yA] at xney 
-        contradiction
-    · rcases all z with zA|zB|zC
-      · rw [xA] at xnez
-        rw [zA] at xnez 
-        contradiction
-      · rw [yB] at ynez
-        rw [zB] at ynez 
-        contradiction
-      · rw [xA] at knaveEq
-        rw [yB] at knaveEq
-        rw [zC] at knaveEq
-        assumption
-    · rcases all z with zA|zB|zC
-      · rw [xA] at xnez
-        rw [zA] at xnez 
-        contradiction
-      · rw [xA] at knaveEq
-        rw [yC] at knaveEq
-        rw [zB] at knaveEq
-        rw [knaveEq]
-        sorry
-      · rw [zC] at ynez
-        rw [yC] at ynez
-        contradiction
-
-  ·
-    rcases all y with yA|yB|yC
-    · rcases all z with zA|zB|zC
-      · sorry
-      · sorry
-      · sorry
-    · rcases all z with zA|zB|zC
-      · sorry
-      · sorry
-      · sorry
-    · rcases all z with zA|zB|zC
-      · sorry
-      · sorry
-      · sorry
-  ·
-    rcases all y with yA|yB|yC
-    · rcases all z with zA|zB|zC
-      · sorry
-      · sorry
-      · sorry
-    · rcases all z with zA|zB|zC
-      · sorry
-      · sorry
-      · sorry
-    · rcases all z with zA|zB|zC
-      · sorry
-      · sorry
-      · sorry
 
   sorry
-
-  have notallKnave := stAn.mp AKnave
-
+  sorry
   constructor
   assumption
-  set_knight_to_knave
+  knave_interp
   intro CKnave
-  set_knight_or_knave B with BKnight BKnave
+  knight_or_knave B with BKnight BKnave
   · have one := stB.mp BKnight
     rw [Finset.card_eq_one] at one
     have ⟨a,singleton⟩ := one 
@@ -135,59 +77,18 @@ example
     rw [Finset.mem_singleton] at AKnave
     rw [←CKnave] at AKnave
     contradiction
-  · 
+  ·
     have : Knave = {A,B,C}
-    apply set_full3 
-    repeat assumption
-    contradiction
 
--- showing a contradiction to knave.card=1
-    /-
-    works , but knave.card = 3 has issues. i could just give a theorem as an exit
-    have : 2 ≤ Knave.card  := by
-        have : {A,C} ⊆ Knave := by
-          intro a aIn
-          rw [Finset.mem_insert] at aIn
-          rw [Finset.mem_singleton] at aIn
-          rcases aIn with h|h
-          rw [h] ; assumption
-          rw [h] ; assumption
-        #check Finset.card_le_card
-        have := Finset.card_le_card this
-        have last : ({A,C}:Finset Inhabitant).card = 2 := by
-          rw [Finset.card_eq_two] 
-          use A
-          use C
-          constructor 
-          exact AneC
-          rfl
-        rw [last] at this
-        assumption
-        /-
-        second approach must be studied , i was trying second approach to get away from using AneC but there is no way around that...
-        -/
-    have : 2 ≤ Knave.card  := by
-        #check Nat.two_le_iff
-        #check Nat.two_le_iff  Knave.card
-        rw[ Nat.two_le_iff  Knave.card]
-        constructor
-        · exact Finset.card_ne_zero_of_mem AKnave
-        · intro cardone
-          rw [cardone] at this
-          contradiction
-    rcases oneKnave with single|single|single
-    ·
-      rw [single] at CKnave
-      rw [Finset.mem_singleton] at CKnave
-      symm at CKnave
-      #check AneC
-      -- contradiction doesn't work without this step
-      have : A ≠ C := AneC
-      contradiction
-    · sorry
-    · sorry
--/
+    sorry
+    #check Nat.two_le_iff
+    sorry
+
+
+#check Finset.card_ne_zero_of_mem
 
 #check Finset.ssubset_iff_subset_ne.mpr
 
 #check Finset.card_eq_two
+
+#check Nat.two_le_iff

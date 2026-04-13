@@ -39,6 +39,53 @@ example
     assumption
   }
 
+
+  #check Finset.card_eq_iff_eq_univ
+  #check Finset.eq_of_subset_of_card_le 
+  #check Finset.eq_univ_of_card 
+  #check Finset.card_eq_iff_eq_univ
+example
+{stA : A ∈ Knight  ↔ (Knave= {A,B,C}) }
+{stAn : A ∈ Knave ↔ ¬ (Knave = {A,B,C}) }
+{three : A ∈ Knight ↔ (Knave : Finset Inhabitant).card=3 }
+{stB : B ∈ Knight ↔ (Knave : Finset Inhabitant).card=1 }
+  : A ∈ Knave ∧ C ∈ Knight := by
+  have AKnave: A ∈ Knave
+  sorry
+  constructor
+  assumption
+  knave_interp
+  intro CKnave
+  knight_or_knave B with BKnight BKnave
+  · have one := stB.mp BKnight
+    rw [Finset.card_eq_one] at one
+    have ⟨a,singleton⟩ := one 
+    rw [singleton] at AKnave 
+    rw [singleton] at CKnave 
+    simp at CKnave
+    simp at AKnave
+    rw [←CKnave] at AKnave
+    contradiction
+  ·
+    have : Knave = {A,B,C}
+    apply Finset.Subset.antisymm
+    by_universe
+    intro x h
+    simp at h
+    all_cases_satisfy_goal h
+
+    have := stA.mpr this
+    contradiction
+
+
+
+
+
+
+
+
+
+
 --A:All of us are knaves.
 --B: Exactly one of us is a knave.
 open Lean Elab Tactic

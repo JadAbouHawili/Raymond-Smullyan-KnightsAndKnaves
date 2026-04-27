@@ -1,6 +1,5 @@
 -- file which contains knights and knaves problems we made up.
 
-import SmullyanKnightsAndKnaves.knightsknaves
 import SmullyanKnightsAndKnaves.knightsknaves_3
 /-
 "
@@ -9,22 +8,43 @@ B: Exactly one of us is a knave
 "
 -/
 
+open Inhabitant
+
 #check Set.eq_singleton_iff_unique_mem
 #check Finset.eq_singleton_iff_unique_mem
-open settheory_approach
+#check Set.nonempty_iff_eq_singleton
+#check Finset.nonempty_iff_eq_singleton_default
+#check Set.nonempty_iff_eq_singleton_default
 example {K : Type} {S : Set K}
 {A : K}
-{h : {A} = S}
+{h : S = {A}}
+: A ∈ S := (Set.eq_singleton_iff_unique_mem.mp h).left
+
+#check and_imp
+#check imp_and
+#check Set.mem_singleton_iff
+example {K : Type} {S : Set K}
+{A : K}
+: S = {A} →
+ A ∈ S := by
+ grind only [Set.eq_singleton_iff_unique_mem]
+
+
+#check Finset.eq_singleton_iff_unique_mem
+example {K : Type} {S : Finset K}
+{A : K}
+{h :  S = {A}}
 : A ∈ S := by
-  exact (Set.eq_singleton_iff_unique_mem.mp h.symm).left
+  #check Finset.coe_eq_singleton
+  simp only [Finset.coe_eq_singleton.symm] at *
+  #check Finset.coe_eq_singleton
+  simp? at *
+  #check Finset.toFinset_coe
+  grind only [Finset.eq_singleton_iff_unique_mem]
 
 example
-  {inst : DecidableEq Inhabitant}
-{all2 : ∀ (x : Inhabitant), x = A ∨ x = B}
 {stA : A ∈ Knight ↔ (Knight={A,B}) }
-{stAn : A ∈ Knave ↔ ¬ (Knight={A,B}) }
 {stB: B ∈ Knight ↔  (Knave={A} ∨ Knave={B}) }
-{stBn: B ∈ Knave ↔  ¬ (Knave={A} ∨ Knave={B}) }
   : A ∈ Knave := by
 
   {
@@ -40,7 +60,7 @@ example
         exfalso
         contradiction
     · by_contra AKnight
-      set_knave_to_knight at AKnight
+      knight_interp at AKnight
       have KAB := stA.mp AKnight
 --      #check Finset.eq_of_not_mem_of_mem_insert
       #check Finset.erase_eq_iff_eq_insert
@@ -75,16 +95,16 @@ example
   have stB2 := stB
   nth_rw 1 [stA.symm] at stB2 
 
-  set_knight_or_knave A with h_1 h_2
+  knight_or_knave A with h_1 h_2
   · left
     exact stB2.mp h_1
   · have BnKnight := stAn.mp h_2
     simp [BnKnight] at stCn
     have AKnave := h_2
-    set_knave_to_knight at h_2
+    knight_interp at h_2
     have CKnave := stCn.mpr h_2
     right
-    set_knight_to_knave at BnKnight
+    knave_interp at BnKnight
     exact And.intro AKnave (And.intro BnKnight CKnave)
 
 
@@ -105,7 +125,7 @@ example
 {stC : C ∈ Knight ↔ A ∈ Knight ∨ B ∈ Knight}
 {stCn : C ∈ Knave ↔ ¬ (A ∈ Knight ∨ B ∈ Knight)}
 : Knight={A,B,C} ∨ Knave={A,B,C}:= by
-  set_knight_or_knave A with AKnight AKnave 
+  knight_or_knave A with AKnight AKnave 
   have BKnight := stA.mp AKnight
   simp [AKnight] at stC
   left
@@ -113,16 +133,16 @@ example
   by_universe
   intro x h
   simp at h
-  rcases h with h|h|h <;>  (rw [h]; assumption)
+  all_cases_satisfy_goal h
 
   have BKnave := stAn.mp AKnave
-  set_knave_to_knight at AKnave
+  knight_interp at AKnave
   simp [AKnave,BKnave] at stCn
   right
   apply Finset.Subset.antisymm
   by_universe
   intro x h
   simp at h
-  set_knight_to_knave at AKnave
-  set_knight_to_knave at BKnave
-  rcases h with h|h|h <;>  (rw [h]; assumption)
+  knave_interp at AKnave
+  knave_interp at BKnave
+  all_cases_satisfy_goal h

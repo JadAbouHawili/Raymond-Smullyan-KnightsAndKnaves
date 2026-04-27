@@ -6,19 +6,13 @@ import Mathlib.Data.Set.Basic
 import Mathlib.Data.Multiset.Basic
 import Mathlib.Tactic.Have
 
-theorem notleft_right {P Q : Prop} (Or : P ∨ Q)(notleft : ¬P) : Q := by
-  cases Or
-  contradiction
-  assumption
+theorem notleft_right {P Q : Prop} (h : P ∨ Q)(notleft : ¬P) : Q := by
+  exact Or.resolve_left h notleft
 
-theorem notright_left {P Q : Prop} (Or : P ∨ Q)(notright : ¬Q) : P := by
-  cases Or
-  assumption
-  contradiction
+theorem notright_left {P Q : Prop} (h : P ∨ Q)(notright : ¬Q) : P := by
+  exact Or.resolve_right h notright
 
--- two sets of the same cardinality are subsets which means they are equal
 #check Finset.eq_iff_card_ge_of_superset
   #check Finset.eq_iff_card_le_of_subset
   #check Finset.subset_iff_eq_of_card_le
   #check Finset.eq_of_subset_of_card_le
-theorem eq_of_subset_of_card_eq {K : Type} {A B : Finset K} (h1 : A ⊆ B) (h2 : A.card = B.card) : A = B := Finset.eq_of_subset_of_card_le h1 (by grind)

@@ -134,7 +134,7 @@ example
   knight_interp
   intro AKnight
   have allKnave := stA.mp AKnight
-  grind -- have a super powerful grind that can do this...  think about making tactics more powerful in lean 4 games
+  --grind -- have a super powerful grind that can do this...  think about making tactics more powerful in lean 4 games
   -- abstracted into a theorem...
   have : 3 = (Finset.univ : Finset Inhabitant).card := by exact Nat.eq_of_beq_eq_true rfl
   rw [this] at allKnave
@@ -199,7 +199,6 @@ example
   rw [Finset.card_eq_three]
   use A,B,C
   simp
-  #check eq_of_subset_card_eq
   apply Finset.Subset.antisymm
   by_universe
   intro x h

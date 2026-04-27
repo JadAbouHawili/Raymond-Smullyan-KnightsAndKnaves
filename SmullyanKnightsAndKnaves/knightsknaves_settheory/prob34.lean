@@ -1,10 +1,5 @@
 import SmullyanKnightsAndKnaves.knightsknaves_3
 
---what does rintro rfl mean?
-theorem Finset.card_eq_iff_eq_univ2 {α : Type } [Fintype α] (s : Finset α) : s.card = Fintype.card α ↔ s = univ := 
-  ⟨s.eq_univ_of_card, by
-    rintro rfl
-    exact Finset.card_univ⟩
 /-
 We again have three inhabitants, A, B, and C, each of whom
 is a knight or a knave. Two people are said to be of the same
@@ -26,9 +21,10 @@ example
    knight_or_knave A with AKnight AKnave
    · have BKnave := stA.mp AKnight
      have BCnotsametype := stBn.mp BKnave
-     rw [not_or] at BCnotsametype
-     rw [not_and_or] at BCnotsametype
-     rw [not_and_or] at BCnotsametype
+     simp at BCnotsametype
+     --rw [not_or] at BCnotsametype
+     --rw [not_and_or] at BCnotsametype
+     --rw [not_and_or] at BCnotsametype
      have AC:= BCnotsametype.left
      simp [AKnight] at AC
      knave_interp at AC

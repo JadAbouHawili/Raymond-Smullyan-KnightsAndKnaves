@@ -148,6 +148,11 @@ theorem full3 {S : Finset Inhabitant} (hA : A ∈ S) (hB : B ∈ S) (hC : C ∈ 
     intro x
     all_cases_satisfy_goal all x
 
+/-
+
+ideal
+
+-/
 example
 {stA : A ∈ Knight ↔ Knave = {A,B,C}}
 {stB : B ∈ Knight ↔ (Knight : Finset Inhabitant).card = 1  }

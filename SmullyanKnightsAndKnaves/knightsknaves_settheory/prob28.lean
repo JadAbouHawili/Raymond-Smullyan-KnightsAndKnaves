@@ -30,10 +30,10 @@ example
   cases knaveNotEmpty
   expose_names
   --all_cases_satisfy_goal (all w)
-  rcases all w with h|h 
-  rw [h] at ha
+  rcases all w with h'|h' 
+  rw [h'] at h
   contradiction
-  rw [h] at ha
+  rw [h'] at h
   constructor ; assumption ; assumption
 
 #check Finset.eq_univ_iff_forall
@@ -48,7 +48,7 @@ example
 --Let's start with proving that `A` is a knight. (use `have`)
   have AKnight : A ∈ Knight 
  -- Change the goal to `¬isKnave A` using the `knight_to_knave` tactic
-  set_knight_to_knave
+  knave_interp
 -- Assume `isKnave A`
   intro AKnave
 

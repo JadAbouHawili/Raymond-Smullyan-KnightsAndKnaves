@@ -82,25 +82,18 @@ example
    
   rw [Finset.card_eq_one]
   use B
-  --this way or finset.subset.antiysymm
-  --rw [Finset.eq_singleton_iff_nonempty_unique_mem]
-  --constructor
-  --rw [Finset.nonempty_def]
-  --use B
-  --intro x h 
-  --cases all x
-  apply Finset.Subset.antisymm 
-   
-  -- some tactic...
-  have : Knight ⊆ {A,B,C} := by
-    by_universe
-  remove_top at this
-  rw [Finset.pair_comm B C] at this
-  remove_top at this
-  intro x h ; simp at h ; rw [h] ; assumption
+  rw [Finset.eq_singleton_iff_unique_mem]
+  constructor
+  assumption
+  intro x h
+  rcases all x with h'|h'|h'
+  rw [h'] at h ; contradiction
+  assumption
+  rw [h'] at h ; contradiction
+
   contradiction
-  have := stC.mpr BKnave
-  constructor ; assumption ; assumption
+  have CKnight := stC.mpr BKnave
+  exact And.intro BKnave CKnight
 
 example
 (stB : (B ∈ Knight) ↔ (A ∈ Knight ↔ Knight = {A} ∨ Knight = {B} ∨ Knight = {C}))
@@ -287,7 +280,7 @@ by
     · have := Finset.card_le_card h
       simp at this
       assumption
-    have : Knight.card≠ 1
+    have : (Knight : Finset Inhabitant).card≠ 1
     exact Ne.symm (Nat.ne_of_lt KnightCardGeTwo)
     knave_interp at stB
     have BKnave := stB.mpr this
@@ -299,28 +292,24 @@ by
     simp [AKnave] at stB
     rcases subsetKnight with h|h 
     · simp at h 
-      set_knave_to_knight at stC
+      knight_interp at stC
       simp [h] at stC
       knight_interp at stB 
       have notoneknight := stB.mp h
-      have : Knight.card =1
+      have : (Knight : Finset Inhabitant).card =1
       rw [Finset.card_eq_one]
       use B
-    -- one of two options at this point
-    -- either finset.eq_singleton_iff_unique_mem and use the all axiom
-    -- or finset.subset.antisymm and prove knight subset of universe then remove top(can this option be made less tedious/repetitive?)
-    /-
-    apply Finset.Subset.antisymm
-    · sorry
-    · intro x h
-      simp at h
-      rw [h] ; assumption
-    -/
+
       rw [Finset.eq_singleton_iff_unique_mem]
       constructor
       assumption
       intro x h
+      rcases all x with h'|h'|h'
+      rw [h'] at h ; contradiction
+      assumption
+      rw [h'] at h ; contradiction
 
-      sorry
-      sorry
-    · sorry
+      contradiction
+
+    · simp at h
+      grind 

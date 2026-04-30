@@ -47,6 +47,6 @@ example
       have := notleft_right cont AKnave
       contradiction
   else 
-    set_knight_to_knave at AKnight
+    knave_interp at AKnight
     have := stAn.mp AKnight
     exact this (by left ; assumption)

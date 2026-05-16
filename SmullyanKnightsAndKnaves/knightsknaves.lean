@@ -7,7 +7,6 @@ deriving DecidableEq , Fintype
 
 noncomputable instance world : World Inhabitant :=  by exact W
 
-
 #check Finset.mem_insert
 #check Finset.mem_singleton
 #check Finset.mem_univ
@@ -16,8 +15,11 @@ macro_rules
 | `(tactic| contradiction) =>
   do `(tactic |solve  | ( exfalso ; apply @disjoint Inhabitant  ; repeat assumption) )
 
+open Inhabitant
+example : A ≠ B := by exact not_eq_of_beq_eq_false rfl
 
-
+example : Finset.univ = ({A,B} : Finset Inhabitant) := by
+  rfl
 
 -- redundant/not needed , keep
 theorem all : ∀x : Inhabitant , x = .A ∨ x = .B := by
@@ -44,14 +46,8 @@ example
     rw [eq_comm]
     simp [Finset.eq_univ_iff_forall]
 
-
 #check Finset.eq_univ_iff_forall
 -- generalization , could then be used for knightsknaves and knightsknaves_3 ... if need be
-example
-{K : Type}
-{inst : Fintype K} {inst2 : DecidableEq K} {A: K} {S : Finset K}  : Finset.univ = (insert A S: Finset K) ↔  ∀ (x : K), x = A ∨ x ∈ S := by
-  simp [Finset.ext_iff,Finset.mem_univ]
 
 #check Finset.eq_univ_iff_forall
 #check Finset.eq_of_subset_of_card_le
-

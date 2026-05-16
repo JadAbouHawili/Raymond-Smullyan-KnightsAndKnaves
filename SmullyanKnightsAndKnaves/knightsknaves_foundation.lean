@@ -84,7 +84,7 @@ theorem knight_notknave
 theorem notknight_knave
 {A : Inhabitant}
 (h' : A ∉ Knight) : A ∈ Knave := by
-  exact notleft_right (KorKn A) h'
+  exact Or.resolve_left (KorKn A) h'
 
 theorem knave_notknight
 {A : Inhabitant}
@@ -94,7 +94,7 @@ theorem knave_notknight
 theorem notknave_knight
 {A : Inhabitant}
 (h' : A ∉ Knave) : A ∈ Knight := by
-  exact notright_left (KorKn A) h'
+  exact Or.resolve_right (KorKn A) h'
 
 
 -------------------
@@ -150,7 +150,6 @@ do`(tactic| ( (try rw [not_iff_not.symm] at $t1) ; simp only[knight_notknaveIff,
 )
 
 
-#check knave_notknightIff
 -- hypothesis
 /--
 Interpret statements in terms of knights

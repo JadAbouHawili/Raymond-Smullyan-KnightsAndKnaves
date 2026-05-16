@@ -18,7 +18,6 @@ import Mathlib.Data.Fintype.Basic
 
 --works
 section
-
 -- for x : K , enables cases x
 -- say we have K.A : K , how to get K.A ∈ knight ∨ K.A ∈ Knave
 
@@ -28,17 +27,11 @@ inductive K
 | C
 deriving DecidableEq , Fintype
 
-
 set_option pp.all true in
-#print K
 #check K.noConfusionType 
 #check K.casesOn
 #check K.casesOn
 #check Eq
-
-#check Fintype K
-#synth (Fintype K)
-#check (Finset.univ : Finset K)
 
 open K
 
@@ -55,92 +48,69 @@ axiom Knight : Finset K
 axiom Knave : Finset K
 
 #check xor
-#check Xor'
-
-
-
-example : (∀ (x : K), Xor' (x ∈ Knight) (x ∈ Knave)) → Knight ∩ Knave = ∅ := by
-  intro h
+#check Finset.inter_empty
+example {S S' : Set K}: (∀ (x : K), Xor' (x ∈ S) (x ∈ S')) → S ∩ S' = ∅ := by
   grind
+
 #check xor_def
-  theorem disjoint_iff_xor : (Knight ∩ Knave = ∅  ∧ (∀x:K, x ∈ Knight ∨ x ∈ Knave) )↔  ∀(x : K), Xor' (x ∈ Knight)  (x ∈ Knave) := by
+example { P Q R S: Prop} (h : (P ∧ S) ∨ (Q ∧ R)) : P ∨ Q := by
+  #check and_or_right
+  #check and_or_left
+  grind
+
+theorem disjoint_iff_xor : (Knight ∩ Knave = ∅  ∧ (∀x:K, x ∈ Knight ∨ x ∈ Knave) )↔  ∀(x : K), Xor' (x ∈ Knight)  (x ∈ Knave) := by
   constructor
-  · intro ⟨h1,h2⟩  x 
+  · 
+    intro ⟨h1,h2⟩  x 
     unfold Xor' 
-    cases h2 x
+    have thisthis := h2 x
+    rcases h2 x with h|h
     left
-    constructor
-    assumption
-    intro
-    sorry
-    sorry
+    constructor ; assumption
+    intro a
+    #check Finset.mem_inter
+    have := Finset.mem_inter.mpr ⟨h, a⟩
+    rw [h1] at this ; contradiction
+
+    right
+    constructor ; assumption
+    intro a
+    #check Finset.mem_inter
+    have := Finset.mem_inter.mpr ⟨a, h⟩
+    rw [h1] at this ; contradiction
+
   intro h
   constructor
-  by_contra 
+  by_contra
   simp at this
   have : ∃ x: K , x ∈ Knight ∩ Knave := by 
     simp [Finset.nonempty_iff_ne_empty.symm] at this
     exact Finset.nonempty_def.mp this 
   have ⟨x,h'⟩ := this
-  have h := h x 
-  unfold Xor' at h 
+  have h := h x
+  unfold Xor' at h
   simp at h'
-  grind 
-  sorry
+  grind
+
+  intro x
+  have := h x
+  rcases this with h1|h1
+  left ; exact h1.left
+  right ; exact h1.left
 
 #check Finset.nonempty_iff_ne_empty
 #check Finset.nonempty_of_ne_empty
 
--- is the only advantage just doing cases x... and also that decidableeq and fintype not visible 
--- it seems like the only change is:
--- axiom K
--- axiom A
--- axiom B
--- axiom C
 axiom dis : Knight ∩ Knave = ∅
 
 axiom KorKn : ∀(x : K), x ∈ Knight ∨ x ∈ Knave
-
-
----- hypothesis
---macro "knave_interp" "at" t1:Lean.Parser.Tactic.locationHyp : tactic =>
---do`(tactic| (rw [not_iff_not.symm] at $t1 ; simp only[knight_notknaveIff,not_not] at $t1)
---)
---
----- hypothesis
---macro "knight_interp" "at" t1:Lean.Parser.Tactic.locationHyp : tactic =>
---do`(tactic| (rw [not_iff_not.symm] at $t1 ; simp only[knave_notknightIff,not_not] at $t1)
-
-/-
-
--- hypothesis
-macro "knight_interp" "at" t1:Lean.Parser.Tactic.locationHyp : tactic =>
-do`(tactic| (rw [not_iff_not.symm] at $t1 ; simp only[knave_notknightIff,not_not] at $t1)
-)
-
-axiom either (A : Inhabitant): A ∈ Knight ∨ A ∈ Knave
-
--- redundant
--- *
-macro "set_knight_to_knave" "at"  t1:Lean.Parser.Tactic.locationWildcard : tactic =>
-  do`(tactic| simp only [knight_notknaveIff,not_not] at $t1)
--- goal
-macro "set_knight_to_knave" : tactic =>
-  do`(tactic| simp only [knight_notknaveIff,not_not])
--- hypothesis
-macro "set_knight_to_knave" "at" t1:Lean.Parser.Tactic.locationHyp : tactic =>
-do`(tactic|
-  simp only [knight_notknaveIff,not_not] at $t1)
--/
-
 
 example : Knight ∪ Knave = {A,B,C} → A ∈ Knight ∪ Knave := by
   intro h
   rw [h]
   rw [Finset.mem_insert]
   #check reduceCtorEq 
-  simp?
-  --left ; rfl
+  simp
 
 example
 {stA : A ∈ Knight ↔ Knave = {A,B,C}}
@@ -157,20 +127,9 @@ example
   by_contra h
   have : A ∈ Knight := by
     have := KorKn A 
-    --exact?
     apply Or.resolve_right
     assumption
     assumption
-
-example {P Q : Prop} (h : ¬Q) (h' : P ∨ Q) : P := by
-  exact Or.resolve_right h' h
-     
-
-
-
-
-
-
 
 --variable {K : Type} [DecidableEq K]
 --variable (A B C : K)
@@ -186,14 +145,12 @@ example {P Q : Prop} (h : ¬Q) (h' : P ∨ Q) : P := by
 --variable (A B C : K)
 --#check (↥ ·)
 variable (all : ∀ x : K, x = A ∨ x = B ∨ x = C)
-#check A
 
 #check K
 #check instFintypeK
 #check (Finset.univ : Finset K)
 
 #check instFintypeK
-
 
 --instance instFin
 /-
@@ -202,7 +159,6 @@ variable [instFintypeK A B C all]
 theorem univ2_iff_all :
     (Finset.univ : Finset K) = ({A,B,C} : Finset K) ↔
       ∀ x : K, x = A ∨ x = B ∨ x = C := by
-  …
 
 variable [instFintypeK A B C all]
 --theorem univ2_iff_all : Finset.univ = ({A,B,C} : Finset K) := by
@@ -236,10 +192,6 @@ theorem univ2_iff_all {K : Type} [Fintype K] {inst2 : DecidableEq K} {A B C : K}
 --↥
     apply Fintype.finsetEquivSet
 
-
-
-
-
   have this2: (Set.univ : Set K).toFinset = Finset.univ := by exact Set.toFinset_univ
   #check Finset.coe_inj
   --rw [Finset.coe_inj.symm]
@@ -261,10 +213,6 @@ theorem univ2_iff_all {K : Type} [Fintype K] {inst2 : DecidableEq K} {A B C : K}
       assumption
   --rw [this]
   #check Finset.ext_iff
-
-
-
-
 -/
 
 end

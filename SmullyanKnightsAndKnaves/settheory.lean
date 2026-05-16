@@ -22,7 +22,6 @@ open Finset
 
 #check eq_univ_iff_forall
 
-
 section
 
 variable {K : Type} [DecidableEq K] 
@@ -56,10 +55,6 @@ example : Finset K := by
 
   exact bar
 end
-
-
-
-
 
 
 --works
@@ -115,14 +110,14 @@ theorem inleft_notinright_finset
   have := Finset.mem_inter_of_mem h' a
   rw [h] at this
   contradiction
-#print inleft_notinright_finset
 
+omit [DecidableEq K] in
 theorem notinleft_inright
 {S S' : Finset K}
 {A : K}
 (SorS' : A ∈ S ∨ A ∈ S')
 (h' : A ∉ S) : A ∈ S' := by
-  exact notleft_right SorS' h'
+  exact Or.resolve_left SorS' h'
 
 theorem inright_notinleft_finset
 {S S' : Finset K}
@@ -134,11 +129,12 @@ theorem inright_notinleft_finset
   rw [h] at this
   contradiction
 
+omit [DecidableEq K] in
 theorem notinright_inleft
 {S S' : Finset K}
 (SorS' : A ∈ S ∨ A ∈ S')
 (h' : A ∉ S') : A ∈ S := by
-  exact notright_left SorS' h'
+  exact Or.resolve_right SorS' h'
 
 -------------------
 theorem inleft_notinrightIff
@@ -166,7 +162,7 @@ theorem inright_notinleftIff
 : A ∈ S' ↔  A ∉ S := by
   constructor
   · exact inright_notinleft_finset h
-  · exact notleft_right SorS'
+  · exact Or.resolve_left SorS'
 
 theorem notinright_inleftIff
 {S S' : Finset K}

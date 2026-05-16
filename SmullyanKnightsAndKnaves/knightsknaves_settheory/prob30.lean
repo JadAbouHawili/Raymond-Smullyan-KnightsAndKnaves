@@ -43,10 +43,9 @@ example
     have cont := stA.mp AKnight
     if AKnave : A ∈ Knave then 
       contradiction
-    else 
-      have := notleft_right cont AKnave
-      contradiction
-  else 
+    else
+      simp [AKnave] at cont
+  else
     knave_interp at AKnight
     have := stAn.mp AKnight
     exact this (by left ; assumption)

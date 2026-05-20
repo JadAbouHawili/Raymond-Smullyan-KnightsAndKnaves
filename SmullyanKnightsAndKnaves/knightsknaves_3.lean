@@ -48,7 +48,7 @@ def allKnave : Prop := A ∈ Knave ∧ B ∈ Knave ∧ C ∈ Knave
 #check Finset.val_inj
 example {K : Type} [DecidableEq K] [Fintype K] :Finset.univ = {A,B,C} ↔ Set.univ = {A,B,C} := by
   nth_rw 2 [eq_comm]
-  #check Set.toFinset_eq_univ 
+  #check Set.toFinset_eq_univ
   rw [Set.toFinset_eq_univ.symm]
   simp
   exact eq_comm

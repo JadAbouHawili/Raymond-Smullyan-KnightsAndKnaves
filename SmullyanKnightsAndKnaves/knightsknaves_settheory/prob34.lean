@@ -10,7 +10,12 @@ B: A and C are of the same type.
 What is C?
 -/
 
+
 open Inhabitant
+
+/-
+not ideal
+-/
 example
 {stA : A ∈ Knight  ↔ (B ∈ Knave) }
 {stAn : A ∈ Knave ↔ ¬ (B ∈ Knave) }
@@ -21,10 +26,7 @@ example
    knight_or_knave A with AKnight AKnave
    · have BKnave := stA.mp AKnight
      have BCnotsametype := stBn.mp BKnave
-     simp at BCnotsametype
-     --rw [not_or] at BCnotsametype
-     --rw [not_and_or] at BCnotsametype
-     --rw [not_and_or] at BCnotsametype
+     simp only [not_or,not_and_or] at BCnotsametype
      have AC:= BCnotsametype.left
      simp [AKnight] at AC
      knave_interp at AC
@@ -37,3 +39,30 @@ example
      simp [AKnave] at AC
      assumption
   }
+
+/-
+A: B is a knave.
+B: A and C are of the same type.
+
+ideal
+-/
+example
+{stA : A ∈ Knight  ↔ (B ∈ Knave) }
+{stB: B ∈ Knight ↔ (A ∈ Knight ↔ C ∈ Knight) }
+  : C ∈ Knave  := by
+    knight_or_knave A with AKnight AKnave
+
+    have BKnave := stA.mp AKnight 
+    knave_interp at stB 
+    have notAsameC := stB.mp BKnave
+    knave_interp at AKnight 
+    simp [AKnight] at notAsameC
+    assumption
+
+    knave_interp at stA 
+    have BnKnave := stA.mp AKnave 
+    knave_interp at stB
+    simp [BnKnave] at stB
+    rw [not_iff_not] at stB 
+    have := stB.mp AKnave
+    assumption

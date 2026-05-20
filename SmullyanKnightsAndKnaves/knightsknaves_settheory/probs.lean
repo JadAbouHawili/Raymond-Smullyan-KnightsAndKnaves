@@ -7,44 +7,11 @@ example
   (stA : A ∈ Knight ↔ B ∈ Knight)
   (stB : B ∈ Knight ↔ A ∈ Knave)
   : A ∈ Knave ∧ B ∈ Knight := by
-    {
-    have AKnave : A ∈ Knave
-    knight_interp
-    intro AKnight
-    have BKnight := stA.mp AKnight
-    have AKnave := stB.mp BKnight
-    exact disjoint AKnight AKnave
+    rw [stB] at stA
+    have:= IamKnaveIffFalse.mp stA
+    contradiction
 
-    have BKnight := stB.mpr AKnave
-    constructor ; repeat assumption
-    }
-
-example
-  {x y : Inhabitant}
-  {inst : DecidableEq Inhabitant}
-  (h2 : y ∈ Knight ∨ y ∈ Knave)
-  -- x says y is a knight
-  -- y says that x and y are of different type
-  (stx : x ∈ Knight ↔ y ∈ Knight)
-  (sty : y ∈ Knight ↔ x ∈ Knight ∧ y ∈ Knave ∨ x ∈ Knave ∧ y ∈ Knight)
-  : x ∈ Knave ∧ y ∈ Knave := by
-
-  knave_interp at stx
-  rw [stx]
-  simp
-
-  have this:=h2
-
-  rcases h2  with h_1|h_1
-  rw [sty] at h_1
-  rw [stx] at h_1
-  nth_rw 1 [stx.symm] at h_1
-  knight_interp at h_1
-  rcases h_1 with ⟨a,b⟩|⟨a',b'⟩
-  contradiction
-  contradiction
-
-  assumption
+------------------------------------------------------------------------------------------------------------------------------------
 
 --You have met a group of 3 islanders. Their names are Oberon, Tracy, and Wendy.
 --
@@ -64,7 +31,7 @@ example
     have OberonKnave : Oberon ∈ Knave := by {
       knight_interp
       intro OberonKnight
-      have ⟨_,_⟩  := stO.mp OberonKnight
+      have ⟨a,b⟩  := stO.mp OberonKnight
       apply disjoint OberonKnight
       assumption
     }

@@ -14,6 +14,9 @@ noncomputable instance world : World Inhabitant :=  by exact W
 macro_rules
 | `(tactic| contradiction) =>
   do `(tactic |solve  | ( exfalso ; apply @disjoint Inhabitant  ; repeat assumption) )
+macro "contradiction_hyp" h1:ident h2:ident : tactic =>
+  `(tactic| (exact disjoint $h1 $h2) )
+
 
 open Inhabitant
 example : A ≠ B := by exact not_eq_of_beq_eq_false rfl

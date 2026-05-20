@@ -1,7 +1,6 @@
 import SmullyanKnightsAndKnaves.knightsknaves_3
 open Inhabitant
 
-#check IamKnaveIffFalse
 example
 {hB : B ∈ Knight ↔ (A ∈ Knight ↔ A ∈ Knave)}
 {hC : C ∈ Knight ↔ B ∈ Knave}

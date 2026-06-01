@@ -1,10 +1,9 @@
 import SmullyanKnightsAndKnaves.knightsknaves
 
-open settheory_approach
+open Inhabitant
 example
-  {inst : DecidableEq Inhabitant}
   {Normal : Finset Inhabitant} 
-{hKKn : Knight ∩ Knave = ∅ }
+{hKKn : Knight ∩ (Knave : Finset Inhabitant) = ∅ }
 {hKN : Knight ∩ Normal = ∅ }
 {hKnN : Knave ∩ Normal = ∅ }
 {Or : A ∈ Knight ∨ A ∈ Knave ∨ A ∈ Normal}
@@ -28,9 +27,8 @@ example
   }
 
 example 
-  {inst : DecidableEq Inhabitant}
   {Normal : Finset Inhabitant}
-{hKKn : Knight ∩ Knave = ∅ }
+{hKKn : Knight ∩ (Knave : Finset Inhabitant) = ∅ }
 {hKnN : Knave ∩ Normal = ∅ }
 {hKN : Knight ∩ Normal = ∅ }
 {h1 : A ∈ Knight ∨ A ∈ Knave ∨ A ∈ Normal }

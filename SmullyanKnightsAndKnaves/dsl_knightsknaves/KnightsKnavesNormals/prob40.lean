@@ -1,5 +1,6 @@
-
 import SmullyanKnightsAndKnaves.knightsknaves
+import SmullyanKnightsAndKnaves.settheory
+
 variable { K : Type}
 example [inst : DecidableEq K] (A B C : K)
 --  (AneB : A ≠ B)
@@ -44,9 +45,9 @@ example [inst : DecidableEq K] (A B C : K)
     · have := stBn BKnave
       contradiction
 
-    · have :=inright_notinleft hKnN BNormal
+    · have := inright_notinleftIff hKnN BNormal
       right
       constructor
-      have := inright_notinleft hKN BNormal
+      have := inright_notinleftIff.mp hKN BNormal
       assumption
       assumption

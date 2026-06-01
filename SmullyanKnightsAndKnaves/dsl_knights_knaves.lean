@@ -37,17 +37,27 @@ axiom Said : Islander → Prop → Prop
 /-
 the following 4 axioms can be proven from the previous ones...
 -/
+
+macro_rules
+| `(tactic| contradiction) => 
+  do `(tactic |solve  | ( apply not_isKnight_and_isKnave ; constructor ; assumption ; assumption   ) )
+
 theorem isKnight_notisKnave {A : Islander} : A.isKnight → ¬A.isKnave := by
-  intro AKnight 
-  intro AKnave
-  apply not_isKnight_and_isKnave
-  constructor
-  assumption ; assumption
-axiom isKnave_notisKnight {A : Islander} : A.isKnave → ¬A.isKnight
-axiom isKnight_notisKnaveIff {A : Islander} : A.isKnight ↔ ¬A.isKnave
-axiom notisKnight_isKnave {A : Islander} : ¬A.isKnight → A.isKnave
-axiom notisKnave_isKnight {A : Islander} : ¬A.isKnave → A.isKnight
-axiom isKnave_notisKnightIff {A : Islander} : A.isKnave ↔ ¬A.isKnight
+  intro AKnight  AKnave
+  contradiction
+theorem isKnave_notisKnight {A : Islander} : A.isKnave → ¬A.isKnight := by
+  intro h ha ; contradiction
+theorem notisKnight_isKnave {A : Islander} : ¬A.isKnight → A.isKnave := by
+  intro h
+  exact Or.resolve_left (isKnight_or_isKnave A) h
+theorem notisKnave_isKnight {A : Islander} : ¬A.isKnave → A.isKnight := by
+  intro h
+  exact Or.resolve_right (isKnight_or_isKnave A) h
+
+theorem isKnight_notisKnaveIff {A : Islander} : A.isKnight ↔ ¬A.isKnave := by
+  exact ⟨isKnight_notisKnave , notisKnave_isKnight⟩ 
+theorem isKnave_notisKnightIff {A : Islander} : A.isKnave ↔ ¬A.isKnight := by
+  exact ⟨isKnave_notisKnight , notisKnight_isKnave⟩ 
 
 --------------
 -- number affects where brackets will be needed
@@ -61,8 +71,7 @@ axiom knave_said {A : Islander} {P : Prop} : (A said P) →  A.isKnave → ¬P
 
 axiom notknight_said {A : Islander} {P : Prop} : (A said P) → ¬A.isKnight → ¬P
 theorem said_knave {A : Islander} {P : Prop} : A said P →  ¬P → A.isKnave := by 
-  intro AsaidP
-  intro nP
+  intro AsaidP nP
   apply notisKnight_isKnave 
   intro AKnight 
   have hP := knight_said AsaidP AKnight
@@ -95,12 +104,6 @@ macro "knave_to_knight" "at" t1:Lean.Parser.Tactic.locationHyp : tactic =>
 do`(tactic| simp only [isKnave_notisKnightIff,not_not] at $t1)
 
 -- tell the user to use this instead of explaining stuff... this custom tactic hides not_isKnight_and_isKnave from the user and makes it so that the user doesn't need to interface with that directly.
---macro "contra_knight_knave" : tactic =>
---  `(tactic | (repeat (solve | apply not_isKnight_and_isKnave ; constructor ; assumption ; assumption ) ))
---
-
---macro "contra_knight_knave" : tactic =>
---  `(tactic | ( apply not_isKnight_and_isKnave ; constructor ; assumption ; assumption   ))
 
 -- this creates a new macro contradiction, and extends the behavior of the contradiction tactic. but when seeing docstring, you don't get that its contradiction tactic
 --macro "contradiction" : tactic =>
@@ -113,21 +116,13 @@ do`(tactic| simp only [isKnave_notisKnightIff,not_not] at $t1)
 --  `(tactic |  (solve | apply not_isKnight_and_isKnave | apply And.intro | assumption | assumption ) )
 
 -- this truly extends contradiction tactic, preserving doc string
-macro_rules
-| `(tactic| contradiction) => 
-  do `(tactic |solve  | ( apply not_isKnight_and_isKnave ; constructor ; assumption ; assumption   ) )
 --solve | contradiction ; contradict)
 
 theorem knave_said2 {A : Islander} {P : Prop} : A said P → A.isKnave → ¬ P := by 
-  intro AP
-  intro AKnave
-  intro hP
+  intro AP AKnave hP
   have AKnight := said_knight AP hP
-
   contradiction
-  --apply not_isKnight_and_isKnave
-  --constructor <;>
-  --assumption
+
 example {P : Prop} {hP : P} {hnP : ¬P} : False := by 
   contradiction
 end tactics
@@ -176,9 +171,8 @@ example {A B : Islander} (hAB : A said (A.isKnave or B.isKnave)) : A.isKnight an
     sorry
     --tauto
 
-open Islander
-theorem dsl_iamknave {A : Islander} (hAKn : A said A.isKnave): False := by 
-  knight_or_knave A with hA hnA 
+theorem dsl_iamknave {A : Islander} (hAKn : A said A.isKnave): False := by
+  knight_or_knave A with hA hnA
   · have hnA := knight_said hAKn hA
     --#check not_isKnight_and_isKnave
     apply @not_isKnight_and_isKnave A

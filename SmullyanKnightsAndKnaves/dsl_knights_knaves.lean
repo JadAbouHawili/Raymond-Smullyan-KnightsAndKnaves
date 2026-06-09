@@ -1,4 +1,3 @@
---import Mathlib.Tactic
 import Mathlib.Tactic.ApplyAt
 import Mathlib.Tactic.ApplyFun
 import Lean.Parser.Tactic
@@ -13,7 +12,6 @@ import Mathlib.Data.Multiset.Basic
 import Mathlib.Tactic.Have
 
 import SmullyanKnightsAndKnaves.logic
---import SmullyanKnightsAndKnaves.settheory
 
 -- hide all this from the user
 
@@ -34,19 +32,6 @@ axiom not_isKnight_and_isKnave (A : Islander) : ¬ (A.isKnight ∧ A.isKnave)
 
 axiom Said : Islander → Prop → Prop
 
-/-
-the following 4 axioms can be proven from the previous ones...
--/
-
-macro_rules
-| `(tactic| contradiction) => 
-  do `(tactic |solve  | ( apply not_isKnight_and_isKnave ; constructor ; assumption ; assumption   ) )
-
-theorem isKnight_notisKnave {A : Islander} : A.isKnight → ¬A.isKnave := by
-  intro AKnight  AKnave
-  contradiction
-theorem isKnave_notisKnight {A : Islander} : A.isKnave → ¬A.isKnight := by
-  intro h ha ; contradiction
 theorem notisKnight_isKnave {A : Islander} : ¬A.isKnight → A.isKnave := by
   intro h
   exact Or.resolve_left (isKnight_or_isKnave A) h
@@ -54,10 +39,20 @@ theorem notisKnave_isKnight {A : Islander} : ¬A.isKnave → A.isKnight := by
   intro h
   exact Or.resolve_right (isKnight_or_isKnave A) h
 
+macro_rules
+| `(tactic| contradiction) => 
+  do `(tactic |solve  | (exfalso ; apply not_isKnight_and_isKnave ; constructor ; assumption ; assumption   ) )
+
+theorem isKnight_notisKnave {A : Islander} : A.isKnight → ¬A.isKnave := by
+  intro AKnight  AKnave
+  contradiction
+theorem isKnave_notisKnight {A : Islander} : A.isKnave → ¬A.isKnight := by
+  intro h ha ; contradiction
+
 theorem isKnight_notisKnaveIff {A : Islander} : A.isKnight ↔ ¬A.isKnave := by
   exact ⟨isKnight_notisKnave , notisKnave_isKnight⟩ 
 theorem isKnave_notisKnightIff {A : Islander} : A.isKnave ↔ ¬A.isKnight := by
-  exact ⟨isKnave_notisKnight , notisKnight_isKnave⟩ 
+  exact ⟨isKnave_notisKnight , notisKnight_isKnave⟩
 
 --------------
 -- number affects where brackets will be needed
@@ -67,13 +62,19 @@ infixr:30 " or  "  => Or
 
 axiom knight_said {A : Islander} {P : Prop} : (A said P) → A.isKnight → P
 axiom said_knight {A : Islander} {P : Prop} : (A said P) →  P → A.isKnight 
-axiom knave_said {A : Islander} {P : Prop} : (A said P) →  A.isKnave → ¬P
 
-axiom notknight_said {A : Islander} {P : Prop} : (A said P) → ¬A.isKnight → ¬P
+theorem knave_said {A : Islander} {P : Prop} : (A said P) →  A.isKnave → ¬P := by
+  intro AsaidP AKnave hP
+  have := said_knight AsaidP hP
+  contradiction
+theorem notknight_said {A : Islander} {P : Prop} : (A said P) → ¬A.isKnight → ¬P := by
+  intro h h' hP
+  have := said_knight h hP
+  contradiction
 theorem said_knave {A : Islander} {P : Prop} : A said P →  ¬P → A.isKnave := by 
   intro AsaidP nP
   apply notisKnight_isKnave 
-  intro AKnight 
+  intro AKnight
   have hP := knight_said AsaidP AKnight
   contradiction
 
@@ -97,34 +98,13 @@ do`(tactic| simp [isKnight_notisKnaveIff] at $t1)
 -- *
 macro "knave_to_knight" "at" t1:Lean.Parser.Tactic.locationWildcard : tactic => 
 do`(tactic| simp [isKnave_notisKnightIff] at $t1)
+--goal
 macro "knave_to_knight" : tactic =>
 do`(tactic| simp [isKnave_notisKnightIff])
 -- hypothesis
 macro "knave_to_knight" "at" t1:Lean.Parser.Tactic.locationHyp : tactic =>
 do`(tactic| simp only [isKnave_notisKnightIff,not_not] at $t1)
 
--- tell the user to use this instead of explaining stuff... this custom tactic hides not_isKnight_and_isKnave from the user and makes it so that the user doesn't need to interface with that directly.
-
--- this creates a new macro contradiction, and extends the behavior of the contradiction tactic. but when seeing docstring, you don't get that its contradiction tactic
---macro "contradiction" : tactic =>
---  `(
---  tactic | first | 
---  ( apply not_isKnight_and_isKnave ; constructor ; assumption ; assumption   ) | contradiction
---  )
-
---macro "contradict2" : tactic =>
---  `(tactic |  (solve | apply not_isKnight_and_isKnave | apply And.intro | assumption | assumption ) )
-
--- this truly extends contradiction tactic, preserving doc string
---solve | contradiction ; contradict)
-
-theorem knave_said2 {A : Islander} {P : Prop} : A said P → A.isKnave → ¬ P := by 
-  intro AP AKnave hP
-  have AKnight := said_knight AP hP
-  contradiction
-
-example {P : Prop} {hP : P} {hnP : ¬P} : False := by 
-  contradiction
 end tactics
 
 def allKnights {A B C : Islander}:= A.isKnight ∧ B.isKnight ∧ C.isKnight
@@ -135,46 +115,15 @@ end Islander
 
 open Islander
 
--- Easy example
 /-
 A is a knight. A says that B is a knave. Prove that B is a knave.
 -/
 example {A B : Islander} (hA : A.isKnight) (hAB : A said B.isKnave) : B.isKnave := by
   exact knight_said hAB hA
 
-example {P : Prop} (h : P) (h' : ¬P) : 2=2 := by 
-  contradiction
-/-
-A : I am a Knave or B is a Knave.
--/
-example {A B : Islander} (hAB : A said (A.isKnave or B.isKnave)) : A.isKnight and B.isKnave := by
-  --have AnKnave : ¬IsKnave A
-  --intro AKnave
-  --have Or := knave_said hAB AKnave
-  --rw [not_or] at Or
-  --exact Or.left AKnave
-
-  --have AKnight := notisKnave_isKnight A AnKnave
-  --have Or := knight_said hAB AKnight
-  --simp [AnKnave] at Or
-  --exact And.intro AKnight Or
-  --apply isKnight_notisKnave
-  --intro IsKnight
-  --have 
-  knight_or_knave A with hA hA
-
-  --obtain hA | hA := A.isKnight_or_isKnave
-  · obtain hA' | hB := knight_said hAB hA
-    · exact (not_isKnight_and_isKnave A ⟨hA, hA'⟩).elim
-    · exact ⟨hA, hB⟩
-  · have := knave_said hAB hA
-    sorry
-    --tauto
-
 theorem dsl_iamknave {A : Islander} (hAKn : A said A.isKnave): False := by
   knight_or_knave A with hA hnA
   · have hnA := knight_said hAKn hA
-    --#check not_isKnight_and_isKnave
     apply @not_isKnight_and_isKnave A
     constructor
     assumption ; assumption

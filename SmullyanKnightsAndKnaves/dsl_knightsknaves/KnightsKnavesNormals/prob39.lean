@@ -73,11 +73,10 @@ example
     have BnNormal : B ∉ Normal := by
     {
       #check One
-      exact full ANormal OneNormal AneB
-
-      --by_contra BNormal
-      --have AeqB:= by exact card_eq OneNormal  ANormal BNormal
-      --contradiction
+      intro a
+      rw [Finset.card_eq_one] at OneNormal
+      obtain ⟨k,hk⟩ := OneNormal 
+      aesop
     }
 
     have BKnight := notleft_right (Or.symm BKnightNormal) BnNormal
@@ -86,16 +85,28 @@ example
     have CKnave : C ∈ Knave := by {
       rcases h3 with CKnight|CKnaveNormal
       ·
-        have BeqC := card_eq OneKnight BKnight CKnight
+        have BeqC : B = C := by
+          rw [Finset.card_eq_one] at OneKnight
+          obtain ⟨k,hk⟩ := OneKnight 
+          aesop
         contradiction
       · rcases CKnaveNormal with CKnave|CNormal
         · assumption
-        · have AeqC := card_eq OneNormal ANormal CNormal
-          contradiction 
+        · 
+
+          have BeqC : A = C := by
+            rw [Finset.card_eq_one] at OneNormal
+            obtain ⟨k,hk⟩ := OneNormal 
+            aesop
+          contradiction
     }
 
     have CNormal := stCn CKnave
-    have AeqC := card_eq OneNormal ANormal CNormal
+
+    have AeqC : A = C := by
+            rw [Finset.card_eq_one] at OneNormal
+            obtain ⟨k,hk⟩ := OneNormal 
+            aesop
     contradiction
   }
   have AKnave : A ∈ Knave := by
@@ -106,57 +117,18 @@ example
   }
   have BnKnight :=  Function.mt stB AnNormal
 
-  have BnKnave := full AKnave OneKnave AneB
+  have BnKnave : B ∉ Knave
+  intro BKnave
+  rw [Finset.card_eq_one] at OneKnave
+  obtain ⟨k,hk⟩ := OneKnave 
+  aesop
 
-  --have := notleft_right h2 BnKnight 
-  --have BNormal := notleft_right this BnKnave
- -- have BNormal := NotKnightKnave_Normal h2 BnKnight BnKnave
-   
+  have CnKnave : C ∉ Knave
+  intro BKnave
+  rw [Finset.card_eq_one] at OneKnave
+  obtain ⟨k,hk⟩ := OneKnave 
+  aesop
 
-  -- now C is a knight by a similar reasoning... it is the only option left...
-  -- A Knave , B Normal
-  have CnKnave := full AKnave OneKnave  AneC
-  --have CnNormal := full  BNormal  OneNormal BneC
- -- have := NotKnave_KnightNormal hKKn hKN hKnN  h3 CnKnave
-
-
- -- need to re-solve
   sorry
-  --have CKnight := NotKnaveNormal_Knight h3 CnKnave CnNormal
-  --constructor
-  --· assumption
-  --· constructor
-  --  · assumption
-  --  · assumption
 
-
-example 
-  {K : Type}
-  [inst : DecidableEq K]
-  (A B C : K)
-  (AneB : A ≠ B)
-  (BneC : B ≠ C)
-  (AneC : A ≠ C)
-  (Knight : Finset K ) 
-  (Knave : Finset K)
-  {Normal : Finset K}
-{OneKnight :  Knight.card =1 }
-{OneKnave : Knave.card =1 }
-{OneNormal : Normal.card =1 }
-
-{hKKn : Knight ∩ Knave = ∅ }
-{hKN : Knight ∩ Normal = ∅ }
-{hKnN : Knave ∩ Normal = ∅ }
-{h1 : A ∈ Knight ∨ A ∈ Knave ∨ A ∈ Normal }
-{h2 : B ∈ Knight ∨ B ∈ Knave ∨ B ∈ Normal }
-{h3 : C ∈ Knight ∨ C ∈ Knave ∨ C ∈ Normal}
-{stA : A ∈ Knight → (A ∈ Normal) }
-{stAn : A ∈ Knave → ¬ (A ∈ Normal) }
-{stB : B ∈ Knight → (A ∈ Normal)}
-{stBn : B ∈ Knave → ¬(A ∈ Normal)}
-{stC : C ∈ Knight → C ∉ Normal}
-{stCn : C ∈ Knave → C ∈ Normal}
-: A ∈ Knave ∧ B ∈ Normal ∧ C ∈ Knight := by
-  sorry
-#check Membership
 #check Set.mem_toFinset

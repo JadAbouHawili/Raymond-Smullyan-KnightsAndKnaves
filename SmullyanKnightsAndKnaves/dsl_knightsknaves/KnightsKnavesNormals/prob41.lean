@@ -8,20 +8,9 @@ variable { K : Type} {A B C : K}
 
 example 
   {inst : DecidableEq K}
---  (A B C : K)
---  (AneB : A ≠ B)
   (Knight : Finset K ) 
   (Knave : Finset K)
   {Normal : Finset K}
---{hK : Finset Knight}
---{hKn : Finset Knave}
---{hN : Finset Normal}
---{finKnight : Fintype Knight}
---{finKnave : Fintype Knave}
---{finNormal : Fintype Normal}
---{OneKnight : Finset.card ( Knight) =1 }
---{OneKnave : Finset.card Knave =1 }
---{OneNormal : Finset.card Normal =1 }
 
 {hKKn : Knight ∩ Knave = ∅ }
 {hKN : Knight ∩ Normal = ∅ }
@@ -33,6 +22,11 @@ example
 {stB : B ∈ Knight → (A ∈ Knave)}
 {stBn : B ∈ Knave → ¬(A ∈ Knave)}
 : ((A ∉ Knight ∧ B ∈ Knight) ∨ (B ∉ Knight ∧ A ∈ Knave)) ∨ ((A ∉ Knave ∧ B ∉ Knight) ∨ (B ∉ Knave ∧ A ∉ Knave)) := by 
+
+/-
+A: B is a knight. 
+B: A is a knave, 
+-/
 -- the goal is :
 -- Prove that either one of them is telling the truth but is not a 
 --knight, or one of them is lying but is not a knave. 
@@ -42,14 +36,11 @@ example
     trans
     assumption
     assumption
-    --intro Bknight
-    --exact  stAn (stB Bknight)
-  -- this gives us AnKnight
   have AKKn :=  stB ∘ stA
   have AnKnight :  A ∉ Knight := by 
     intro AKnight
     have AKnave := AKKn AKnight
-    exact disjoint hKKn AKnight AKnave
+    exact disjoint_finset hKKn AKnight AKnave
 
   have BnKnight : B ∉ Knight := by 
     intro h
@@ -84,7 +75,7 @@ example
           constructor
             
           · 
-            have := inright_notinleft hKnN ANormal
+            have := inright_notinleft_finset hKnN ANormal
             assumption
           · assumption
         · right
@@ -92,7 +83,7 @@ example
           constructor
             
           · 
-            have := inright_notinleft hKnN ANormal
+            have := inright_notinleft_finset hKnN ANormal
             assumption
           · assumption
   
